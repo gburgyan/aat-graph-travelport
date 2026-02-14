@@ -1,38 +1,47 @@
 version: "1.0.0"
+title: "Travelport+ Air v11 API"
+description: |
+  Comprehensive AAT graph for the Travelport+ JSON Air v11 API surface.
+  Models the full air booking lifecycle including search, pricing, reservation
+  management, ticketing, exchanges, ancillary/seat services, and traveler
+  modification workflows.
 
-# Travelport+ Air v11 API Graph
-#
-# This graph models the Travelport JSON Air v11 API surface.
-# Two primary booking flows are supported:
-#   1. Reference-Based: search -> price (ref) -> workbench -> add offer (ref) -> traveler -> FOP -> payment -> commit
-#   2. Full-Payload:    search -> price (full) -> workbench -> add offer (full) -> traveler -> FOP -> payment -> commit
-#
-# Additionally, optional flows include:
-#   - Multi-leg search (BuildNext)
-#   - Upsell search (BuildOptions)
-#   - Ancillary search and booking
-#   - Seat map and seat selection
-#   - Fare rules lookup
-#   - Post-commit ticketing
-#   - Exchange eligibility and exchange search
-#   - Full exchange workflow (modify, FOP, payment, document overrides, reissue)
-#   - Reservation remarks and accounting
-#   - Reservation retrieval, cancellation, and void
-#
-# Exchange flow:
-#   getExchangeEligibility -> createWorkbenchFromLocator -> searchExchange
-#   -> addExchangeOffer -> FOP(s) -> addPayment -> addDocumentOverrides
-#   -> commitExchangeTicket
-#
-# REMARKS:
-#   - The price request body for the reference flow is dynamically constructed from search response
-#     identifiers (CatalogProductOfferingsIdentifier + CatalogProductOfferingSelection). The template
-#     uses a pre-built JSON reference approach. In a real test, the plan would construct these from
-#     search response element fields.
-#   - The workbench add-offer step reuses the same schema as pricing (OfferQueryBuildFromCatalogProductOfferings).
-#   - Form of Payment has many subtypes (Cash, PaymentCard, BSP, etc.). Templates cover Cash and CreditCard.
-#   - Payment requires offer identifier + FOP identifier from the workbench state.
-#   - Exchange flow is GDS-only; no NDC exchange operations exist in the API.
+workflows:
+  - name: Reference-Based Booking
+    description: "Standard GDS booking flow using identifier references"
+    steps: [searchFlights, priceOfferReference, createWorkbench, addOfferReference, addTraveler, addFormOfPaymentCash, addPayment, commitReservation]
+  - name: Full-Payload Booking
+    description: "Alternative flow sending complete trip details instead of references"
+    steps: [searchFlights, priceOfferFullPayload, createWorkbench, addOfferFullPayload, addTraveler, addFormOfPaymentCard, addPayment, commitReservation]
+  - name: Post-Commit Ticketing
+    description: "Separate ticketing after a held booking"
+    steps: [commitReservation, createWorkbenchFromLocator, addFormOfPaymentCash, addPayment, commitTicket]
+  - name: Exchange
+    description: "Full exchange workflow: eligibility check, search, offer, FOP, document overrides, reissue"
+    steps: [getExchangeEligibility, createWorkbenchFromLocator, searchExchange, addExchangeOffer, addFormOfPaymentForfeit, addPayment, addDocumentOverrides, commitExchangeTicket]
+  - name: Ancillary Booking
+    description: "Search and add ancillary services (bags, meals, etc.)"
+    steps: [searchAncillaries, addAncillaryOffer]
+  - name: Seat Selection
+    description: "Search seat map and add seat offer"
+    steps: [searchSeatMap, addSeatOffer]
+  - name: Traveler Modification
+    description: "Two-step traveler update: discover updatable fields, then apply changes"
+    steps: [getUpdatableTravelerItems, updateTraveler]
+
+notes: |
+  Key identifier patterns:
+  - `id`: Local, intra-message scope (e.g., CatalogProductOffering.id)
+  - `*Ref` fields: Cross-reference within a message (e.g., productRef)
+  - `Identifier.value`: Globally unique GUID that persists across API calls
+  Graph edges use Identifier.value for cross-node data flow.
+
+  Design notes:
+  - Reference vs full-payload flows differ only in how pricing/offer data is sent
+  - Workbench cleanup (ignoreWorkbench) is set on nodes that create workbenches
+  - Exchange flow is GDS-only; no NDC exchange operations exist
+  - Form of Payment has many subtypes; graph covers Cash, Card, Forfeit, Waiver, Invoice
+  - Templates default to GDS content; NDC may require different request structures
 
 nodes:
   # ============================================================
@@ -41,6 +50,7 @@ nodes:
   searchFlights:
     description: "Search for air catalog product offerings (flights). This is step 1 in all booking flows."
     adapter: searchFlights
+    tags: [search]
     inputs:
       - name: origin
         type: string
@@ -112,6 +122,7 @@ nodes:
   searchFlightsNextLeg:
     description: "Search for flights on the next leg of a multi-leg itinerary (e.g., return flight)."
     adapter: searchFlightsNextLeg
+    tags: [search]
     inputs:
       - name: catalogProductOfferingsId
         type: string
@@ -148,6 +159,7 @@ nodes:
   searchUpsells:
     description: "Return all upsell options for a specific flight offering."
     adapter: searchUpsells
+    tags: [search, pricing]
     inputs:
       - name: catalogProductOfferingsId
         type: string
@@ -177,6 +189,7 @@ nodes:
   priceOfferReference:
     description: "Price a flight offer using reference payload (references search results by identifier)."
     adapter: priceOfferReference
+    tags: [pricing]
     inputs:
       - name: catalogProductOfferingsId
         type: string
@@ -219,6 +232,7 @@ nodes:
   priceOfferFullPayload:
     description: "Price a flight offer using full payload (sends complete trip details)."
     adapter: priceOfferFullPayload
+    tags: [pricing]
     inputs:
       - name: catalogProductOfferingsId
         type: string
@@ -253,6 +267,7 @@ nodes:
   createWorkbench:
     description: "Create a new reservation workbench (booking session). Required before adding offers, travelers, etc."
     adapter: createWorkbench
+    tags: [workbench]
     inputs: []
     outputs:
       - name: workbenchId
@@ -264,6 +279,7 @@ nodes:
   createWorkbenchFromLocator:
     description: "Create a workbench from an existing reservation (by PNR locator). Used for post-commit operations like ticketing."
     adapter: createWorkbenchFromLocator
+    tags: [workbench]
     inputs:
       - name: locator
         type: string
@@ -290,6 +306,7 @@ nodes:
   ignoreWorkbench:
     description: "Discard the workbench and any uncommitted changes. Cleanup operation."
     adapter: ignoreWorkbench
+    tags: [workbench, management]
     inputs:
       - name: workbenchId
         type: string
@@ -299,6 +316,7 @@ nodes:
   retrieveWorkbench:
     description: "Retrieve the current state of a reservation workbench."
     adapter: retrieveWorkbench
+    tags: [workbench, management]
     inputs:
       - name: workbenchId
         type: string
@@ -329,6 +347,7 @@ nodes:
   addOfferReference:
     description: "Add a priced offer to the workbench using reference payload."
     adapter: addOfferReference
+    tags: [offer]
     inputs:
       - name: workbenchId
         type: string
@@ -371,6 +390,7 @@ nodes:
   addOfferFullPayload:
     description: "Add a priced offer to the workbench using full payload."
     adapter: addOfferFullPayload
+    tags: [offer]
     inputs:
       - name: workbenchId
         type: string
@@ -416,6 +436,7 @@ nodes:
   addTraveler:
     description: "Add a traveler to the reservation workbench. Each traveler must be added in a separate request."
     adapter: addTraveler
+    tags: [traveler]
     inputs:
       - name: workbenchId
         type: string
@@ -465,6 +486,7 @@ nodes:
   addPrimaryContact:
     description: "Add a primary contact (email/phone) to the reservation workbench."
     adapter: addPrimaryContact
+    tags: [traveler]
     inputs:
       - name: workbenchId
         type: string
@@ -496,6 +518,7 @@ nodes:
   addFormOfPaymentCash:
     description: "Add cash as the form of payment."
     adapter: addFormOfPaymentCash
+    tags: [payment]
     inputs:
       - name: workbenchId
         type: string
@@ -513,6 +536,7 @@ nodes:
   addFormOfPaymentCard:
     description: "Add a credit card as the form of payment."
     adapter: addFormOfPaymentCard
+    tags: [payment]
     inputs:
       - name: workbenchId
         type: string
@@ -551,6 +575,7 @@ nodes:
   addPayment:
     description: "Apply payment to the offer in the workbench. Must be done after AddFormOfPayment."
     adapter: addPayment
+    tags: [payment]
     inputs:
       - name: workbenchId
         type: string
@@ -587,6 +612,7 @@ nodes:
   commitReservation:
     description: "Commit the workbench to create a held booking (PNR). If payment was added, this also tickets the itinerary."
     adapter: commitReservation
+    tags: [commit]
     inputs:
       - name: workbenchId
         type: string
@@ -611,6 +637,7 @@ nodes:
   retrieveReservation:
     description: "Retrieve a reservation by its identifier or PNR locator."
     adapter: retrieveReservation
+    tags: [management]
     inputs:
       - name: identifier
         type: string
@@ -643,6 +670,7 @@ nodes:
   cancelOffer:
     description: "Cancel an offer within an existing reservation."
     adapter: cancelOffer
+    tags: [management]
     inputs:
       - name: reservationIdentifier
         type: string
@@ -662,6 +690,7 @@ nodes:
   commitTicket:
     description: "Commit reservation workbench with ticket issuance. Used post-commit when ticketing separately."
     adapter: commitTicket
+    tags: [ticketing, commit]
     inputs:
       - name: workbenchId
         type: string
@@ -679,6 +708,7 @@ nodes:
   getTicketByLocator:
     description: "Retrieve tickets associated with a PNR locator."
     adapter: getTicketByLocator
+    tags: [ticketing]
     inputs:
       - name: locator
         type: string
@@ -702,6 +732,7 @@ nodes:
   voidTicket:
     description: "Void a ticket (GDS only)."
     adapter: voidTicket
+    tags: [ticketing]
     inputs:
       - name: ticketIdentifier
         type: string
@@ -718,6 +749,7 @@ nodes:
   searchAncillaries:
     description: "Search for available ancillaries (bags, meals, etc.) for a reservation in a workbench."
     adapter: searchAncillaries
+    tags: [ancillary, search]
     inputs:
       - name: workbenchId
         type: string
@@ -751,6 +783,7 @@ nodes:
   searchSeatMap:
     description: "Request seat availability (seat map) for flights in the workbench."
     adapter: searchSeatMap
+    tags: [seat, search]
     inputs:
       - name: workbenchId
         type: string
@@ -784,6 +817,7 @@ nodes:
   getFareRulesFromSearch:
     description: "Get fare rules by reference to search (CatalogProductOfferings) results."
     adapter: getFareRulesFromSearch
+    tags: [fare-rules]
     inputs:
       - name: catalogProductOfferingsId
         type: string
@@ -803,6 +837,7 @@ nodes:
   getFareRulesFromOffer:
     description: "Get fare rules by reference to a priced offer."
     adapter: getFareRulesFromOffer
+    tags: [fare-rules]
     inputs:
       - name: offerIdentifierValue
         type: string
@@ -819,6 +854,7 @@ nodes:
   getExchangeEligibility:
     description: "Check if tickets on a reservation are eligible for exchange (by PNR locator)."
     adapter: getExchangeEligibility
+    tags: [exchange]
     inputs:
       - name: locator
         type: string
@@ -839,6 +875,7 @@ nodes:
   getExchangeEligibilityByTicket:
     description: "Check if a specific ticket is eligible for exchange (by ticket number)."
     adapter: getExchangeEligibilityByTicket
+    tags: [exchange]
     inputs:
       - name: ticketNumber
         type: string
@@ -859,6 +896,7 @@ nodes:
   searchExchange:
     description: "Search for flights to exchange existing tickets."
     adapter: searchExchange
+    tags: [exchange, search]
     inputs:
       - name: reservationIdentifier
         type: string
@@ -898,6 +936,7 @@ nodes:
   addExchangeOffer:
     description: "Add an exchange offer to the workbench (build from catalog offerings). This replaces the original offer with the new exchange offer."
     adapter: addExchangeOffer
+    tags: [exchange, offer]
     inputs:
       - name: workbenchId
         type: string
@@ -938,6 +977,7 @@ nodes:
   commitExchangeTicket:
     description: "Commit the exchange and issue new tickets (payLaterInd=false)."
     adapter: commitExchangeTicket
+    tags: [exchange, ticketing, commit]
     inputs:
       - name: workbenchId
         type: string
@@ -962,6 +1002,7 @@ nodes:
   addFormOfPaymentForfeit:
     description: "Add forfeit as form of payment (penalty amount forfeited by passenger)."
     adapter: addFormOfPaymentForfeit
+    tags: [payment, exchange]
     inputs:
       - name: workbenchId
         type: string
@@ -979,6 +1020,7 @@ nodes:
   addFormOfPaymentWaiver:
     description: "Add a waiver code as form of payment (airline-issued disruption waiver)."
     adapter: addFormOfPaymentWaiver
+    tags: [payment, exchange]
     inputs:
       - name: workbenchId
         type: string
@@ -999,6 +1041,7 @@ nodes:
   addFormOfPaymentInvoice:
     description: "Add an agent invoice as form of payment."
     adapter: addFormOfPaymentInvoice
+    tags: [payment]
     inputs:
       - name: workbenchId
         type: string
@@ -1022,6 +1065,7 @@ nodes:
   addDocumentOverrides:
     description: "Add document overrides (commissions, restrictions, tour codes, change fee method) for exchange ticketing."
     adapter: addDocumentOverrides
+    tags: [exchange, ticketing]
     inputs:
       - name: workbenchId
         type: string
@@ -1062,6 +1106,7 @@ nodes:
   addReservationComment:
     description: "Add a reservation comment/remark (general, notepad, historical, vendor, etc.)."
     adapter: addReservationComment
+    tags: [remarks]
     inputs:
       - name: workbenchId
         type: string
@@ -1085,6 +1130,7 @@ nodes:
   deleteReservationComment:
     description: "Delete a specific comment from a reservation comment entry."
     adapter: deleteReservationComment
+    tags: [remarks]
     inputs:
       - name: workbenchId
         type: string
@@ -1100,6 +1146,7 @@ nodes:
   addAccountingRemark:
     description: "Add an accounting remark to the reservation."
     adapter: addAccountingRemark
+    tags: [remarks]
     inputs:
       - name: workbenchId
         type: string
@@ -1123,6 +1170,7 @@ nodes:
   deleteAccountingRemark:
     description: "Delete a specific name-value pair from an accounting entry."
     adapter: deleteAccountingRemark
+    tags: [remarks]
     inputs:
       - name: workbenchId
         type: string
@@ -1141,6 +1189,7 @@ nodes:
   addSpecialService:
     description: "Add special service requests (SSRs) like wheelchair, meal preference, etc."
     adapter: addSpecialService
+    tags: [traveler]
     inputs:
       - name: workbenchId
         type: string
@@ -1164,6 +1213,7 @@ nodes:
   placeOnQueue:
     description: "Move a reservation to a specified queue."
     adapter: placeOnQueue
+    tags: [queue, management]
     inputs:
       - name: reservationIdentifier
         type: string
@@ -1183,6 +1233,7 @@ nodes:
   addAncillaryOffer:
     description: "Add an ancillary offer (bags, meals, etc.) to the workbench from catalog offerings."
     adapter: addAncillaryOffer
+    tags: [ancillary, offer]
     inputs:
       - name: workbenchId
         type: string
@@ -1212,6 +1263,7 @@ nodes:
   addSeatOffer:
     description: "Add a seat offer to the workbench from seat map catalog offerings."
     adapter: addSeatOffer
+    tags: [seat, offer]
     inputs:
       - name: workbenchId
         type: string
@@ -1244,6 +1296,7 @@ nodes:
   deleteSpecialService:
     description: "Delete a special service request from the workbench."
     adapter: deleteSpecialService
+    tags: [traveler]
     inputs:
       - name: workbenchId
         type: string
@@ -1256,6 +1309,7 @@ nodes:
   deletePrimaryContact:
     description: "Delete a primary contact from the workbench."
     adapter: deletePrimaryContact
+    tags: [traveler]
     inputs:
       - name: workbenchId
         type: string
@@ -1268,6 +1322,7 @@ nodes:
   cancelWorkbenchOffer:
     description: "Cancel an ancillary or seat offer from the workbench (pre-commit). Different from cancelOffer which operates on committed reservations."
     adapter: cancelWorkbenchOffer
+    tags: [management]
     inputs:
       - name: workbenchId
         type: string
@@ -1283,6 +1338,7 @@ nodes:
   getTicketDetails:
     description: "Display details of a specific ticket by ticket number."
     adapter: getTicketDetails
+    tags: [ticketing]
     inputs:
       - name: ticketNumber
         type: string
@@ -1304,6 +1360,7 @@ nodes:
   getReceiptIndex:
     description: "List all tickets/receipts for a PNR (receipt/document view)."
     adapter: getReceiptIndex
+    tags: [ticketing]
     inputs:
       - name: locator
         type: string
@@ -1320,6 +1377,7 @@ nodes:
   cancelReservation:
     description: "Cancel an entire PNR reservation (with receipt). Different from cancelOffer which only cancels one offer."
     adapter: cancelReservation
+    tags: [management]
     inputs:
       - name: locator
         type: string
@@ -1332,6 +1390,7 @@ nodes:
   getFareRulesFromReservation:
     description: "Get fare rules from a committed reservation (by PNR locator)."
     adapter: getFareRulesFromReservation
+    tags: [fare-rules]
     inputs:
       - name: locator
         type: string
@@ -1348,6 +1407,7 @@ nodes:
   createWorkbenchFromIdentifier:
     description: "Create a workbench from a ticket/document number instead of PNR locator. Alternative entry point for post-commit operations."
     adapter: createWorkbenchFromIdentifier
+    tags: [workbench]
     inputs:
       - name: ticketNumber
         type: string
@@ -1377,6 +1437,7 @@ nodes:
   getUpdatableTravelerItems:
     description: "Discover which traveler fields can be modified (step 1 of traveler update workflow)."
     adapter: getUpdatableTravelerItems
+    tags: [traveler]
     inputs:
       - name: workbenchId
         type: string
@@ -1393,6 +1454,7 @@ nodes:
   updateTraveler:
     description: "Modify traveler details (email, phone, address, frequent flyer). Step 2 of traveler update workflow."
     adapter: updateTraveler
+    tags: [traveler]
     inputs:
       - name: workbenchId
         type: string
@@ -1418,6 +1480,7 @@ nodes:
   divideReservation:
     description: "Split a multi-traveler PNR into separate reservations."
     adapter: divideReservation
+    tags: [management]
     inputs:
       - name: reservationIdentifierValue
         type: string
@@ -1438,6 +1501,7 @@ nodes:
   addTravelAgency:
     description: "Add travel agency details to the reservation."
     adapter: addTravelAgency
+    tags: [management]
     inputs:
       - name: workbenchId
         type: string
