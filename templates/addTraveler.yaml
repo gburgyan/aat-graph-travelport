@@ -1,0 +1,38 @@
+adapter: addTraveler
+protocol: http
+
+request:
+  method: POST
+  path: /11/air/book/traveler/reservationworkbench/{{workbenchId}}/travelers
+  headers:
+    Content-Type: application/json
+  body: |
+    {
+      "@type": "Traveler",
+      "passengerTypeCode": "{{passengerTypeCode}}",
+      "gender": "{{gender}}",
+      "birthDate": "{{birthDate}}",
+      "PersonName": {
+        "@type": "PersonNameDetail",
+        "Given": "{{givenName}}",
+        "Surname": "{{surname}}"
+      },
+      "Telephone": [
+        {
+          "@type": "Telephone",
+          "countryAccessCode": "{{phoneCountryCode}}",
+          "phoneNumber": "{{phoneNumber}}",
+          "role": "Home"
+        }
+      ],
+      "Email": [
+        {
+          "value": "{{email}}"
+        }
+      ]
+    }
+
+response:
+  extract:
+    travelerIdentifierValue: "TravelerResponse.Traveler.Identifier.value"
+    travelerId: "TravelerResponse.Traveler.id"

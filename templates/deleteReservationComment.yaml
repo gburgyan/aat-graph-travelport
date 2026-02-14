@@ -1,0 +1,12 @@
+adapter: deleteReservationComment
+protocol: http
+
+request:
+  method: POST
+  path: /11/air/book/remarks/reservationworkbench/{{workbenchId}}/reservationcomments/{{reservationCommentId}}/comments?CommentIds={{commentId}}
+  headers:
+    Content-Type: application/json
+    Accept: application/json
+
+response:
+  extract: {}

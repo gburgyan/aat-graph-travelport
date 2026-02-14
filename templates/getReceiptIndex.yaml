@@ -1,0 +1,12 @@
+adapter: getReceiptIndex
+protocol: http
+
+request:
+  method: GET
+  path: /11/air/receipt/reservations/{{locator}}/receipts
+  headers:
+    Accept: application/json
+
+response:
+  extract:
+    receipts: "ReceiptListResponse.Receipt"

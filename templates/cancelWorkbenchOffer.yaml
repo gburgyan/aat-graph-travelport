@@ -1,0 +1,24 @@
+adapter: cancelWorkbenchOffer
+protocol: http
+
+request:
+  method: POST
+  path: /11/air/book/airoffer/reservationworkbench/{{workbenchId}}/offers/canceloffer
+  headers:
+    Content-Type: application/json
+    Accept: application/json
+  body: |
+    {
+      "@type": "OfferQueryCancelOffer",
+      "BuildFromOffer": {
+        "@type": "BuildFromOfferAir",
+        "OfferIdentifier": {
+          "Identifier": {
+            "value": "{{offerIdentifierValue}}"
+          }
+        }
+      }
+    }
+
+response:
+  extract: {}

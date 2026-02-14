@@ -1,0 +1,42 @@
+adapter: addExchangeOffer
+protocol: http
+
+request:
+  method: POST
+  path: /11/air/book/offer/reservationworkbench/{{workbenchId}}/offers/buildfromcatalogofferings
+  headers:
+    Content-Type: application/json
+    Accept: application/json
+  body: |
+    {
+      "OfferQueryBuildFromCatalogOfferings": {
+        "fareRuleType": "TextLong",
+        "lowFareFinderInd": "false",
+        "returnBrandedFaresInd": "false",
+        "reCheckInventoryInd": "false",
+        "BuildFromCatalogOfferingsRequest": {
+          "@type": "BuildFromCatalogOfferingsRequestAir",
+          "CatalogOfferingsIdentifier": {
+            "Identifier": {
+              "value": "{{catalogOfferingsIdentifierValue}}",
+              "authority": "Travelport"
+            }
+          },
+          "CatalogOfferingIdentifier": {
+            "Identifier": {
+              "value": "{{catalogOfferingIdentifierValue}}",
+              "authority": "Travelport"
+            }
+          }
+        }
+      }
+    }
+
+response:
+  extract:
+    workbenchId: "ExchangeOfferListResponse.Identifier.value"
+    offerIdentifierValue: "ExchangeOfferListResponse.Offer.0.Identifier.value"
+    offerId: "ExchangeOfferListResponse.Offer.0.id"
+    offerAuthority: "ExchangeOfferListResponse.Offer.0.Identifier.authority"
+    totalPrice: "ExchangeOfferListResponse.Offer.0.Price.TotalPrice.value"
+    currencyCode: "ExchangeOfferListResponse.Offer.0.Price.TotalPrice.code"

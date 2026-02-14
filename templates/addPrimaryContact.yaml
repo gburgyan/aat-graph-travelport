@@ -1,0 +1,29 @@
+adapter: addPrimaryContact
+protocol: http
+
+request:
+  method: POST
+  path: /11/air/book/primarycontact/reservationworkbench/{{workbenchId}}/primarycontacts
+  headers:
+    Content-Type: application/json
+  body: |
+    {
+      "@type": "PrimaryContact",
+      "Email": {
+        "value": "{{email}}"
+      },
+      "Telephone": {
+        "@type": "Telephone",
+        "countryAccessCode": "{{phoneCountryCode}}",
+        "phoneNumber": "{{phoneNumber}}"
+      },
+      "TravelerIdentifier": {
+        "Identifier": {
+          "value": "{{travelerIdentifierValue}}"
+        }
+      }
+    }
+
+response:
+  extract:
+    primaryContactId: "PrimaryContactResponse.PrimaryContact.id"

@@ -1,0 +1,20 @@
+adapter: getTicketByLocator
+protocol: http
+
+request:
+  method: POST
+  path: /11/air/ticket/tickets/getbylocator
+  headers:
+    Content-Type: application/json
+    Accept: application/json
+  body: |
+    {
+      "@type": "TicketQueryGetByLocator",
+      "Locator": {
+        "value": "{{locator}}"
+      }
+    }
+
+response:
+  extract:
+    tickets: "TicketListResponse.TicketID"

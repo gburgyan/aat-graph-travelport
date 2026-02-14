@@ -1,0 +1,25 @@
+adapter: placeOnQueue
+protocol: http
+
+request:
+  method: POST
+  path: /11/air/queue/queue
+  headers:
+    Content-Type: application/json
+    Accept: application/json
+  body: |
+    {
+      "@type": "AgencyQueueSummary",
+      "ReservationIdentifier": {
+        "Identifier": {
+          "value": "{{reservationIdentifier}}"
+        }
+      },
+      "Queue": [
+        {
+          "value": {{queueNumber}}
+        }
+      ]
+    }
+
+response: {}

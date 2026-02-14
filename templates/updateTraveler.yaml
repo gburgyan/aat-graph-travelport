@@ -1,0 +1,27 @@
+adapter: updateTraveler
+protocol: http
+
+request:
+  method: PUT
+  path: /11/air/book/traveler/reservationworkbench/{{workbenchId}}/travelers/updatefromtravelerupdateditems/{{travelerId}}
+  headers:
+    Content-Type: application/json
+    Accept: application/json
+  body: |
+    {
+      "@type": "TravelerQueryUpdate",
+      "TravelerUpdatedItem": [
+        {
+          "@type": "TravelerUpdatedItemEmail",
+          "modifyInd": true,
+          "TravelerUpdatableItemID": "{{updatableItemId}}",
+          "Email": {
+            "value": "{{updateValue}}"
+          }
+        }
+      ]
+    }
+
+response:
+  extract:
+    travelerIdentifierValue: "TravelerResponse.Traveler.Identifier.value"

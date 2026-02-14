@@ -1,0 +1,22 @@
+adapter: addFormOfPaymentWaiver
+protocol: http
+
+request:
+  method: POST
+  path: /11/air/payment/reservationworkbench/{{workbenchId}}/formofpayment
+  headers:
+    Content-Type: application/json
+    Accept: application/json
+  body: |
+    {
+      "FormOfPaymentWaiverCode": {
+        "WaiverCode": {
+          "value": "{{waiverCode}}"
+        }
+      }
+    }
+
+response:
+  extract:
+    fopIdentifierValue: "FormOfPaymentResponse.FormOfPayment.Identifier.value"
+    fopId: "FormOfPaymentResponse.FormOfPayment.id"

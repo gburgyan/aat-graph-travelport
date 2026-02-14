@@ -1,0 +1,41 @@
+adapter: searchSeatMap
+protocol: http
+
+request:
+  method: POST
+  path: /11/air/search/seat/catalogofferingsancillaries/seatavailabilities
+  headers:
+    Content-Type: application/json
+    Accept: application/json
+  body: |
+    {
+      "@type": "CatalogOfferingsQuerySeatAvailability",
+      "SeatAvailabilityOfferings": {
+        "@type": "SeatAvailabilityOfferingsBuildFromReservationWorkbench",
+        "BuildFromReservationWorkbench": {
+          "@type": "BuildFromReservationWorkbench",
+          "ReservationIdentifier": {
+            "Identifier": {
+              "value": "{{workbenchId}}"
+            }
+          },
+          "OfferIdentifier": {
+            "Identifier": {
+              "value": "{{offerIdentifierValue}}"
+            }
+          },
+          "ProductIdentifier": [
+            {
+              "Identifier": {
+                "value": "{{productIdentifierValue}}"
+              }
+            }
+          ]
+        }
+      }
+    }
+
+response:
+  extract:
+    seatOfferings: "CatalogOfferingsAncillaryListResponse.CatalogOfferingsID"
+    catalogOfferingsIdentifierValue: "CatalogOfferingsAncillaryListResponse.Identifier.value"

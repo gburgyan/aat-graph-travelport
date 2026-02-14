@@ -1,0 +1,17 @@
+adapter: commitTicket
+protocol: http
+
+request:
+  method: POST
+  path: /11/air/book/reservation/reservations/{{workbenchId}}?Issuance=Ticket
+  headers:
+    Content-Type: application/json
+  body: |
+    {
+      "@type": "ReservationQueryCommitReservation"
+    }
+
+response:
+  extract:
+    reservationIdentifierValue: "ReservationResponse.Reservation.Identifier.value"
+    locator: "ReservationResponse.Reservation.Locator.value"

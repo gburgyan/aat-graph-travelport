@@ -1,0 +1,30 @@
+adapter: addTravelAgency
+protocol: http
+
+request:
+  method: POST
+  path: /11/air/ticket/travelagency/reservationworkbench/{{workbenchId}}/travelagency
+  headers:
+    Content-Type: application/json
+    Accept: application/json
+  body: |
+    {
+      "TravelAgencyQueryTravelAgencyWrapper": {
+        "TravelAgencyQueryTravelAgency": {
+          "CorporateCode": "{{corporateCode}}",
+          "Telephone": [
+            {
+              "countryAccessCode": "1",
+              "phoneNumber": "{{phoneNumber}}"
+            }
+          ],
+          "Email": {
+            "value": "{{email}}"
+          }
+        }
+      }
+    }
+
+response:
+  extract:
+    travelAgencyId: "TravelAgencyResponse.TravelAgency.id"

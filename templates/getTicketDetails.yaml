@@ -1,0 +1,14 @@
+adapter: getTicketDetails
+protocol: http
+
+request:
+  method: GET
+  path: /11/air/ticket/tickets/{{ticketNumber}}
+  headers:
+    Accept: application/json
+
+response:
+  extract:
+    ticketNumber: "TicketResponse.Ticket.TicketNumber"
+    ticketStatus: "TicketResponse.Ticket.TicketStatusCode"
+    ticketIdentifierValue: "TicketResponse.Ticket.Identifier.value"

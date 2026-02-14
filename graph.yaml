@@ -1,0 +1,1928 @@
+version: "1.0.0"
+
+# Travelport+ Air v11 API Graph
+#
+# This graph models the Travelport JSON Air v11 API surface.
+# Two primary booking flows are supported:
+#   1. Reference-Based: search -> price (ref) -> workbench -> add offer (ref) -> traveler -> FOP -> payment -> commit
+#   2. Full-Payload:    search -> price (full) -> workbench -> add offer (full) -> traveler -> FOP -> payment -> commit
+#
+# Additionally, optional flows include:
+#   - Multi-leg search (BuildNext)
+#   - Upsell search (BuildOptions)
+#   - Ancillary search and booking
+#   - Seat map and seat selection
+#   - Fare rules lookup
+#   - Post-commit ticketing
+#   - Exchange eligibility and exchange search
+#   - Full exchange workflow (modify, FOP, payment, document overrides, reissue)
+#   - Reservation remarks and accounting
+#   - Reservation retrieval, cancellation, and void
+#
+# Exchange flow:
+#   getExchangeEligibility -> createWorkbenchFromLocator -> searchExchange
+#   -> addExchangeOffer -> FOP(s) -> addPayment -> addDocumentOverrides
+#   -> commitExchangeTicket
+#
+# REMARKS:
+#   - The price request body for the reference flow is dynamically constructed from search response
+#     identifiers (CatalogProductOfferingsIdentifier + CatalogProductOfferingSelection). The template
+#     uses a pre-built JSON reference approach. In a real test, the plan would construct these from
+#     search response element fields.
+#   - The workbench add-offer step reuses the same schema as pricing (OfferQueryBuildFromCatalogProductOfferings).
+#   - Form of Payment has many subtypes (Cash, PaymentCard, BSP, etc.). Templates cover Cash and CreditCard.
+#   - Payment requires offer identifier + FOP identifier from the workbench state.
+#   - Exchange flow is GDS-only; no NDC exchange operations exist in the API.
+
+nodes:
+  # ============================================================
+  # SEARCH
+  # ============================================================
+  searchFlights:
+    description: "Search for air catalog product offerings (flights). This is step 1 in all booking flows."
+    adapter: searchFlights
+    inputs:
+      - name: origin
+        type: string
+        description: "Departure airport/city code (3-letter IATA)"
+      - name: destination
+        type: string
+        description: "Arrival airport/city code (3-letter IATA)"
+      - name: departureDate
+        type: date
+        description: "Departure date (YYYY-MM-DD)"
+      - name: passengers
+        type: integer
+        description: "Number of adult passengers"
+        optional: true
+        default: 1
+      - name: passengerTypeCode
+        type: string
+        description: "Passenger type code (ADT, CNN, INF, etc.)"
+        optional: true
+        default: ADT
+      - name: cabinPreference
+        type: string
+        description: "Cabin class preference (Economy, PremiumEconomy, Business, First)"
+        optional: true
+      - name: carrierPreference
+        type: string
+        description: "Preferred airline IATA code (e.g. UA, AA, DL)"
+        optional: true
+      - name: maxConnections
+        type: integer
+        description: "Maximum number of connections (0 = nonstop only)"
+        optional: true
+      - name: returnDate
+        type: date
+        description: "Return date for round-trip searches"
+        optional: true
+      - name: contentSource
+        type: string
+        description: "Content source (GDS or NDC)"
+        optional: true
+        default: GDS
+    outputs:
+      - name: catalogProductOfferings
+        type: offering[]
+        description: "List of flight offerings grouped by O&D"
+        path: "CatalogProductOfferingsResponse.CatalogProductOfferings.CatalogProductOffering"
+        elementFields:
+          - name: offeringId
+            type: string
+            path: "id"
+          - name: departure
+            type: string
+            path: "Departure"
+          - name: arrival
+            type: string
+            path: "Arrival"
+          - name: offeringIdentifierValue
+            type: string
+            path: "Identifier.value"
+      - name: catalogProductOfferingsId
+        type: string
+        description: "Identifier.value for the entire CatalogProductOfferings container"
+        path: "CatalogProductOfferingsResponse.CatalogProductOfferings.Identifier.value"
+      - name: transactionId
+        type: string
+        description: "Transaction tracking ID from the response"
+        path: "CatalogProductOfferingsResponse.transactionId"
+
+  searchFlightsNextLeg:
+    description: "Search for flights on the next leg of a multi-leg itinerary (e.g., return flight)."
+    adapter: searchFlightsNextLeg
+    inputs:
+      - name: catalogProductOfferingsId
+        type: string
+        description: "CatalogProductOfferings Identifier.value from the initial search"
+      - name: offeringId
+        type: string
+        description: "Selected CatalogProductOffering id from the initial search"
+      - name: productId
+        type: string
+        description: "Selected Product id from the initial search offering"
+    outputs:
+      - name: catalogProductOfferings
+        type: offering[]
+        description: "Flight offerings for the next leg"
+        path: "CatalogProductOfferingsResponse.CatalogProductOfferings.CatalogProductOffering"
+        elementFields:
+          - name: offeringId
+            type: string
+            path: "id"
+          - name: departure
+            type: string
+            path: "Departure"
+          - name: arrival
+            type: string
+            path: "Arrival"
+          - name: offeringIdentifierValue
+            type: string
+            path: "Identifier.value"
+      - name: catalogProductOfferingsId
+        type: string
+        description: "Updated CatalogProductOfferings Identifier.value"
+        path: "CatalogProductOfferingsResponse.CatalogProductOfferings.Identifier.value"
+
+  searchUpsells:
+    description: "Return all upsell options for a specific flight offering."
+    adapter: searchUpsells
+    inputs:
+      - name: catalogProductOfferingsId
+        type: string
+        description: "CatalogProductOfferings Identifier.value from the search"
+      - name: offeringId
+        type: string
+        description: "Selected CatalogProductOffering id to get upsells for"
+      - name: productId
+        type: string
+        description: "Selected Product id"
+    outputs:
+      - name: upsellOfferings
+        type: offering[]
+        description: "Available upsell offerings"
+        path: "CatalogProductOfferingsResponse.CatalogProductOfferings.UpsellOffering"
+        elementFields:
+          - name: offeringId
+            type: string
+            path: "id"
+          - name: offeringIdentifierValue
+            type: string
+            path: "Identifier.value"
+
+  # ============================================================
+  # PRICING
+  # ============================================================
+  priceOfferReference:
+    description: "Price a flight offer using reference payload (references search results by identifier)."
+    adapter: priceOfferReference
+    inputs:
+      - name: catalogProductOfferingsId
+        type: string
+        description: "CatalogProductOfferings Identifier.value from search"
+      - name: offeringId
+        type: string
+        description: "Selected CatalogProductOffering id"
+      - name: productIds
+        type: string
+        description: "Comma-separated Product ids to include in the price request"
+    outputs:
+      - name: offerIdentifierValue
+        type: string
+        description: "Offer Identifier.value from the price response"
+        path: "OfferResponse.Offer.Identifier.value"
+      - name: offerId
+        type: string
+        description: "Offer id from the price response"
+        path: "OfferResponse.Offer.id"
+      - name: totalPrice
+        type: float
+        description: "Total price amount"
+        path: "OfferResponse.Offer.Price.TotalPrice.value"
+      - name: currencyCode
+        type: string
+        description: "Currency code of the price"
+        path: "OfferResponse.Offer.Price.TotalPrice.code"
+      - name: productIdentifiers
+        type: product[]
+        description: "Product identifiers in the priced offer"
+        path: "OfferResponse.Offer.Product"
+        elementFields:
+          - name: productId
+            type: string
+            path: "id"
+          - name: productIdentifierValue
+            type: string
+            path: "Identifier.value"
+
+  priceOfferFullPayload:
+    description: "Price a flight offer using full payload (sends complete trip details)."
+    adapter: priceOfferFullPayload
+    inputs:
+      - name: catalogProductOfferingsId
+        type: string
+        description: "CatalogProductOfferings Identifier.value from search"
+      - name: offeringId
+        type: string
+        description: "Selected CatalogProductOffering id"
+      - name: productIds
+        type: string
+        description: "Comma-separated Product ids to include"
+    outputs:
+      - name: offerIdentifierValue
+        type: string
+        description: "Offer Identifier.value from price response"
+        path: "OfferResponse.Offer.Identifier.value"
+      - name: offerId
+        type: string
+        description: "Offer id from price response"
+        path: "OfferResponse.Offer.id"
+      - name: totalPrice
+        type: float
+        description: "Total price amount"
+        path: "OfferResponse.Offer.Price.TotalPrice.value"
+      - name: currencyCode
+        type: string
+        description: "Currency code of the price"
+        path: "OfferResponse.Offer.Price.TotalPrice.code"
+
+  # ============================================================
+  # RESERVATION WORKBENCH
+  # ============================================================
+  createWorkbench:
+    description: "Create a new reservation workbench (booking session). Required before adding offers, travelers, etc."
+    adapter: createWorkbench
+    inputs: []
+    outputs:
+      - name: workbenchId
+        type: string
+        description: "Reservation workbench Identifier.value (used in all subsequent workbench operations)"
+        path: "ReservationResponse.Identifier.value"
+    cleanup: ignoreWorkbench
+
+  createWorkbenchFromLocator:
+    description: "Create a workbench from an existing reservation (by PNR locator). Used for post-commit operations like ticketing."
+    adapter: createWorkbenchFromLocator
+    inputs:
+      - name: locator
+        type: string
+        description: "PNR record locator (e.g., ABCDEF)"
+    outputs:
+      - name: workbenchId
+        type: string
+        description: "Reservation workbench Identifier.value"
+        path: "ReservationResponse.Identifier.value"
+      - name: offerIdentifierValue
+        type: string
+        description: "Offer Identifier.value from the existing reservation"
+        path: "ReservationResponse.Reservation.Offer.0.Identifier.value"
+      - name: offerId
+        type: string
+        description: "Offer id from the existing reservation"
+        path: "ReservationResponse.Reservation.Offer.0.id"
+      - name: offerAuthority
+        type: string
+        description: "Offer Identifier.authority from the existing reservation"
+        path: "ReservationResponse.Reservation.Offer.0.Identifier.authority"
+    cleanup: ignoreWorkbench
+
+  ignoreWorkbench:
+    description: "Discard the workbench and any uncommitted changes. Cleanup operation."
+    adapter: ignoreWorkbench
+    inputs:
+      - name: workbenchId
+        type: string
+        description: "Reservation workbench Identifier.value to discard"
+    outputs: []
+
+  retrieveWorkbench:
+    description: "Retrieve the current state of a reservation workbench."
+    adapter: retrieveWorkbench
+    inputs:
+      - name: workbenchId
+        type: string
+        description: "Reservation workbench Identifier.value"
+    outputs:
+      - name: workbenchId
+        type: string
+        description: "Workbench Identifier.value"
+        path: "ReservationResponse.Identifier.value"
+      - name: offers
+        type: offer[]
+        description: "Offers currently in the workbench"
+        path: "ReservationResponse.Reservation.Offer"
+        elementFields:
+          - name: offerId
+            type: string
+            path: "id"
+          - name: offerIdentifierValue
+            type: string
+            path: "Identifier.value"
+          - name: offerAuthority
+            type: string
+            path: "Identifier.authority"
+
+  # ============================================================
+  # ADD OFFER TO WORKBENCH
+  # ============================================================
+  addOfferReference:
+    description: "Add a priced offer to the workbench using reference payload."
+    adapter: addOfferReference
+    inputs:
+      - name: workbenchId
+        type: string
+        description: "Reservation workbench Identifier.value"
+      - name: catalogProductOfferingsId
+        type: string
+        description: "CatalogProductOfferings Identifier.value from search"
+      - name: offeringId
+        type: string
+        description: "Selected CatalogProductOffering id"
+      - name: productIds
+        type: string
+        description: "Comma-separated Product ids"
+    outputs:
+      - name: workbenchId
+        type: string
+        description: "Updated workbench Identifier.value"
+        path: "ReservationResponse.Identifier.value"
+      - name: offerIdentifierValue
+        type: string
+        description: "Offer Identifier.value now in the workbench"
+        path: "ReservationResponse.Reservation.Offer.0.Identifier.value"
+      - name: offerId
+        type: string
+        description: "Offer id in the workbench"
+        path: "ReservationResponse.Reservation.Offer.0.id"
+      - name: offerAuthority
+        type: string
+        description: "Offer authority"
+        path: "ReservationResponse.Reservation.Offer.0.Identifier.authority"
+      - name: totalPrice
+        type: float
+        description: "Total price of the offer"
+        path: "ReservationResponse.Reservation.Offer.0.Price.TotalPrice.value"
+      - name: currencyCode
+        type: string
+        description: "Currency code"
+        path: "ReservationResponse.Reservation.Offer.0.Price.TotalPrice.code"
+
+  addOfferFullPayload:
+    description: "Add a priced offer to the workbench using full payload."
+    adapter: addOfferFullPayload
+    inputs:
+      - name: workbenchId
+        type: string
+        description: "Reservation workbench Identifier.value"
+      - name: catalogProductOfferingsId
+        type: string
+        description: "CatalogProductOfferings Identifier.value from search"
+      - name: offeringId
+        type: string
+        description: "Selected CatalogProductOffering id"
+      - name: productIds
+        type: string
+        description: "Comma-separated Product ids"
+    outputs:
+      - name: workbenchId
+        type: string
+        description: "Updated workbench Identifier.value"
+        path: "ReservationResponse.Identifier.value"
+      - name: offerIdentifierValue
+        type: string
+        description: "Offer Identifier.value now in the workbench"
+        path: "ReservationResponse.Reservation.Offer.0.Identifier.value"
+      - name: offerId
+        type: string
+        description: "Offer id in the workbench"
+        path: "ReservationResponse.Reservation.Offer.0.id"
+      - name: offerAuthority
+        type: string
+        description: "Offer authority"
+        path: "ReservationResponse.Reservation.Offer.0.Identifier.authority"
+      - name: totalPrice
+        type: float
+        description: "Total price of the offer"
+        path: "ReservationResponse.Reservation.Offer.0.Price.TotalPrice.value"
+      - name: currencyCode
+        type: string
+        description: "Currency code"
+        path: "ReservationResponse.Reservation.Offer.0.Price.TotalPrice.code"
+
+  # ============================================================
+  # TRAVELERS
+  # ============================================================
+  addTraveler:
+    description: "Add a traveler to the reservation workbench. Each traveler must be added in a separate request."
+    adapter: addTraveler
+    inputs:
+      - name: workbenchId
+        type: string
+        description: "Reservation workbench Identifier.value"
+      - name: givenName
+        type: string
+        description: "Traveler first/given name"
+      - name: surname
+        type: string
+        description: "Traveler last/family name"
+      - name: gender
+        type: enum[Male, Female, Unknown, Undisclosed]
+        description: "Traveler gender"
+        optional: true
+      - name: birthDate
+        type: date
+        description: "Traveler date of birth (YYYY-MM-DD)"
+        optional: true
+      - name: passengerTypeCode
+        type: string
+        description: "Passenger type code (ADT, CNN, INF)"
+        optional: true
+        default: ADT
+      - name: email
+        type: string
+        description: "Traveler email address"
+        optional: true
+      - name: phoneNumber
+        type: string
+        description: "Traveler phone number"
+        optional: true
+      - name: phoneCountryCode
+        type: string
+        description: "Phone country access code"
+        optional: true
+        default: "1"
+    outputs:
+      - name: travelerIdentifierValue
+        type: string
+        description: "Traveler Identifier.value"
+        path: "TravelerResponse.Traveler.Identifier.value"
+      - name: travelerId
+        type: string
+        description: "Traveler id"
+        path: "TravelerResponse.Traveler.id"
+
+  addPrimaryContact:
+    description: "Add a primary contact (email/phone) to the reservation workbench."
+    adapter: addPrimaryContact
+    inputs:
+      - name: workbenchId
+        type: string
+        description: "Reservation workbench Identifier.value"
+      - name: email
+        type: string
+        description: "Contact email address"
+      - name: phoneNumber
+        type: string
+        description: "Contact phone number"
+      - name: phoneCountryCode
+        type: string
+        description: "Phone country access code"
+        optional: true
+        default: "1"
+      - name: travelerIdentifierValue
+        type: string
+        description: "Traveler Identifier.value to associate the contact with"
+        optional: true
+    outputs:
+      - name: primaryContactId
+        type: string
+        description: "Primary contact id"
+        path: "PrimaryContactResponse.PrimaryContact.id"
+
+  # ============================================================
+  # FORM OF PAYMENT
+  # ============================================================
+  addFormOfPaymentCash:
+    description: "Add cash as the form of payment."
+    adapter: addFormOfPaymentCash
+    inputs:
+      - name: workbenchId
+        type: string
+        description: "Reservation workbench Identifier.value"
+    outputs:
+      - name: fopIdentifierValue
+        type: string
+        description: "Form of payment Identifier.value"
+        path: "FormOfPaymentResponse.FormOfPayment.Identifier.value"
+      - name: fopId
+        type: string
+        description: "Form of payment id"
+        path: "FormOfPaymentResponse.FormOfPayment.id"
+
+  addFormOfPaymentCard:
+    description: "Add a credit card as the form of payment."
+    adapter: addFormOfPaymentCard
+    inputs:
+      - name: workbenchId
+        type: string
+        description: "Reservation workbench Identifier.value"
+      - name: cardNumber
+        type: string
+        description: "Credit card number"
+      - name: cardExpiry
+        type: string
+        description: "Card expiration (MMYY format)"
+      - name: cardCode
+        type: string
+        description: "Card type code (VI, MC, AX, etc.)"
+        optional: true
+        default: VI
+      - name: cardHolderName
+        type: string
+        description: "Name on the card"
+      - name: cvv
+        type: string
+        description: "Card security code"
+        optional: true
+    outputs:
+      - name: fopIdentifierValue
+        type: string
+        description: "Form of payment Identifier.value"
+        path: "FormOfPaymentResponse.FormOfPayment.Identifier.value"
+      - name: fopId
+        type: string
+        description: "Form of payment id"
+        path: "FormOfPaymentResponse.FormOfPayment.id"
+
+  # ============================================================
+  # PAYMENT
+  # ============================================================
+  addPayment:
+    description: "Apply payment to the offer in the workbench. Must be done after AddFormOfPayment."
+    adapter: addPayment
+    inputs:
+      - name: workbenchId
+        type: string
+        description: "Reservation workbench Identifier.value"
+      - name: amount
+        type: float
+        description: "Payment amount"
+      - name: currencyCode
+        type: string
+        description: "Currency code (e.g., USD, GBP)"
+      - name: fopIdentifierValue
+        type: string
+        description: "Form of payment Identifier.value"
+      - name: offerIdentifierValue
+        type: string
+        description: "Offer Identifier.value to pay for"
+      - name: offerId
+        type: string
+        description: "Offer id"
+      - name: offerAuthority
+        type: string
+        description: "Offer Identifier.authority"
+        optional: true
+        default: Travelport
+    outputs:
+      - name: paymentIdentifierValue
+        type: string
+        description: "Payment Identifier.value"
+        path: "PaymentResponse.Payment.Identifier.value"
+
+  # ============================================================
+  # COMMIT
+  # ============================================================
+  commitReservation:
+    description: "Commit the workbench to create a held booking (PNR). If payment was added, this also tickets the itinerary."
+    adapter: commitReservation
+    inputs:
+      - name: workbenchId
+        type: string
+        description: "Reservation workbench Identifier.value to commit"
+    outputs:
+      - name: reservationIdentifierValue
+        type: string
+        description: "Reservation Identifier.value (persistent ID)"
+        path: "ReservationResponse.Reservation.Identifier.value"
+      - name: locator
+        type: string
+        description: "PNR record locator (e.g., ABCDEF)"
+        path: "ReservationResponse.Reservation.Locator.value"
+      - name: reservationStatus
+        type: string
+        description: "Reservation status"
+        path: "ReservationResponse.reservationStatus"
+
+  # ============================================================
+  # RESERVATION MANAGEMENT
+  # ============================================================
+  retrieveReservation:
+    description: "Retrieve a reservation by its identifier or PNR locator."
+    adapter: retrieveReservation
+    inputs:
+      - name: identifier
+        type: string
+        description: "Reservation Identifier.value or PNR record locator"
+    outputs:
+      - name: reservationIdentifierValue
+        type: string
+        description: "Reservation Identifier.value"
+        path: "ReservationResponse.Reservation.Identifier.value"
+      - name: locator
+        type: string
+        description: "PNR record locator"
+        path: "ReservationResponse.Reservation.Locator.value"
+      - name: reservationStatus
+        type: string
+        description: "Reservation status"
+        path: "ReservationResponse.reservationStatus"
+      - name: offers
+        type: offer[]
+        description: "Offers in the reservation"
+        path: "ReservationResponse.Reservation.Offer"
+        elementFields:
+          - name: offerId
+            type: string
+            path: "id"
+          - name: offerIdentifierValue
+            type: string
+            path: "Identifier.value"
+
+  cancelOffer:
+    description: "Cancel an offer within an existing reservation."
+    adapter: cancelOffer
+    inputs:
+      - name: reservationIdentifier
+        type: string
+        description: "Reservation Identifier.value"
+      - name: offerIdentifierValue
+        type: string
+        description: "Offer Identifier.value to cancel"
+    outputs:
+      - name: reservationStatus
+        type: string
+        description: "Updated reservation status"
+        path: "ReservationResponse.reservationStatus"
+
+  # ============================================================
+  # TICKETING
+  # ============================================================
+  commitTicket:
+    description: "Commit reservation workbench with ticket issuance. Used post-commit when ticketing separately."
+    adapter: commitTicket
+    inputs:
+      - name: workbenchId
+        type: string
+        description: "Reservation workbench Identifier.value (from post-commit workbench)"
+    outputs:
+      - name: reservationIdentifierValue
+        type: string
+        description: "Reservation Identifier.value"
+        path: "ReservationResponse.Reservation.Identifier.value"
+      - name: locator
+        type: string
+        description: "PNR record locator"
+        path: "ReservationResponse.Reservation.Locator.value"
+
+  getTicketByLocator:
+    description: "Retrieve tickets associated with a PNR locator."
+    adapter: getTicketByLocator
+    inputs:
+      - name: locator
+        type: string
+        description: "PNR record locator"
+    outputs:
+      - name: tickets
+        type: ticket[]
+        description: "List of tickets"
+        path: "TicketListResponse.Ticket"
+        elementFields:
+          - name: ticketNumber
+            type: string
+            path: "TicketNumber"
+          - name: ticketIdentifierValue
+            type: string
+            path: "Identifier.value"
+          - name: ticketStatus
+            type: string
+            path: "TicketStatusCode"
+
+  voidTicket:
+    description: "Void a ticket (GDS only)."
+    adapter: voidTicket
+    inputs:
+      - name: ticketIdentifier
+        type: string
+        description: "Ticket Identifier.value to void"
+    outputs:
+      - name: ticketStatus
+        type: string
+        description: "Updated ticket status"
+        path: "TicketResponse.Ticket.TicketStatusCode"
+
+  # ============================================================
+  # ANCILLARIES
+  # ============================================================
+  searchAncillaries:
+    description: "Search for available ancillaries (bags, meals, etc.) for a reservation in a workbench."
+    adapter: searchAncillaries
+    inputs:
+      - name: workbenchId
+        type: string
+        description: "Reservation workbench Identifier.value"
+      - name: offerIdentifierValue
+        type: string
+        description: "Offer Identifier.value to search ancillaries for"
+    outputs:
+      - name: ancillaryOfferings
+        type: ancillary[]
+        description: "Available ancillary offerings"
+        path: "CatalogOfferingsAncillaryListResponse.CatalogOfferingsAncillary"
+        elementFields:
+          - name: ancillaryId
+            type: string
+            path: "id"
+          - name: ancillaryIdentifierValue
+            type: string
+            path: "Identifier.value"
+          - name: ancillaryName
+            type: string
+            path: "name"
+      - name: catalogOfferingsIdentifierValue
+        type: string
+        description: "CatalogOfferingsAncillary Identifier.value for downstream add"
+        path: "CatalogOfferingsAncillaryListResponse.Identifier.value"
+
+  # ============================================================
+  # SEAT MAP
+  # ============================================================
+  searchSeatMap:
+    description: "Request seat availability (seat map) for flights in the workbench."
+    adapter: searchSeatMap
+    inputs:
+      - name: workbenchId
+        type: string
+        description: "Reservation workbench Identifier.value"
+      - name: offerIdentifierValue
+        type: string
+        description: "Offer Identifier.value"
+      - name: productIdentifierValue
+        type: string
+        description: "Product Identifier.value for the specific flight segment"
+    outputs:
+      - name: seatOfferings
+        type: seat[]
+        description: "Available seat offerings"
+        path: "CatalogOfferingsAncillaryListResponse.CatalogOfferingsAncillary"
+        elementFields:
+          - name: seatId
+            type: string
+            path: "id"
+          - name: seatIdentifierValue
+            type: string
+            path: "Identifier.value"
+      - name: catalogOfferingsIdentifierValue
+        type: string
+        description: "CatalogOfferingsAncillary Identifier.value for downstream add"
+        path: "CatalogOfferingsAncillaryListResponse.Identifier.value"
+
+  # ============================================================
+  # FARE RULES
+  # ============================================================
+  getFareRulesFromSearch:
+    description: "Get fare rules by reference to search (CatalogProductOfferings) results."
+    adapter: getFareRulesFromSearch
+    inputs:
+      - name: catalogProductOfferingsId
+        type: string
+        description: "CatalogProductOfferings Identifier.value"
+      - name: offeringId
+        type: string
+        description: "CatalogProductOffering id"
+      - name: productId
+        type: string
+        description: "Product id within the offering"
+    outputs:
+      - name: fareRules
+        type: string
+        description: "Fare rules text"
+        path: "FareRuleResponse.FareRule"
+
+  getFareRulesFromOffer:
+    description: "Get fare rules by reference to a priced offer."
+    adapter: getFareRulesFromOffer
+    inputs:
+      - name: offerIdentifierValue
+        type: string
+        description: "Offer Identifier.value from a price response"
+    outputs:
+      - name: fareRules
+        type: string
+        description: "Fare rules text"
+        path: "FareRuleResponse.FareRule"
+
+  # ============================================================
+  # EXCHANGE
+  # ============================================================
+  getExchangeEligibility:
+    description: "Check if tickets on a reservation are eligible for exchange (by PNR locator)."
+    adapter: getExchangeEligibility
+    inputs:
+      - name: locator
+        type: string
+        description: "PNR record locator"
+    outputs:
+      - name: eligibilities
+        type: eligibility[]
+        description: "Per-ticket exchange eligibility results"
+        path: "TicketChangeEligibilityListResponse.TicketChangeEligibility"
+        elementFields:
+          - name: ticketNumber
+            type: string
+            path: "Ticket.TicketNumber"
+          - name: exchangeable
+            type: string
+            path: "exchangeable"
+
+  getExchangeEligibilityByTicket:
+    description: "Check if a specific ticket is eligible for exchange (by ticket number)."
+    adapter: getExchangeEligibilityByTicket
+    inputs:
+      - name: ticketNumber
+        type: string
+        description: "Ticket number to check eligibility for"
+    outputs:
+      - name: eligibilities
+        type: eligibility[]
+        description: "Per-ticket exchange eligibility results"
+        path: "TicketChangeEligibilityListResponse.TicketChangeEligibility"
+        elementFields:
+          - name: ticketNumber
+            type: string
+            path: "Ticket.TicketNumber"
+          - name: exchangeable
+            type: string
+            path: "exchangeable"
+
+  searchExchange:
+    description: "Search for flights to exchange existing tickets."
+    adapter: searchExchange
+    inputs:
+      - name: reservationIdentifier
+        type: string
+        description: "Reservation Identifier.value (from workbench)"
+      - name: offerIdentifierValue
+        type: string
+        description: "Original offer Identifier.value to exchange"
+      - name: origin
+        type: string
+        description: "New departure airport/city code"
+      - name: destination
+        type: string
+        description: "New arrival airport/city code"
+      - name: departureDate
+        type: date
+        description: "New departure date"
+    outputs:
+      - name: exchangeOfferings
+        type: offering[]
+        description: "Available exchange flight offerings"
+        path: "CatalogOfferingsAirChangeResponse.CatalogOfferings.CatalogOffering"
+        elementFields:
+          - name: offeringId
+            type: string
+            path: "id"
+          - name: offeringIdentifierValue
+            type: string
+            path: "Identifier.value"
+          - name: totalPrice
+            type: string
+            path: "Price.TotalPrice.value"
+      - name: catalogOfferingsIdentifierValue
+        type: string
+        description: "CatalogOfferings Identifier.value for downstream addExchangeOffer"
+        path: "CatalogOfferingsAirChangeResponse.CatalogOfferings.Identifier.value"
+
+  addExchangeOffer:
+    description: "Add an exchange offer to the workbench (build from catalog offerings). This replaces the original offer with the new exchange offer."
+    adapter: addExchangeOffer
+    inputs:
+      - name: workbenchId
+        type: string
+        description: "Reservation workbench Identifier.value"
+      - name: catalogOfferingsIdentifierValue
+        type: string
+        description: "CatalogOfferings Identifier.value from exchange search"
+      - name: catalogOfferingIdentifierValue
+        type: string
+        description: "Selected CatalogOffering Identifier.value from exchange search"
+    outputs:
+      - name: workbenchId
+        type: string
+        description: "Updated workbench Identifier.value"
+        path: "ExchangeOfferListResponse.Identifier.value"
+      - name: offerIdentifierValue
+        type: string
+        description: "Exchange offer Identifier.value"
+        path: "ExchangeOfferListResponse.Offer.0.Identifier.value"
+      - name: offerId
+        type: string
+        description: "Exchange offer id"
+        path: "ExchangeOfferListResponse.Offer.0.id"
+      - name: offerAuthority
+        type: string
+        description: "Exchange offer Identifier.authority"
+        path: "ExchangeOfferListResponse.Offer.0.Identifier.authority"
+      - name: totalPrice
+        type: float
+        description: "Total price of the exchange offer"
+        path: "ExchangeOfferListResponse.Offer.0.Price.TotalPrice.value"
+      - name: currencyCode
+        type: string
+        description: "Currency code"
+        path: "ExchangeOfferListResponse.Offer.0.Price.TotalPrice.code"
+    cleanup: ignoreWorkbench
+
+  commitExchangeTicket:
+    description: "Commit the exchange and issue new tickets (payLaterInd=false)."
+    adapter: commitExchangeTicket
+    inputs:
+      - name: workbenchId
+        type: string
+        description: "Reservation workbench Identifier.value"
+    outputs:
+      - name: reservationIdentifierValue
+        type: string
+        description: "Reservation Identifier.value"
+        path: "ReservationResponse.Reservation.Identifier.value"
+      - name: locator
+        type: string
+        description: "PNR record locator"
+        path: "ReservationResponse.Reservation.Locator.value"
+      - name: reservationStatus
+        type: string
+        description: "Reservation status after exchange"
+        path: "ReservationResponse.reservationStatus"
+
+  # ============================================================
+  # EXCHANGE FORM OF PAYMENT
+  # ============================================================
+  addFormOfPaymentForfeit:
+    description: "Add forfeit as form of payment (penalty amount forfeited by passenger)."
+    adapter: addFormOfPaymentForfeit
+    inputs:
+      - name: workbenchId
+        type: string
+        description: "Reservation workbench Identifier.value"
+    outputs:
+      - name: fopIdentifierValue
+        type: string
+        description: "Form of payment Identifier.value"
+        path: "FormOfPaymentResponse.FormOfPayment.Identifier.value"
+      - name: fopId
+        type: string
+        description: "Form of payment id"
+        path: "FormOfPaymentResponse.FormOfPayment.id"
+
+  addFormOfPaymentWaiver:
+    description: "Add a waiver code as form of payment (airline-issued disruption waiver)."
+    adapter: addFormOfPaymentWaiver
+    inputs:
+      - name: workbenchId
+        type: string
+        description: "Reservation workbench Identifier.value"
+      - name: waiverCode
+        type: string
+        description: "Airline waiver code"
+    outputs:
+      - name: fopIdentifierValue
+        type: string
+        description: "Form of payment Identifier.value"
+        path: "FormOfPaymentResponse.FormOfPayment.Identifier.value"
+      - name: fopId
+        type: string
+        description: "Form of payment id"
+        path: "FormOfPaymentResponse.FormOfPayment.id"
+
+  addFormOfPaymentInvoice:
+    description: "Add an agent invoice as form of payment."
+    adapter: addFormOfPaymentInvoice
+    inputs:
+      - name: workbenchId
+        type: string
+        description: "Reservation workbench Identifier.value"
+      - name: invoiceNumber
+        type: string
+        description: "Agent invoice number"
+    outputs:
+      - name: fopIdentifierValue
+        type: string
+        description: "Form of payment Identifier.value"
+        path: "FormOfPaymentResponse.FormOfPayment.Identifier.value"
+      - name: fopId
+        type: string
+        description: "Form of payment id"
+        path: "FormOfPaymentResponse.FormOfPayment.id"
+
+  # ============================================================
+  # DOCUMENT OVERRIDES
+  # ============================================================
+  addDocumentOverrides:
+    description: "Add document overrides (commissions, restrictions, tour codes, change fee method) for exchange ticketing."
+    adapter: addDocumentOverrides
+    inputs:
+      - name: workbenchId
+        type: string
+        description: "Reservation workbench Identifier.value"
+      - name: commissionAmount
+        type: float
+        description: "Commission amount"
+        optional: true
+      - name: commissionCurrencyCode
+        type: string
+        description: "Commission currency code"
+        optional: true
+      - name: restriction
+        type: string
+        description: "Restriction text (e.g., NON Exchange)"
+        optional: true
+      - name: tourCode
+        type: string
+        description: "Tour code value"
+        optional: true
+      - name: changeFeeCode
+        type: string
+        description: "Change fee collection code"
+        optional: true
+      - name: changeFeeMethod
+        type: string
+        description: "Change fee collection method (e.g., EMD)"
+        optional: true
+    outputs:
+      - name: documentOverridesId
+        type: string
+        description: "Document overrides id"
+        path: "DocumentOverridesResponse.DocumentOverrides.id"
+
+  # ============================================================
+  # RESERVATION REMARKS
+  # ============================================================
+  addReservationComment:
+    description: "Add a reservation comment/remark (general, notepad, historical, vendor, etc.)."
+    adapter: addReservationComment
+    inputs:
+      - name: workbenchId
+        type: string
+        description: "Reservation workbench Identifier.value"
+      - name: commentName
+        type: string
+        description: "Comment category code (RE=general, RI=itinerary, RN=notepad, RH=historical, RV=vendor)"
+      - name: commentValue
+        type: string
+        description: "Comment text"
+    outputs:
+      - name: reservationCommentId
+        type: string
+        description: "Reservation comment id"
+        path: "ReservationCommentListResponse.ReservationComment.0.id"
+      - name: commentId
+        type: string
+        description: "Individual comment id within the reservation comment"
+        path: "ReservationCommentListResponse.ReservationComment.0.Comment.0.id"
+
+  deleteReservationComment:
+    description: "Delete a specific comment from a reservation comment entry."
+    adapter: deleteReservationComment
+    inputs:
+      - name: workbenchId
+        type: string
+        description: "Reservation workbench Identifier.value"
+      - name: reservationCommentId
+        type: string
+        description: "Reservation comment container id"
+      - name: commentId
+        type: string
+        description: "Individual comment id to delete"
+    outputs: []
+
+  addAccountingRemark:
+    description: "Add an accounting remark to the reservation."
+    adapter: addAccountingRemark
+    inputs:
+      - name: workbenchId
+        type: string
+        description: "Reservation workbench Identifier.value"
+      - name: accountingName
+        type: string
+        description: "Accounting field name code (IN=invoice, AN=accounting number, AC=account code)"
+      - name: accountingValue
+        type: string
+        description: "Accounting field value"
+    outputs:
+      - name: accountingId
+        type: string
+        description: "Accounting entry id"
+        path: "AccountingResponse.Accounting.id"
+      - name: nameValuePairId
+        type: string
+        description: "Name-value pair id within the accounting entry"
+        path: "AccountingResponse.Accounting.NameValuePair.0.id"
+
+  deleteAccountingRemark:
+    description: "Delete a specific name-value pair from an accounting entry."
+    adapter: deleteAccountingRemark
+    inputs:
+      - name: workbenchId
+        type: string
+        description: "Reservation workbench Identifier.value"
+      - name: accountingId
+        type: string
+        description: "Accounting entry id"
+      - name: nameValuePairId
+        type: string
+        description: "Name-value pair id to delete"
+    outputs: []
+
+  # ============================================================
+  # SPECIAL SERVICES
+  # ============================================================
+  addSpecialService:
+    description: "Add special service requests (SSRs) like wheelchair, meal preference, etc."
+    adapter: addSpecialService
+    inputs:
+      - name: workbenchId
+        type: string
+        description: "Reservation workbench Identifier.value"
+      - name: ssrCode
+        type: string
+        description: "SSR code (e.g., WCHR, VGML, BLND)"
+      - name: text
+        type: string
+        description: "Free-text SSR description"
+        optional: true
+    outputs:
+      - name: specialServiceId
+        type: string
+        description: "Special service id"
+        path: "SpecialServiceResponse.SpecialService.id"
+
+  # ============================================================
+  # QUEUES
+  # ============================================================
+  placeOnQueue:
+    description: "Move a reservation to a specified queue."
+    adapter: placeOnQueue
+    inputs:
+      - name: reservationIdentifier
+        type: string
+        description: "Reservation Identifier.value"
+      - name: queueNumber
+        type: string
+        description: "Queue number"
+      - name: pcc
+        type: string
+        description: "PCC (pseudo city code) for the queue"
+        optional: true
+    outputs: []
+
+  # ============================================================
+  # ANCILLARY/SEAT BOOKING
+  # ============================================================
+  addAncillaryOffer:
+    description: "Add an ancillary offer (bags, meals, etc.) to the workbench from catalog offerings."
+    adapter: addAncillaryOffer
+    inputs:
+      - name: workbenchId
+        type: string
+        description: "Reservation workbench Identifier.value"
+      - name: catalogOfferingsIdentifierValue
+        type: string
+        description: "CatalogOfferingsAncillary Identifier.value from ancillary search"
+      - name: ancillaryOfferingId
+        type: string
+        description: "CatalogOffering id of the selected ancillary"
+      - name: ancillaryProductId
+        type: string
+        description: "Product id within the ancillary offering"
+      - name: travelerIdentifierValue
+        type: string
+        description: "Traveler Identifier.value to associate the ancillary with"
+    outputs:
+      - name: offerIdentifierValue
+        type: string
+        description: "Offer Identifier.value of the added ancillary"
+        path: "OfferListResponse.OfferID.0.Identifier.value"
+      - name: offerId
+        type: string
+        description: "Offer id of the added ancillary"
+        path: "OfferListResponse.OfferID.0.id"
+
+  addSeatOffer:
+    description: "Add a seat offer to the workbench from seat map catalog offerings."
+    adapter: addSeatOffer
+    inputs:
+      - name: workbenchId
+        type: string
+        description: "Reservation workbench Identifier.value"
+      - name: catalogOfferingsIdentifierValue
+        type: string
+        description: "CatalogOfferingsAncillary Identifier.value from seat map search"
+      - name: seatOfferingIdentifierValue
+        type: string
+        description: "Seat CatalogOffering Identifier.value"
+      - name: travelerIdentifierValue
+        type: string
+        description: "Traveler Identifier.value to assign the seat to"
+      - name: seatAssignment
+        type: string
+        description: "Seat number (e.g., 12A)"
+    outputs:
+      - name: offerIdentifierValue
+        type: string
+        description: "Offer Identifier.value of the added seat"
+        path: "OfferListResponse.OfferID.0.Identifier.value"
+      - name: offerId
+        type: string
+        description: "Offer id of the added seat"
+        path: "OfferListResponse.OfferID.0.id"
+
+  # ============================================================
+  # DELETE OPERATIONS
+  # ============================================================
+  deleteSpecialService:
+    description: "Delete a special service request from the workbench."
+    adapter: deleteSpecialService
+    inputs:
+      - name: workbenchId
+        type: string
+        description: "Reservation workbench Identifier.value"
+      - name: specialServiceId
+        type: string
+        description: "Special service id to delete"
+    outputs: []
+
+  deletePrimaryContact:
+    description: "Delete a primary contact from the workbench."
+    adapter: deletePrimaryContact
+    inputs:
+      - name: workbenchId
+        type: string
+        description: "Reservation workbench Identifier.value"
+      - name: primaryContactId
+        type: string
+        description: "Primary contact id to delete"
+    outputs: []
+
+  cancelWorkbenchOffer:
+    description: "Cancel an ancillary or seat offer from the workbench (pre-commit). Different from cancelOffer which operates on committed reservations."
+    adapter: cancelWorkbenchOffer
+    inputs:
+      - name: workbenchId
+        type: string
+        description: "Reservation workbench Identifier.value"
+      - name: offerIdentifierValue
+        type: string
+        description: "Offer Identifier.value to cancel"
+    outputs: []
+
+  # ============================================================
+  # TICKET DETAILS & RECEIPTS
+  # ============================================================
+  getTicketDetails:
+    description: "Display details of a specific ticket by ticket number."
+    adapter: getTicketDetails
+    inputs:
+      - name: ticketNumber
+        type: string
+        description: "Ticket number to retrieve"
+    outputs:
+      - name: ticketNumber
+        type: string
+        description: "Ticket number"
+        path: "TicketResponse.Ticket.TicketNumber"
+      - name: ticketStatus
+        type: string
+        description: "Ticket status code"
+        path: "TicketResponse.Ticket.TicketStatusCode"
+      - name: ticketIdentifierValue
+        type: string
+        description: "Ticket Identifier.value"
+        path: "TicketResponse.Ticket.Identifier.value"
+
+  getReceiptIndex:
+    description: "List all tickets/receipts for a PNR (receipt/document view)."
+    adapter: getReceiptIndex
+    inputs:
+      - name: locator
+        type: string
+        description: "PNR record locator"
+    outputs:
+      - name: receipts
+        type: receipt[]
+        description: "List of receipts/tickets for the PNR"
+        path: "ReceiptListResponse.Receipt"
+
+  # ============================================================
+  # RESERVATION CANCELLATION
+  # ============================================================
+  cancelReservation:
+    description: "Cancel an entire PNR reservation (with receipt). Different from cancelOffer which only cancels one offer."
+    adapter: cancelReservation
+    inputs:
+      - name: locator
+        type: string
+        description: "PNR record locator to cancel"
+    outputs: []
+
+  # ============================================================
+  # FARE RULES (FROM RESERVATION)
+  # ============================================================
+  getFareRulesFromReservation:
+    description: "Get fare rules from a committed reservation (by PNR locator)."
+    adapter: getFareRulesFromReservation
+    inputs:
+      - name: locator
+        type: string
+        description: "PNR record locator"
+    outputs:
+      - name: fareRules
+        type: string
+        description: "Fare rules text"
+        path: "FareRuleListResponse.FareRule"
+
+  # ============================================================
+  # WORKBENCH FROM TICKET NUMBER
+  # ============================================================
+  createWorkbenchFromIdentifier:
+    description: "Create a workbench from a ticket/document number instead of PNR locator. Alternative entry point for post-commit operations."
+    adapter: createWorkbenchFromIdentifier
+    inputs:
+      - name: ticketNumber
+        type: string
+        description: "Ticket or document number"
+    outputs:
+      - name: workbenchId
+        type: string
+        description: "Reservation workbench Identifier.value"
+        path: "ReservationResponse.Identifier.value"
+      - name: offerIdentifierValue
+        type: string
+        description: "Offer Identifier.value from the existing reservation"
+        path: "ReservationResponse.Reservation.Offer.0.Identifier.value"
+      - name: offerId
+        type: string
+        description: "Offer id from the existing reservation"
+        path: "ReservationResponse.Reservation.Offer.0.id"
+      - name: offerAuthority
+        type: string
+        description: "Offer Identifier.authority from the existing reservation"
+        path: "ReservationResponse.Reservation.Offer.0.Identifier.authority"
+    cleanup: ignoreWorkbench
+
+  # ============================================================
+  # TRAVELER MODIFICATION
+  # ============================================================
+  getUpdatableTravelerItems:
+    description: "Discover which traveler fields can be modified (step 1 of traveler update workflow)."
+    adapter: getUpdatableTravelerItems
+    inputs:
+      - name: workbenchId
+        type: string
+        description: "Reservation workbench Identifier.value"
+      - name: travelerIdentifierValue
+        type: string
+        description: "Traveler Identifier.value to check updatable fields for"
+    outputs:
+      - name: updatableItems
+        type: json
+        description: "Updatable item list for use in updateTraveler"
+        path: "TravelerUpdatableItemListResponse.TravelerUpdatableItem"
+
+  updateTraveler:
+    description: "Modify traveler details (email, phone, address, frequent flyer). Step 2 of traveler update workflow."
+    adapter: updateTraveler
+    inputs:
+      - name: workbenchId
+        type: string
+        description: "Reservation workbench Identifier.value"
+      - name: travelerId
+        type: string
+        description: "Traveler id to update"
+      - name: updatableItemId
+        type: string
+        description: "TravelerUpdatableItem id from getUpdatableTravelerItems"
+      - name: updateValue
+        type: string
+        description: "New value for the field being updated"
+    outputs:
+      - name: travelerIdentifierValue
+        type: string
+        description: "Updated traveler Identifier.value"
+        path: "TravelerResponse.Traveler.Identifier.value"
+
+  # ============================================================
+  # ADVANCED OPERATIONS
+  # ============================================================
+  divideReservation:
+    description: "Split a multi-traveler PNR into separate reservations."
+    adapter: divideReservation
+    inputs:
+      - name: reservationIdentifierValue
+        type: string
+        description: "Reservation Identifier.value to divide"
+      - name: travelerIdentifierValue
+        type: string
+        description: "Traveler Identifier.value to split out"
+    outputs:
+      - name: locator
+        type: string
+        description: "PNR record locator of the new reservation"
+        path: "ReservationResponse.Reservation.Locator.value"
+      - name: reservationIdentifierValue
+        type: string
+        description: "Reservation Identifier.value of the new reservation"
+        path: "ReservationResponse.Reservation.Identifier.value"
+
+  addTravelAgency:
+    description: "Add travel agency details to the reservation."
+    adapter: addTravelAgency
+    inputs:
+      - name: workbenchId
+        type: string
+        description: "Reservation workbench Identifier.value"
+      - name: corporateCode
+        type: string
+        description: "Corporate code for the travel agency"
+      - name: email
+        type: string
+        description: "Travel agency email"
+      - name: phoneNumber
+        type: string
+        description: "Travel agency phone number"
+    outputs:
+      - name: travelAgencyId
+        type: string
+        description: "Travel agency id"
+        path: "TravelAgencyResponse.TravelAgency.id"
+
+# ============================================================
+# EDGES — Data flow between nodes
+# ============================================================
+edges:
+  # Search → Next Leg
+  - from: searchFlights.catalogProductOfferingsId
+    to: searchFlightsNextLeg.catalogProductOfferingsId
+  - from: searchFlights.catalogProductOfferings
+    to: searchFlightsNextLeg.offeringId
+    select: true
+
+  # Search → Upsells
+  - from: searchFlights.catalogProductOfferingsId
+    to: searchUpsells.catalogProductOfferingsId
+  - from: searchFlights.catalogProductOfferings
+    to: searchUpsells.offeringId
+    select: true
+
+  # Search → Price (Reference)
+  - from: searchFlights.catalogProductOfferingsId
+    to: priceOfferReference.catalogProductOfferingsId
+  - from: searchFlights.catalogProductOfferings
+    to: priceOfferReference.offeringId
+    select: true
+    preferred: true
+
+  # Search → Price (Full Payload)
+  - from: searchFlights.catalogProductOfferingsId
+    to: priceOfferFullPayload.catalogProductOfferingsId
+  - from: searchFlights.catalogProductOfferings
+    to: priceOfferFullPayload.offeringId
+    select: true
+
+  # Search → Add Offer to Workbench (Reference)
+  - from: searchFlights.catalogProductOfferingsId
+    to: addOfferReference.catalogProductOfferingsId
+  - from: searchFlights.catalogProductOfferings
+    to: addOfferReference.offeringId
+    select: true
+
+  # Search → Add Offer to Workbench (Full Payload)
+  - from: searchFlights.catalogProductOfferingsId
+    to: addOfferFullPayload.catalogProductOfferingsId
+  - from: searchFlights.catalogProductOfferings
+    to: addOfferFullPayload.offeringId
+    select: true
+
+  # Search → Fare Rules (from search)
+  - from: searchFlights.catalogProductOfferingsId
+    to: getFareRulesFromSearch.catalogProductOfferingsId
+  - from: searchFlights.catalogProductOfferings
+    to: getFareRulesFromSearch.offeringId
+    select: true
+
+  # Price → Fare Rules (from offer)
+  - from: priceOfferReference.offerIdentifierValue
+    to: getFareRulesFromOffer.offerIdentifierValue
+
+  # Workbench → Add Offer
+  - from: createWorkbench.workbenchId
+    to: addOfferReference.workbenchId
+    preferred: true
+  - from: createWorkbench.workbenchId
+    to: addOfferFullPayload.workbenchId
+
+  # Add Offer → Traveler
+  - from: addOfferReference.workbenchId
+    to: addTraveler.workbenchId
+    preferred: true
+  - from: addOfferFullPayload.workbenchId
+    to: addTraveler.workbenchId
+
+  # Add Offer → Primary Contact
+  - from: addOfferReference.workbenchId
+    to: addPrimaryContact.workbenchId
+  - from: addOfferFullPayload.workbenchId
+    to: addPrimaryContact.workbenchId
+
+  # Traveler → Primary Contact (traveler identifier for association)
+  - from: addTraveler.travelerIdentifierValue
+    to: addPrimaryContact.travelerIdentifierValue
+
+  # Add Offer → FOP (Cash)
+  - from: addOfferReference.workbenchId
+    to: addFormOfPaymentCash.workbenchId
+  - from: addOfferFullPayload.workbenchId
+    to: addFormOfPaymentCash.workbenchId
+
+  # Add Offer → FOP (Card)
+  - from: addOfferReference.workbenchId
+    to: addFormOfPaymentCard.workbenchId
+  - from: addOfferFullPayload.workbenchId
+    to: addFormOfPaymentCard.workbenchId
+
+  # FOP → Payment
+  - from: addFormOfPaymentCash.fopIdentifierValue
+    to: addPayment.fopIdentifierValue
+  - from: addFormOfPaymentCard.fopIdentifierValue
+    to: addPayment.fopIdentifierValue
+
+  # Add Offer → Payment (offer reference + price)
+  - from: addOfferReference.offerIdentifierValue
+    to: addPayment.offerIdentifierValue
+    preferred: true
+  - from: addOfferReference.offerId
+    to: addPayment.offerId
+  - from: addOfferReference.offerAuthority
+    to: addPayment.offerAuthority
+  - from: addOfferReference.totalPrice
+    to: addPayment.amount
+  - from: addOfferReference.currencyCode
+    to: addPayment.currencyCode
+  - from: addOfferReference.workbenchId
+    to: addPayment.workbenchId
+
+  - from: addOfferFullPayload.offerIdentifierValue
+    to: addPayment.offerIdentifierValue
+  - from: addOfferFullPayload.offerId
+    to: addPayment.offerId
+  - from: addOfferFullPayload.offerAuthority
+    to: addPayment.offerAuthority
+  - from: addOfferFullPayload.totalPrice
+    to: addPayment.amount
+  - from: addOfferFullPayload.currencyCode
+    to: addPayment.currencyCode
+  - from: addOfferFullPayload.workbenchId
+    to: addPayment.workbenchId
+
+  # Workbench → Commit
+  - from: createWorkbench.workbenchId
+    to: commitReservation.workbenchId
+  - from: createWorkbench.workbenchId
+    to: ignoreWorkbench.workbenchId
+
+  # Workbench → Retrieve Workbench
+  - from: createWorkbench.workbenchId
+    to: retrieveWorkbench.workbenchId
+
+  # Workbench → Ancillaries
+  - from: createWorkbench.workbenchId
+    to: searchAncillaries.workbenchId
+  - from: addOfferReference.offerIdentifierValue
+    to: searchAncillaries.offerIdentifierValue
+
+  # Workbench → Seat Map
+  - from: createWorkbench.workbenchId
+    to: searchSeatMap.workbenchId
+  - from: addOfferReference.offerIdentifierValue
+    to: searchSeatMap.offerIdentifierValue
+
+  # Workbench → Special Services
+  - from: createWorkbench.workbenchId
+    to: addSpecialService.workbenchId
+
+  # Commit → Retrieve Reservation
+  - from: commitReservation.reservationIdentifierValue
+    to: retrieveReservation.identifier
+  - from: commitReservation.locator
+    to: retrieveReservation.identifier
+
+  # Commit → Post-commit workbench (for ticketing)
+  - from: commitReservation.locator
+    to: createWorkbenchFromLocator.locator
+
+  # Post-commit workbench → FOP (for ticketing)
+  - from: createWorkbenchFromLocator.workbenchId
+    to: addFormOfPaymentCash.workbenchId
+  - from: createWorkbenchFromLocator.workbenchId
+    to: addFormOfPaymentCard.workbenchId
+
+  # Post-commit workbench → Ticket commit
+  - from: createWorkbenchFromLocator.workbenchId
+    to: commitTicket.workbenchId
+
+  # Commit → Ticket retrieval
+  - from: commitReservation.locator
+    to: getTicketByLocator.locator
+
+  # Ticket → Void
+  - from: getTicketByLocator.tickets
+    to: voidTicket.ticketIdentifier
+    select: true
+
+  # Commit → Cancel Offer
+  - from: commitReservation.reservationIdentifierValue
+    to: cancelOffer.reservationIdentifier
+
+  # Retrieve → Cancel Offer (offer selection)
+  - from: retrieveReservation.offers
+    to: cancelOffer.offerIdentifierValue
+    select: true
+
+  # Commit → Exchange Eligibility (by locator)
+  - from: commitReservation.locator
+    to: getExchangeEligibility.locator
+
+  # Commit → Exchange Search (via workbench)
+  - from: createWorkbenchFromLocator.workbenchId
+    to: searchExchange.reservationIdentifier
+  - from: createWorkbenchFromLocator.offerIdentifierValue
+    to: searchExchange.offerIdentifierValue
+
+  # Exchange Search → Add Exchange Offer
+  - from: createWorkbenchFromLocator.workbenchId
+    to: addExchangeOffer.workbenchId
+  - from: searchExchange.catalogOfferingsIdentifierValue
+    to: addExchangeOffer.catalogOfferingsIdentifierValue
+  - from: searchExchange.exchangeOfferings
+    to: addExchangeOffer.catalogOfferingIdentifierValue
+    select: true
+
+  # Add Exchange Offer → Exchange FOPs
+  - from: addExchangeOffer.workbenchId
+    to: addFormOfPaymentForfeit.workbenchId
+  - from: addExchangeOffer.workbenchId
+    to: addFormOfPaymentWaiver.workbenchId
+  - from: addExchangeOffer.workbenchId
+    to: addFormOfPaymentInvoice.workbenchId
+  - from: addExchangeOffer.workbenchId
+    to: addFormOfPaymentCash.workbenchId
+  - from: addExchangeOffer.workbenchId
+    to: addFormOfPaymentCard.workbenchId
+
+  # Exchange FOPs → Payment
+  - from: addFormOfPaymentForfeit.fopIdentifierValue
+    to: addPayment.fopIdentifierValue
+  - from: addFormOfPaymentWaiver.fopIdentifierValue
+    to: addPayment.fopIdentifierValue
+  - from: addFormOfPaymentInvoice.fopIdentifierValue
+    to: addPayment.fopIdentifierValue
+
+  # Add Exchange Offer → Payment (offer reference + price)
+  - from: addExchangeOffer.offerIdentifierValue
+    to: addPayment.offerIdentifierValue
+  - from: addExchangeOffer.offerId
+    to: addPayment.offerId
+  - from: addExchangeOffer.offerAuthority
+    to: addPayment.offerAuthority
+  - from: addExchangeOffer.totalPrice
+    to: addPayment.amount
+  - from: addExchangeOffer.currencyCode
+    to: addPayment.currencyCode
+  - from: addExchangeOffer.workbenchId
+    to: addPayment.workbenchId
+
+  # Add Exchange Offer → Document Overrides
+  - from: addExchangeOffer.workbenchId
+    to: addDocumentOverrides.workbenchId
+  - from: createWorkbenchFromLocator.workbenchId
+    to: addDocumentOverrides.workbenchId
+
+  # Exchange Ticket Issuance
+  - from: createWorkbenchFromLocator.workbenchId
+    to: commitExchangeTicket.workbenchId
+
+  # Reservation Comments (usable in both booking and exchange)
+  - from: createWorkbench.workbenchId
+    to: addReservationComment.workbenchId
+  - from: createWorkbenchFromLocator.workbenchId
+    to: addReservationComment.workbenchId
+
+  # Accounting Remarks (usable in both booking and exchange)
+  - from: createWorkbench.workbenchId
+    to: addAccountingRemark.workbenchId
+  - from: createWorkbenchFromLocator.workbenchId
+    to: addAccountingRemark.workbenchId
+
+  # Post-commit workbench → Exchange FOPs (direct use)
+  - from: createWorkbenchFromLocator.workbenchId
+    to: addFormOfPaymentForfeit.workbenchId
+  - from: createWorkbenchFromLocator.workbenchId
+    to: addFormOfPaymentWaiver.workbenchId
+  - from: createWorkbenchFromLocator.workbenchId
+    to: addFormOfPaymentInvoice.workbenchId
+
+  # Ticket → Exchange Eligibility (by ticket number)
+  - from: getTicketByLocator.tickets
+    to: getExchangeEligibilityByTicket.ticketNumber
+    select: true
+
+  # Reservation Comments → Delete Comment
+  - from: addReservationComment.reservationCommentId
+    to: deleteReservationComment.reservationCommentId
+  - from: addReservationComment.commentId
+    to: deleteReservationComment.commentId
+  - from: createWorkbench.workbenchId
+    to: deleteReservationComment.workbenchId
+  - from: createWorkbenchFromLocator.workbenchId
+    to: deleteReservationComment.workbenchId
+
+  # Accounting Remarks → Delete Accounting Remark
+  - from: addAccountingRemark.accountingId
+    to: deleteAccountingRemark.accountingId
+  - from: addAccountingRemark.nameValuePairId
+    to: deleteAccountingRemark.nameValuePairId
+  - from: createWorkbench.workbenchId
+    to: deleteAccountingRemark.workbenchId
+  - from: createWorkbenchFromLocator.workbenchId
+    to: deleteAccountingRemark.workbenchId
+
+  # Commit → Queue Placement
+  - from: commitReservation.reservationIdentifierValue
+    to: placeOnQueue.reservationIdentifier
+
+  # ============================================================
+  # ANCILLARY / SEAT BOOKING EDGES
+  # ============================================================
+
+  # Search Ancillaries → Add Ancillary Offer
+  - from: searchAncillaries.catalogOfferingsIdentifierValue
+    to: addAncillaryOffer.catalogOfferingsIdentifierValue
+  - from: searchAncillaries.ancillaryOfferings
+    to: addAncillaryOffer.ancillaryOfferingId
+    select: true
+  - from: addTraveler.travelerIdentifierValue
+    to: addAncillaryOffer.travelerIdentifierValue
+  - from: createWorkbench.workbenchId
+    to: addAncillaryOffer.workbenchId
+  - from: createWorkbenchFromLocator.workbenchId
+    to: addAncillaryOffer.workbenchId
+
+  # Search Seat Map → Add Seat Offer
+  - from: searchSeatMap.catalogOfferingsIdentifierValue
+    to: addSeatOffer.catalogOfferingsIdentifierValue
+  - from: searchSeatMap.seatOfferings
+    to: addSeatOffer.seatOfferingIdentifierValue
+    select: true
+  - from: addTraveler.travelerIdentifierValue
+    to: addSeatOffer.travelerIdentifierValue
+  - from: createWorkbench.workbenchId
+    to: addSeatOffer.workbenchId
+  - from: createWorkbenchFromLocator.workbenchId
+    to: addSeatOffer.workbenchId
+
+  # ============================================================
+  # DELETE / CANCEL WORKBENCH OFFER EDGES
+  # ============================================================
+
+  # Delete Special Service
+  - from: addSpecialService.specialServiceId
+    to: deleteSpecialService.specialServiceId
+  - from: createWorkbench.workbenchId
+    to: deleteSpecialService.workbenchId
+  - from: createWorkbenchFromLocator.workbenchId
+    to: deleteSpecialService.workbenchId
+
+  # Delete Primary Contact
+  - from: addPrimaryContact.primaryContactId
+    to: deletePrimaryContact.primaryContactId
+  - from: createWorkbench.workbenchId
+    to: deletePrimaryContact.workbenchId
+  - from: createWorkbenchFromLocator.workbenchId
+    to: deletePrimaryContact.workbenchId
+
+  # Cancel Workbench Offer (seat/ancillary/flight offer pre-commit)
+  - from: addSeatOffer.offerIdentifierValue
+    to: cancelWorkbenchOffer.offerIdentifierValue
+  - from: addAncillaryOffer.offerIdentifierValue
+    to: cancelWorkbenchOffer.offerIdentifierValue
+  - from: addOfferReference.offerIdentifierValue
+    to: cancelWorkbenchOffer.offerIdentifierValue
+  - from: addOfferFullPayload.offerIdentifierValue
+    to: cancelWorkbenchOffer.offerIdentifierValue
+  - from: createWorkbench.workbenchId
+    to: cancelWorkbenchOffer.workbenchId
+  - from: createWorkbenchFromLocator.workbenchId
+    to: cancelWorkbenchOffer.workbenchId
+
+  # ============================================================
+  # TICKET DETAILS & RECEIPT EDGES
+  # ============================================================
+
+  # Ticket → Ticket Details
+  - from: getTicketByLocator.tickets
+    to: getTicketDetails.ticketNumber
+    select: true
+
+  # Commit → Receipt Index
+  - from: commitReservation.locator
+    to: getReceiptIndex.locator
+
+  # Commit → Cancel Reservation
+  - from: commitReservation.locator
+    to: cancelReservation.locator
+
+  # Commit → Fare Rules from Reservation
+  - from: commitReservation.locator
+    to: getFareRulesFromReservation.locator
+
+  # ============================================================
+  # WORKBENCH FROM IDENTIFIER EDGES
+  # ============================================================
+
+  # Ticket → Workbench from Identifier
+  - from: getTicketByLocator.tickets
+    to: createWorkbenchFromIdentifier.ticketNumber
+    select: true
+
+  # Workbench from Identifier → downstream (same as createWorkbenchFromLocator)
+  - from: createWorkbenchFromIdentifier.workbenchId
+    to: addFormOfPaymentCash.workbenchId
+  - from: createWorkbenchFromIdentifier.workbenchId
+    to: addFormOfPaymentCard.workbenchId
+  - from: createWorkbenchFromIdentifier.workbenchId
+    to: addFormOfPaymentForfeit.workbenchId
+  - from: createWorkbenchFromIdentifier.workbenchId
+    to: addFormOfPaymentWaiver.workbenchId
+  - from: createWorkbenchFromIdentifier.workbenchId
+    to: addFormOfPaymentInvoice.workbenchId
+  - from: createWorkbenchFromIdentifier.workbenchId
+    to: commitTicket.workbenchId
+  - from: createWorkbenchFromIdentifier.workbenchId
+    to: searchExchange.reservationIdentifier
+  - from: createWorkbenchFromIdentifier.offerIdentifierValue
+    to: searchExchange.offerIdentifierValue
+  - from: createWorkbenchFromIdentifier.workbenchId
+    to: addExchangeOffer.workbenchId
+  - from: createWorkbenchFromIdentifier.workbenchId
+    to: addDocumentOverrides.workbenchId
+  - from: createWorkbenchFromIdentifier.workbenchId
+    to: commitExchangeTicket.workbenchId
+  - from: createWorkbenchFromIdentifier.workbenchId
+    to: addReservationComment.workbenchId
+  - from: createWorkbenchFromIdentifier.workbenchId
+    to: addAccountingRemark.workbenchId
+  - from: createWorkbenchFromIdentifier.workbenchId
+    to: deleteReservationComment.workbenchId
+  - from: createWorkbenchFromIdentifier.workbenchId
+    to: deleteAccountingRemark.workbenchId
+  - from: createWorkbenchFromIdentifier.workbenchId
+    to: ignoreWorkbench.workbenchId
+  - from: createWorkbenchFromIdentifier.workbenchId
+    to: retrieveWorkbench.workbenchId
+
+  # ============================================================
+  # TRAVELER MODIFICATION EDGES
+  # ============================================================
+
+  # Workbench → Updatable Traveler Items
+  - from: createWorkbenchFromLocator.workbenchId
+    to: getUpdatableTravelerItems.workbenchId
+  - from: createWorkbenchFromIdentifier.workbenchId
+    to: getUpdatableTravelerItems.workbenchId
+  - from: addTraveler.travelerIdentifierValue
+    to: getUpdatableTravelerItems.travelerIdentifierValue
+
+  # Workbench → Update Traveler
+  - from: createWorkbenchFromLocator.workbenchId
+    to: updateTraveler.workbenchId
+  - from: createWorkbenchFromIdentifier.workbenchId
+    to: updateTraveler.workbenchId
+  - from: addTraveler.travelerId
+    to: updateTraveler.travelerId
+
+  # ============================================================
+  # ADVANCED OPERATION EDGES
+  # ============================================================
+
+  # Commit → Divide Reservation
+  - from: commitReservation.reservationIdentifierValue
+    to: divideReservation.reservationIdentifierValue
+  - from: addTraveler.travelerIdentifierValue
+    to: divideReservation.travelerIdentifierValue
+
+  # Workbench → Add Travel Agency
+  - from: createWorkbench.workbenchId
+    to: addTravelAgency.workbenchId
+  - from: createWorkbenchFromLocator.workbenchId
+    to: addTravelAgency.workbenchId

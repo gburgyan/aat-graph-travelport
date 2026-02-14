@@ -1,0 +1,49 @@
+adapter: priceOfferFullPayload
+protocol: http
+
+request:
+  method: POST
+  path: /11/air/price/offers/buildfromproducts
+  headers:
+    Content-Type: application/json
+  body: |
+    {
+      "@type": "OfferQueryBuildFromProducts",
+      "BuildFromProductsRequest": {
+        "@type": "BuildFromProductsRequestAir",
+        "PricingModifiersAir": {
+          "@type": "PricingModifiersAir"
+        },
+        "PassengerCriteria": [
+          {
+            "@type": "PassengerCriteria",
+            "number": {{passengers}},
+            "passengerTypeCode": "{{passengerTypeCode}}"
+          }
+        ],
+        "ProductCriteriaAir": [
+          {
+            "sequence": 1,
+            "SpecificFlightCriteria": [
+              {
+                "carrier": "{{carrier}}",
+                "flightNumber": "{{flightNumber}}",
+                "departureDate": "{{departureDate}}",
+                "from": "{{origin}}",
+                "to": "{{destination}}",
+                "classOfService": "{{classOfService}}",
+                "segmentSequence": 1
+              }
+            ]
+          }
+        ]
+      }
+    }
+
+response:
+  extract:
+    offerIdentifierValue: "OfferResponse.Offer.Identifier.value"
+    offerId: "OfferResponse.Offer.id"
+    totalPrice: "OfferResponse.Offer.Price.TotalPrice.value"
+    currencyCode: "OfferResponse.Offer.Price.TotalPrice.code"
+    productIdentifiers: "OfferResponse.Offer.Product"

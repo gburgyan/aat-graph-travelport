@@ -1,0 +1,12 @@
+adapter: getFareRulesFromSearch
+protocol: http
+
+request:
+  method: GET
+  path: /11/air/farerule/farerules/fromcatalogproductofferings?catalogProductOfferingsIdentifier={{catalogProductOfferingsId}}&catalogProductOfferingID={{offeringId}}&productIDs={{productId}}&fareRuleType=long
+  headers:
+    Accept: application/json
+
+response:
+  extract:
+    fareRules: "FareRuleListResponse.FareRule"

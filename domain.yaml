@@ -1,0 +1,312 @@
+concepts:
+  airportCode:
+    description: "3-letter IATA airport or city code used for origin/destination"
+    applies_to: [origin, destination]
+
+  passengerType:
+    description: "Passenger type classification affecting pricing and rules"
+    applies_to: [passengerTypeCode]
+
+  cabinClass:
+    description: "Cabin class preference for flight search"
+    applies_to: [cabinPreference]
+
+  carrierCode:
+    description: "2-letter IATA airline code"
+    applies_to: [carrierPreference]
+
+  contentSource:
+    description: "Whether to search GDS or NDC content"
+    applies_to: [contentSource]
+
+  gender:
+    description: "Traveler gender designation per API specification"
+    applies_to: [gender]
+
+  cardType:
+    description: "Credit card type code used by Travelport"
+    applies_to: [cardCode]
+
+  ssrCode:
+    description: "Special service request codes per IATA standards"
+    applies_to: [ssrCode]
+
+  currencyCode:
+    description: "ISO 4217 currency code"
+    applies_to: [currencyCode]
+
+  bookingStatus:
+    description: "Lifecycle status of a reservation"
+    applies_to: [reservationStatus]
+
+  commentCategory:
+    description: "Reservation comment type identifier"
+    applies_to: [commentName]
+
+  accountingField:
+    description: "Accounting field type identifier"
+    applies_to: [accountingName]
+
+types:
+  airportCode:
+    description: "3-letter IATA airport or city code"
+    validation: "^[A-Z]{3}$"
+    pool: airportCodes
+
+  passengerTypeCode:
+    description: "IATA passenger type code"
+    validation: "^[A-Z]{3}$"
+    pool: passengerTypeCodes
+
+  cabinPreference:
+    description: "Cabin class name"
+    pool: cabinClasses
+
+  carrierCode:
+    description: "2-letter IATA airline code"
+    validation: "^[A-Z0-9]{2}$"
+    pool: carrierCodes
+
+  cardCode:
+    description: "Payment card type code"
+    validation: "^[A-Z]{2}$"
+    pool: cardCodes
+
+  ssrCode:
+    description: "IATA Special Service Request code"
+    validation: "^[A-Z]{4}$"
+    pool: ssrCodes
+
+  currencyCode:
+    description: "ISO 4217 three-letter currency code"
+    validation: "^[A-Z]{3}$"
+    pool: currencyCodes
+
+  pnrLocator:
+    description: "6-character PNR record locator"
+    validation: "^[A-Z]{6}$"
+
+  givenName:
+    description: "Traveler given/first name"
+    validation: "^[A-Za-z][A-Za-z '-]{0,49}$"
+    pool: givenNames
+
+  surname:
+    description: "Traveler family/last name"
+    validation: "^[A-Za-z][A-Za-z '-]{0,49}$"
+    pool: surnames
+
+  email:
+    description: "Email address"
+    validation: "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+
+  phoneNumber:
+    description: "Phone number (digits only)"
+    validation: "^[0-9]{7,15}$"
+
+  dateYMD:
+    description: "Date in YYYY-MM-DD format"
+    validation: "^\\d{4}-\\d{2}-\\d{2}$"
+
+  cardExpiry:
+    description: "Card expiration in MMYY format"
+    validation: "^(0[1-9]|1[0-2])\\d{2}$"
+
+  waiverCode:
+    description: "Airline disruption waiver code"
+    validation: "^[A-Za-z0-9]{1,128}$"
+
+  invoiceNumber:
+    description: "Agent invoice number"
+    validation: "^[A-Za-z0-9]{1,38}$"
+
+  commentName:
+    description: "Reservation comment category code"
+    pool: commentCategories
+
+  accountingName:
+    description: "Accounting field name code"
+    pool: accountingCodes
+
+valuePools:
+  airportCodes:
+    type: string
+    values:
+      # Major US hubs
+      - JFK
+      - LAX
+      - ORD
+      - ATL
+      - DFW
+      - DEN
+      - SFO
+      - SEA
+      - MIA
+      - BOS
+      - IAD
+      - EWR
+      - IAH
+      - PHX
+      - MSP
+      # Major international
+      - LHR
+      - CDG
+      - FRA
+      - AMS
+      - NRT
+      - HND
+      - SIN
+      - HKG
+      - SYD
+      - DXB
+      - DOH
+      - YYZ
+      - MEX
+      - GRU
+      - DEL
+
+  passengerTypeCodes:
+    type: string
+    values:
+      - ADT   # Adult
+      - CNN   # Child (2-11)
+      - INF   # Infant (under 2, lap)
+      - INS   # Infant with seat
+      - UNN   # Unaccompanied minor
+      - MIL   # Military
+      - SRC   # Senior citizen
+      - STU   # Student
+
+  cabinClasses:
+    type: string
+    values:
+      - Economy
+      - PremiumEconomy
+      - Business
+      - First
+
+  contentSources:
+    type: string
+    values:
+      - GDS
+      - NDC
+
+  carrierCodes:
+    type: string
+    values:
+      - UA   # United Airlines
+      - AA   # American Airlines
+      - DL   # Delta Air Lines
+      - WN   # Southwest Airlines
+      - B6   # JetBlue
+      - AS   # Alaska Airlines
+      - BA   # British Airways
+      - LH   # Lufthansa
+      - AF   # Air France
+      - KL   # KLM
+      - SQ   # Singapore Airlines
+      - EK   # Emirates
+      - QR   # Qatar Airways
+      - CX   # Cathay Pacific
+      - NH   # ANA
+      - AC   # Air Canada
+      - QF   # Qantas
+      - TK   # Turkish Airlines
+
+  genders:
+    type: string
+    values:
+      - Male
+      - Female
+      - Unknown
+      - Undisclosed
+
+  cardCodes:
+    type: string
+    values:
+      - VI   # Visa
+      - MC   # Mastercard
+      - AX   # American Express
+      - DC   # Diners Club
+      - DS   # Discover
+      - JC   # JCB
+      - TP   # UATP (Universal Air Travel Plan)
+
+  ssrCodes:
+    type: string
+    values:
+      - WCHR   # Wheelchair (ramp)
+      - WCHC   # Wheelchair (cabin seat, immobile)
+      - WCHS   # Wheelchair (steps)
+      - BLND   # Blind passenger
+      - DEAF   # Deaf passenger
+      - VGML   # Vegetarian meal
+      - VLML   # Vegetarian lacto-ovo meal
+      - AVML   # Asian vegetarian meal
+      - KSML   # Kosher meal
+      - DBML   # Diabetic meal
+      - GFML   # Gluten-free meal
+      - SPML   # Special meal
+      - PETC   # Pet in cabin
+      - AVIH   # Animal in hold
+
+  currencyCodes:
+    type: string
+    values:
+      - USD
+      - EUR
+      - GBP
+      - CAD
+      - AUD
+      - JPY
+      - CHF
+      - SGD
+      - HKD
+      - AED
+      - BRL
+      - MXN
+      - INR
+
+  commentCategories:
+    type: string
+    values:
+      - RE   # General remark
+      - RI   # Itinerary remark
+      - RN   # Notepad remark
+      - RH   # Historical remark
+      - RV   # Vendor remark
+
+  accountingCodes:
+    type: string
+    values:
+      - IN   # Invoice
+      - AN   # Accounting number
+      - AC   # Account code
+
+  givenNames:
+    type: string
+    values:
+      - James
+      - Mary
+      - John
+      - Patricia
+      - Robert
+      - Jennifer
+      - Michael
+      - Linda
+      - William
+      - Elizabeth
+
+  surnames:
+    type: string
+    values:
+      - Smith
+      - Johnson
+      - Williams
+      - Brown
+      - Jones
+      - Garcia
+      - Miller
+      - Davis
+      - Rodriguez
+      - Martinez

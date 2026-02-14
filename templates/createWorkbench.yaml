@@ -1,0 +1,18 @@
+adapter: createWorkbench
+protocol: http
+
+request:
+  method: POST
+  path: /11/air/book/session/reservationworkbench
+  headers:
+    Content-Type: application/json
+    Accept: application/json
+  body: |
+    {
+      "@type": "ReservationID",
+      "Identifier": {}
+    }
+
+response:
+  extract:
+    workbenchId: "ReservationResponse.Identifier.value"

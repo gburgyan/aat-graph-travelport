@@ -1,0 +1,11 @@
+adapter: deletePrimaryContact
+protocol: http
+
+request:
+  method: DELETE
+  path: /11/air/book/primarycontact/reservationworkbench/{{workbenchId}}/primarycontacts/{{primaryContactId}}
+  headers:
+    Accept: application/json
+
+response:
+  extract: {}

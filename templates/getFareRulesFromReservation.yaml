@@ -1,0 +1,12 @@
+adapter: getFareRulesFromReservation
+protocol: http
+
+request:
+  method: GET
+  path: /11/air/farerule/farerules/fromreservation?reservationIdentifier={{locator}}&fareRuleType=ShortText
+  headers:
+    Accept: application/json
+
+response:
+  extract:
+    fareRules: "FareRuleListResponse.FareRule"

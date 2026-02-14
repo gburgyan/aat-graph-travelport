@@ -1,0 +1,30 @@
+adapter: addFormOfPaymentCard
+protocol: http
+
+request:
+  method: POST
+  path: /11/air/payment/reservationworkbench/{{workbenchId}}/formofpayment
+  headers:
+    Content-Type: application/json
+  body: |
+    {
+      "@type": "FormOfPaymentPaymentCard",
+      "PaymentCard": {
+        "@type": "PaymentCardDetail",
+        "expireDate": "{{cardExpiry}}",
+        "CardCode": "{{cardCode}}",
+        "CardHolderName": "{{cardHolderName}}",
+        "CardNumber": {
+          "@type": "CardNumber",
+          "PlainText": "{{cardNumber}}"
+        },
+        "SeriesCode": {
+          "PlainText": "{{cvv}}"
+        }
+      }
+    }
+
+response:
+  extract:
+    fopIdentifierValue: "FormOfPaymentResponse.FormOfPayment.Identifier.value"
+    fopId: "FormOfPaymentResponse.FormOfPayment.id"

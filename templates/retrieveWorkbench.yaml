@@ -1,0 +1,13 @@
+adapter: retrieveWorkbench
+protocol: http
+
+request:
+  method: GET
+  path: /11/air/book/session/reservationworkbench/{{workbenchId}}
+  headers:
+    Accept: application/json
+
+response:
+  extract:
+    workbenchId: "ReservationResponse.Identifier.value"
+    offers: "ReservationResponse.Reservation.Offer"

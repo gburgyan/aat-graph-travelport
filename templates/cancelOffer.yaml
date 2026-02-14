@@ -1,0 +1,24 @@
+adapter: cancelOffer
+protocol: http
+
+request:
+  method: PUT
+  path: /11/air/book/reservation/reservations/{{reservationIdentifier}}/canceloffer
+  headers:
+    Content-Type: application/json
+    Accept: application/json
+  body: |
+    {
+      "@type": "ReservationID",
+      "Offer": [
+        {
+          "Identifier": {
+            "value": "{{offerIdentifierValue}}"
+          }
+        }
+      ]
+    }
+
+response:
+  extract:
+    reservationStatus: "ReservationResponse.reservationStatus"

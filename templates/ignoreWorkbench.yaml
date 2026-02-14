@@ -1,0 +1,10 @@
+adapter: ignoreWorkbench
+protocol: http
+
+request:
+  method: DELETE
+  path: /11/air/book/session/reservationworkbench/{{workbenchId}}
+  headers:
+    Accept: application/json
+
+response: {}

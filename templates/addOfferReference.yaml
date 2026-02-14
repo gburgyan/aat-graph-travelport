@@ -1,0 +1,44 @@
+adapter: addOfferReference
+protocol: http
+
+request:
+  method: POST
+  path: /11/air/book/airoffer/reservationworkbench/{{workbenchId}}/offers/buildfromcatalogproductofferings
+  headers:
+    Content-Type: application/json
+    Accept: application/json
+  body: |
+    {
+      "@type": "OfferQueryBuildFromCatalogProductOfferings",
+      "BuildFromCatalogProductOfferingsRequest": {
+        "@type": "BuildFromCatalogProductOfferingsRequestAir",
+        "CatalogProductOfferingsIdentifier": {
+          "Identifier": {
+            "value": "{{catalogProductOfferingsId}}"
+          }
+        },
+        "CatalogProductOfferingSelection": [
+          {
+            "CatalogProductOfferingIdentifier": {
+              "id": "{{offeringId}}"
+            },
+            "ProductIdentifier": [
+              {
+                "Identifier": {
+                  "value": "{{productIds}}"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+
+response:
+  extract:
+    workbenchId: "ReservationResponse.Identifier.value"
+    offerIdentifierValue: "ReservationResponse.Reservation.Offer.0.Identifier.value"
+    offerId: "ReservationResponse.Reservation.Offer.0.id"
+    offerAuthority: "ReservationResponse.Reservation.Offer.0.Identifier.authority"
+    totalPrice: "ReservationResponse.Reservation.Offer.0.Price.TotalPrice.value"
+    currencyCode: "ReservationResponse.Reservation.Offer.0.Price.TotalPrice.code"

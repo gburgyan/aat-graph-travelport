@@ -1,0 +1,20 @@
+adapter: addFormOfPaymentForfeit
+protocol: http
+
+request:
+  method: POST
+  path: /11/air/payment/reservationworkbench/{{workbenchId}}/formofpayment
+  headers:
+    Content-Type: application/json
+    Accept: application/json
+  body: |
+    {
+      "FormOfPaymentForfeit": {
+        "forfeitInd": true
+      }
+    }
+
+response:
+  extract:
+    fopIdentifierValue: "FormOfPaymentResponse.FormOfPayment.Identifier.value"
+    fopId: "FormOfPaymentResponse.FormOfPayment.id"

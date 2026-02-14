@@ -1,0 +1,37 @@
+adapter: addSeatOffer
+protocol: http
+
+request:
+  method: POST
+  path: /11/air/book/airoffer/reservationworkbench/{{workbenchId}}/offers/buildancillaryoffersfromcatalogofferings
+  headers:
+    Content-Type: application/json
+    Accept: application/json
+  body: |
+    {
+      "@type": "OfferQueryBuildAncillaryOffersFromCatalogOfferings",
+      "BuildAncillaryOffersFromCatalogOfferings": [
+        {
+          "@type": "BuildAncillaryOffersFromCatalogOfferingsAirSeat",
+          "CatalogOfferingsIdentifier": {
+            "Identifier": {
+              "value": "{{catalogOfferingsIdentifierValue}}"
+            }
+          },
+          "CatalogOfferingIdentifier": {
+            "Identifier": {
+              "value": "{{seatOfferingIdentifierValue}}"
+            }
+          },
+          "TravelerIdentifierRef": {
+            "value": "{{travelerIdentifierValue}}"
+          },
+          "SeatAssignment": "{{seatAssignment}}"
+        }
+      ]
+    }
+
+response:
+  extract:
+    offerIdentifierValue: "OfferListResponse.OfferID.0.Identifier.value"
+    offerId: "OfferListResponse.OfferID.0.id"

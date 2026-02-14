@@ -1,0 +1,36 @@
+adapter: addPayment
+protocol: http
+
+request:
+  method: POST
+  path: /11/air/paymentoffer/reservationworkbench/{{workbenchId}}/payments
+  headers:
+    Content-Type: application/json
+  body: |
+    {
+      "@type": "Payment",
+      "Amount": {
+        "code": "{{currencyCode}}",
+        "minorUnit": 2,
+        "currencySource": "Charged",
+        "value": {{amount}}
+      },
+      "FormOfPaymentIdentifier": {
+        "Identifier": {
+          "value": "{{fopIdentifierValue}}"
+        }
+      },
+      "OfferIdentifier": [
+        {
+          "id": "{{offerId}}",
+          "Identifier": {
+            "authority": "{{offerAuthority}}",
+            "value": "{{offerIdentifierValue}}"
+          }
+        }
+      ]
+    }
+
+response:
+  extract:
+    paymentIdentifierValue: "PaymentResponse.Payment.Identifier.value"

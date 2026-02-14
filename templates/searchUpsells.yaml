@@ -1,0 +1,41 @@
+adapter: searchUpsells
+protocol: http
+
+request:
+  method: POST
+  path: /11/air/catalog/search/catalogproductofferings/buildoptions
+  headers:
+    Content-Type: application/json
+  body: |
+    {
+      "@type": "CatalogProductOfferingsQueryBuildOptions",
+      "BuildOptions": {
+        "@type": "BuildOptionsFromCatalogProductOptions",
+        "BuildFromCatalogProductOfferingsRequest": {
+          "@type": "BuildFromCatalogProductOfferingsRequestAir",
+          "CatalogProductOfferingsIdentifier": {
+            "Identifier": {
+              "value": "{{catalogProductOfferingsId}}"
+            }
+          },
+          "CatalogProductOfferingSelection": [
+            {
+              "CatalogProductOfferingIdentifier": {
+                "id": "{{offeringId}}"
+              },
+              "ProductIdentifier": [
+                {
+                  "Identifier": {
+                    "value": "{{productId}}"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+
+response:
+  extract:
+    upsellOfferings: "CatalogProductOfferingsResponse.CatalogProductOfferings.UpsellOffering"

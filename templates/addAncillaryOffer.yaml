@@ -1,0 +1,39 @@
+adapter: addAncillaryOffer
+protocol: http
+
+request:
+  method: POST
+  path: /11/air/book/airoffer/reservationworkbench/{{workbenchId}}/offers/buildancillaryoffersfromcatalogofferings
+  headers:
+    Content-Type: application/json
+    Accept: application/json
+  body: |
+    {
+      "@type": "OfferQueryBuildAncillaryOffersFromCatalogOfferings",
+      "BuildAncillaryOffersFromCatalogOfferings": [
+        {
+          "@type": "BuildAncillaryOffersFromCatalogOfferings",
+          "CatalogOfferingsIdentifier": {
+            "Identifier": {
+              "authority": "Travelport",
+              "value": "{{catalogOfferingsIdentifierValue}}"
+            }
+          },
+          "CatalogOfferingIdentifier": {
+            "id": "{{ancillaryOfferingId}}"
+          },
+          "ProductIdentifier": {
+            "id": "{{ancillaryProductId}}"
+          },
+          "Quantity": 1,
+          "TravelerIdentifierRef": {
+            "value": "{{travelerIdentifierValue}}"
+          }
+        }
+      ]
+    }
+
+response:
+  extract:
+    offerIdentifierValue: "OfferListResponse.OfferID.0.Identifier.value"
+    offerId: "OfferListResponse.OfferID.0.id"

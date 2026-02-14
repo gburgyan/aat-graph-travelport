@@ -1,0 +1,32 @@
+adapter: divideReservation
+protocol: http
+
+request:
+  method: POST
+  path: /11/air/book/reservation/reservations/divide
+  headers:
+    Content-Type: application/json
+    Accept: application/json
+  body: |
+    {
+      "@type": "ReservationQueryDivide",
+      "ReservationIdentifier": {
+        "Identifier": {
+          "authority": "Travelport",
+          "value": "{{reservationIdentifierValue}}"
+        }
+      },
+      "TravelerIdentifier": [
+        {
+          "Identifier": {
+            "authority": "Travelport",
+            "value": "{{travelerIdentifierValue}}"
+          }
+        }
+      ]
+    }
+
+response:
+  extract:
+    locator: "ReservationResponse.Reservation.Locator.value"
+    reservationIdentifierValue: "ReservationResponse.Reservation.Identifier.value"

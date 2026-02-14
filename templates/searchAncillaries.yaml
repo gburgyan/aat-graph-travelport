@@ -1,0 +1,34 @@
+adapter: searchAncillaries
+protocol: http
+
+request:
+  method: POST
+  path: /11/air/ancillaryshop/catalogofferingsancillaries
+  headers:
+    Content-Type: application/json
+    Accept: application/json
+  body: |
+    {
+      "@type": "CatalogOfferingsQueryAncillaries",
+      "AncillaryOfferings": {
+        "@type": "AncillaryOfferingsBuildFromReservationWorkbench",
+        "BuildFromReservationWorkbench": {
+          "@type": "BuildFromReservationWorkbench",
+          "ReservationIdentifier": {
+            "Identifier": {
+              "value": "{{workbenchId}}"
+            }
+          },
+          "OfferIdentifier": {
+            "Identifier": {
+              "value": "{{offerIdentifierValue}}"
+            }
+          }
+        }
+      }
+    }
+
+response:
+  extract:
+    ancillaryOfferings: "CatalogOfferingsAncillaryListResponse.CatalogOfferingsID"
+    catalogOfferingsIdentifierValue: "CatalogOfferingsAncillaryListResponse.Identifier.value"

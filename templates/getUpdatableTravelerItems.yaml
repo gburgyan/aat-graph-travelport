@@ -1,0 +1,20 @@
+adapter: getUpdatableTravelerItems
+protocol: http
+
+request:
+  method: POST
+  path: /11/air/book/updatableItem/reservationworkbench/{{workbenchId}}/travelerupdatableitems/buildfromtraveler
+  headers:
+    Content-Type: application/json
+    Accept: application/json
+  body: |
+    {
+      "@type": "TravelerUpdatableItemsQueryBuildFromTraveler",
+      "TravelerIdentifier": [
+        "{{travelerIdentifierValue}}"
+      ]
+    }
+
+response:
+  extract:
+    updatableItems: "TravelerUpdatableItemListResponse.TravelerUpdatableItem"

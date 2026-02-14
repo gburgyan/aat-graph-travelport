@@ -1,0 +1,11 @@
+adapter: deleteSpecialService
+protocol: http
+
+request:
+  method: DELETE
+  path: /11/air/book/specialservices/reservationworkbench/{{workbenchId}}/specialservices/{{specialServiceId}}
+  headers:
+    Accept: application/json
+
+response:
+  extract: {}

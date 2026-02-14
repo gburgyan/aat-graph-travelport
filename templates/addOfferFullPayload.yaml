@@ -1,0 +1,50 @@
+adapter: addOfferFullPayload
+protocol: http
+
+request:
+  method: POST
+  path: /11/air/book/airoffer/reservationworkbench/{{workbenchId}}/offers/buildfromproducts
+  headers:
+    Content-Type: application/json
+    Accept: application/json
+  body: |
+    {
+      "@type": "OfferQueryBuildFromProducts",
+      "BuildFromProductsRequest": {
+        "@type": "BuildFromProductsRequestAir",
+        "PricingModifiersAir": {
+          "@type": "PricingModifiersAir"
+        },
+        "PassengerCriteria": [
+          {
+            "@type": "PassengerCriteria",
+            "number": 1,
+            "passengerTypeCode": "ADT"
+          }
+        ],
+        "ProductCriteriaAir": [
+          {
+            "sequence": 1,
+            "SpecificFlightCriteria": [
+              {
+                "carrier": "{{carrier}}",
+                "flightNumber": "{{flightNumber}}",
+                "departureDate": "{{departureDate}}",
+                "from": "{{origin}}",
+                "to": "{{destination}}",
+                "segmentSequence": 1
+              }
+            ]
+          }
+        ]
+      }
+    }
+
+response:
+  extract:
+    workbenchId: "ReservationResponse.Identifier.value"
+    offerIdentifierValue: "ReservationResponse.Reservation.Offer.0.Identifier.value"
+    offerId: "ReservationResponse.Reservation.Offer.0.id"
+    offerAuthority: "ReservationResponse.Reservation.Offer.0.Identifier.authority"
+    totalPrice: "ReservationResponse.Reservation.Offer.0.Price.TotalPrice.value"
+    currencyCode: "ReservationResponse.Reservation.Offer.0.Price.TotalPrice.code"

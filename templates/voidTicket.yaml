@@ -1,0 +1,18 @@
+adapter: voidTicket
+protocol: http
+
+request:
+  method: PUT
+  path: /11/air/ticket/tickets/updatestatus/{{ticketIdentifier}}
+  headers:
+    Content-Type: application/json
+    Accept: application/json
+  body: |
+    {
+      "@type": "TicketQueryUpdateTicket",
+      "status": "Void"
+    }
+
+response:
+  extract:
+    ticketStatus: "TicketIDResponse.Ticket.TicketStatusCode"

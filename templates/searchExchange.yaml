@@ -1,0 +1,54 @@
+adapter: searchExchange
+protocol: http
+
+request:
+  method: POST
+  path: /11/exchangesearch/catalogofferingsairchange
+  headers:
+    Content-Type: application/json
+    Accept: application/json
+  body: |
+    {
+      "CatalogOfferingsQueryAirChange": {
+        "CatalogOfferingsAirChangeRequest": {
+          "@type": "CatalogOfferingsAirChangeRequestReservation",
+          "returnBrandedFaresInd": true,
+          "BuildFromReservationWorkbench": {
+            "ReservationIdentifier": {
+              "Identifier": {
+                "authority": "Travelport",
+                "value": "{{reservationIdentifier}}"
+              }
+            },
+            "OfferIdentifier": {
+              "Identifier": {
+                "value": "{{offerIdentifierValue}}"
+              }
+            }
+          },
+          "SearchCriteriaFlight": [
+            {
+              "departureDate": "{{departureDate}}",
+              "From": {
+                "value": "{{origin}}"
+              },
+              "To": {
+                "value": "{{destination}}"
+              }
+            }
+          ],
+          "PassengerCriteria": [
+            {
+              "@type": "PassengerCriteriaAirChange",
+              "number": 1,
+              "passengerTypeCode": "ADT"
+            }
+          ]
+        }
+      }
+    }
+
+response:
+  extract:
+    exchangeOfferings: "CatalogOfferingsAirChangeResponse.CatalogOfferings.CatalogOffering"
+    catalogOfferingsIdentifierValue: "CatalogOfferingsAirChangeResponse.CatalogOfferings.Identifier.value"

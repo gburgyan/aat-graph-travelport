@@ -1,0 +1,12 @@
+adapter: deleteAccountingRemark
+protocol: http
+
+request:
+  method: POST
+  path: /11/air/book/accounting/reservationworkbench/{{workbenchId}}/accountings/{{accountingId}}/namevaluepairs?NameValuePairIds={{nameValuePairId}}
+  headers:
+    Content-Type: application/json
+    Accept: application/json
+
+response:
+  extract: {}

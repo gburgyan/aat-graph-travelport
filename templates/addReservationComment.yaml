@@ -1,0 +1,31 @@
+adapter: addReservationComment
+protocol: http
+
+request:
+  method: POST
+  path: /11/air/book/remarks/reservationworkbench/{{workbenchId}}/reservationcomments/list
+  headers:
+    Content-Type: application/json
+    Accept: application/json
+  body: |
+    {
+      "ReservationCommentListRequest": {
+        "ReservationCommentID": [
+          {
+            "@type": "ReservationComment",
+            "Comment": [
+              {
+                "name": "{{commentName}}",
+                "value": "{{commentValue}}",
+                "language": "EN"
+              }
+            ]
+          }
+        ]
+      }
+    }
+
+response:
+  extract:
+    reservationCommentId: "ReservationCommentListResponse.ReservationComment.0.id"
+    commentId: "ReservationCommentListResponse.ReservationComment.0.Comment.0.id"

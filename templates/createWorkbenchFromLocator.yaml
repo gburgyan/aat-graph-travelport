@@ -1,0 +1,16 @@
+adapter: createWorkbenchFromLocator
+protocol: http
+
+request:
+  method: POST
+  path: /11/air/book/session/reservationworkbench/buildfromlocator?Locator={{locator}}
+  headers:
+    Content-Type: application/json
+    Accept: application/json
+
+response:
+  extract:
+    workbenchId: "ReservationResponse.Identifier.value"
+    offerIdentifierValue: "ReservationResponse.Reservation.Offer.0.Identifier.value"
+    offerId: "ReservationResponse.Reservation.Offer.0.id"
+    offerAuthority: "ReservationResponse.Reservation.Offer.0.Identifier.authority"

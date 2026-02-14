@@ -1,0 +1,15 @@
+adapter: commitExchangeTicket
+protocol: http
+
+request:
+  method: POST
+  path: /11/air/book/reservation/reservations/{{workbenchId}}?payLaterInd=false
+  headers:
+    Content-Type: application/json
+    Accept: application/json
+
+response:
+  extract:
+    reservationIdentifierValue: "ReservationResponse.Reservation.Identifier.value"
+    locator: "ReservationResponse.Reservation.Locator.value"
+    reservationStatus: "ReservationResponse.reservationStatus"

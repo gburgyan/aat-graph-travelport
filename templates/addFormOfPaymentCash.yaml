@@ -1,0 +1,17 @@
+adapter: addFormOfPaymentCash
+protocol: http
+
+request:
+  method: POST
+  path: /11/air/payment/reservationworkbench/{{workbenchId}}/formofpayment
+  headers:
+    Content-Type: application/json
+  body: |
+    {
+      "@type": "FormOfPaymentCash"
+    }
+
+response:
+  extract:
+    fopIdentifierValue: "FormOfPaymentResponse.FormOfPayment.Identifier.value"
+    fopId: "FormOfPaymentResponse.FormOfPayment.id"

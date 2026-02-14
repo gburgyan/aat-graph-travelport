@@ -1,0 +1,48 @@
+adapter: addDocumentOverrides
+protocol: http
+
+request:
+  method: POST
+  path: /11/air/book/documentoverride/Reservation/{{workbenchId}}/documentoverrides
+  headers:
+    Content-Type: application/json
+    Accept: application/json
+  body: |
+    {
+      "DocumentOverrides": {
+        "Commissions": [
+          {
+            "Commission": {
+              "@type": "CommissionAmount",
+              "Amount": {
+                "code": "{{commissionCurrencyCode}}",
+                "value": {{commissionAmount}}
+              }
+            }
+          }
+        ],
+        "Restrictions": [
+          {
+            "Restriction": [
+              "{{restriction}}"
+            ]
+          }
+        ],
+        "TourCodes": [
+          {
+            "TourCode": {
+              "tourCodeType": "Inclusive Tour",
+              "value": "{{tourCode}}"
+            }
+          }
+        ],
+        "ChangeFeeCollectionMethod": {
+          "code": "{{changeFeeCode}}",
+          "value": "{{changeFeeMethod}}"
+        }
+      }
+    }
+
+response:
+  extract:
+    documentOverridesId: "DocumentOverridesResponse.DocumentOverrides.id"

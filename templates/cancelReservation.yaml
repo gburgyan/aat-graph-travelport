@@ -1,0 +1,12 @@
+adapter: cancelReservation
+protocol: http
+
+request:
+  method: POST
+  path: /11/air/receipt/reservations/{{locator}}/receipts
+  headers:
+    Accept: application/json
+    RetainFlag: "false"
+
+response:
+  extract: {}

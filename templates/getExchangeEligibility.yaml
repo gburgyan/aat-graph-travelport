@@ -1,0 +1,12 @@
+adapter: getExchangeEligibility
+protocol: http
+
+request:
+  method: GET
+  path: /11/eligibility/ticketchangeeligibilities?Locator={{locator}}
+  headers:
+    Accept: application/json
+
+response:
+  extract:
+    eligibilities: "TicketChangeEligibilityListResponse.TicketChangeEligibility"

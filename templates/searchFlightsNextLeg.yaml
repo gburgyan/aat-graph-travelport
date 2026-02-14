@@ -1,0 +1,40 @@
+adapter: searchFlightsNextLeg
+protocol: http
+
+request:
+  method: POST
+  path: /11/air/catalog/search/catalogproductofferings/buildnext
+  headers:
+    Content-Type: application/json
+  body: |
+    {
+      "@type": "CatalogProductOfferingsQueryBuildNext",
+      "BuildFromCatalogProductOfferingsRequest": {
+        "@type": "BuildFromCatalogProductOfferingsRequestAir",
+        "CatalogProductOfferingsIdentifier": {
+          "Identifier": {
+            "value": "{{catalogProductOfferingsId}}"
+          }
+        },
+        "CatalogProductOfferingSelection": [
+          {
+            "CatalogProductOfferingIdentifier": {
+              "id": "{{offeringId}}"
+            },
+            "ProductIdentifier": [
+              {
+                "Identifier": {
+                  "value": "{{productId}}"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+
+response:
+  extract:
+    catalogProductOfferings: "CatalogProductOfferingsResponse.CatalogProductOfferings.CatalogProductOffering"
+    catalogProductOfferingsId: "CatalogProductOfferingsResponse.CatalogProductOfferings.Identifier.value"
+    transactionId: "CatalogProductOfferingsResponse.transactionId"
