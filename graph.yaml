@@ -6,6 +6,8 @@ description: |
   management, ticketing, exchanges, ancillary/seat services, and traveler
   modification workflows.
 
+autoWire: true
+
 workflows:
   - name: Reference-Based Booking
     description: "Standard GDS booking flow using identifier references"
@@ -55,9 +57,19 @@ nodes:
       - name: origin
         type: string
         description: "Departure airport/city code (3-letter IATA)"
+        constraints:
+          minLength: 3
+          maxLength: 3
+          pattern: "^[A-Z]{3}$"
+          description: "IATA airport/city code"
       - name: destination
         type: string
         description: "Arrival airport/city code (3-letter IATA)"
+        constraints:
+          minLength: 3
+          maxLength: 3
+          pattern: "^[A-Z]{3}$"
+          description: "IATA airport/city code"
       - name: departureDate
         type: date
         description: "Departure date (YYYY-MM-DD)"
@@ -66,6 +78,9 @@ nodes:
         description: "Number of adult passengers"
         optional: true
         default: 1
+        constraints:
+          min: 1
+          max: 9
       - name: passengerTypeCode
         type: string
         description: "Passenger type code (ADT, CNN, INF, etc.)"
@@ -79,10 +94,18 @@ nodes:
         type: string
         description: "Preferred airline IATA code (e.g. UA, AA, DL)"
         optional: true
+        constraints:
+          minLength: 2
+          maxLength: 2
+          pattern: "^[A-Z0-9]{2}$"
+          description: "IATA airline code"
       - name: maxConnections
         type: integer
         description: "Maximum number of connections (0 = nonstop only)"
         optional: true
+        constraints:
+          min: 0
+          max: 3
       - name: returnDate
         type: date
         description: "Return date for round-trip searches"
@@ -284,6 +307,12 @@ nodes:
       - name: locator
         type: string
         description: "PNR record locator (e.g., ABCDEF)"
+        noAutoWire: true
+        constraints:
+          minLength: 6
+          maxLength: 6
+          pattern: "^[A-Z]{6}$"
+          description: "Travelport PNR locator"
     outputs:
       - name: workbenchId
         type: string
@@ -321,6 +350,7 @@ nodes:
       - name: workbenchId
         type: string
         description: "Reservation workbench Identifier.value"
+        noAutoWire: true
     outputs:
       - name: workbenchId
         type: string
@@ -352,6 +382,7 @@ nodes:
       - name: workbenchId
         type: string
         description: "Reservation workbench Identifier.value"
+        noAutoWire: true
       - name: catalogProductOfferingsId
         type: string
         description: "CatalogProductOfferings Identifier.value from search"
@@ -395,6 +426,7 @@ nodes:
       - name: workbenchId
         type: string
         description: "Reservation workbench Identifier.value"
+        noAutoWire: true
       - name: catalogProductOfferingsId
         type: string
         description: "CatalogProductOfferings Identifier.value from search"
@@ -444,9 +476,15 @@ nodes:
       - name: givenName
         type: string
         description: "Traveler first/given name"
+        constraints:
+          minLength: 1
+          maxLength: 50
       - name: surname
         type: string
         description: "Traveler last/family name"
+        constraints:
+          minLength: 1
+          maxLength: 50
       - name: gender
         type: enum[Male, Female, Unknown, Undisclosed]
         description: "Traveler gender"
@@ -468,6 +506,10 @@ nodes:
         type: string
         description: "Traveler phone number"
         optional: true
+        constraints:
+          minLength: 7
+          maxLength: 15
+          pattern: "^\\d{7,15}$"
       - name: phoneCountryCode
         type: string
         description: "Phone country access code"
@@ -497,6 +539,10 @@ nodes:
       - name: phoneNumber
         type: string
         description: "Contact phone number"
+        constraints:
+          minLength: 7
+          maxLength: 15
+          pattern: "^\\d{7,15}$"
       - name: phoneCountryCode
         type: string
         description: "Phone country access code"
@@ -547,6 +593,11 @@ nodes:
       - name: cardExpiry
         type: string
         description: "Card expiration (MMYY format)"
+        constraints:
+          minLength: 4
+          maxLength: 4
+          pattern: "^(0[1-9]|1[0-2])\\d{2}$"
+          description: "Card expiry in MMYY format"
       - name: cardCode
         type: string
         description: "Card type code (VI, MC, AX, etc.)"
@@ -586,6 +637,11 @@ nodes:
       - name: currencyCode
         type: string
         description: "Currency code (e.g., USD, GBP)"
+        constraints:
+          minLength: 3
+          maxLength: 3
+          pattern: "^[A-Z]{3}$"
+          description: "ISO 4217 currency code"
       - name: fopIdentifierValue
         type: string
         description: "Form of payment Identifier.value"
@@ -617,6 +673,7 @@ nodes:
       - name: workbenchId
         type: string
         description: "Reservation workbench Identifier.value to commit"
+        noAutoWire: true
     outputs:
       - name: reservationIdentifierValue
         type: string
@@ -695,6 +752,7 @@ nodes:
       - name: workbenchId
         type: string
         description: "Reservation workbench Identifier.value (from post-commit workbench)"
+        noAutoWire: true
     outputs:
       - name: reservationIdentifierValue
         type: string
@@ -713,6 +771,12 @@ nodes:
       - name: locator
         type: string
         description: "PNR record locator"
+        noAutoWire: true
+        constraints:
+          minLength: 6
+          maxLength: 6
+          pattern: "^[A-Z]{6}$"
+          description: "Travelport PNR locator"
     outputs:
       - name: tickets
         type: ticket[]
@@ -757,6 +821,7 @@ nodes:
       - name: offerIdentifierValue
         type: string
         description: "Offer Identifier.value to search ancillaries for"
+        noAutoWire: true
     outputs:
       - name: ancillaryOfferings
         type: ancillary[]
@@ -791,6 +856,7 @@ nodes:
       - name: offerIdentifierValue
         type: string
         description: "Offer Identifier.value"
+        noAutoWire: true
       - name: productIdentifierValue
         type: string
         description: "Product Identifier.value for the specific flight segment"
@@ -859,6 +925,11 @@ nodes:
       - name: locator
         type: string
         description: "PNR record locator"
+        constraints:
+          minLength: 6
+          maxLength: 6
+          pattern: "^[A-Z]{6}$"
+          description: "Travelport PNR locator"
     outputs:
       - name: eligibilities
         type: eligibility[]
@@ -904,12 +975,23 @@ nodes:
       - name: offerIdentifierValue
         type: string
         description: "Original offer Identifier.value to exchange"
+        noAutoWire: true
       - name: origin
         type: string
         description: "New departure airport/city code"
+        constraints:
+          minLength: 3
+          maxLength: 3
+          pattern: "^[A-Z]{3}$"
+          description: "IATA airport/city code"
       - name: destination
         type: string
         description: "New arrival airport/city code"
+        constraints:
+          minLength: 3
+          maxLength: 3
+          pattern: "^[A-Z]{3}$"
+          description: "IATA airport/city code"
       - name: departureDate
         type: date
         description: "New departure date"
@@ -941,9 +1023,11 @@ nodes:
       - name: workbenchId
         type: string
         description: "Reservation workbench Identifier.value"
+        noAutoWire: true
       - name: catalogOfferingsIdentifierValue
         type: string
         description: "CatalogOfferings Identifier.value from exchange search"
+        noAutoWire: true
       - name: catalogOfferingIdentifierValue
         type: string
         description: "Selected CatalogOffering Identifier.value from exchange search"
@@ -982,6 +1066,7 @@ nodes:
       - name: workbenchId
         type: string
         description: "Reservation workbench Identifier.value"
+        noAutoWire: true
     outputs:
       - name: reservationIdentifierValue
         type: string
@@ -1221,6 +1306,9 @@ nodes:
       - name: queueNumber
         type: string
         description: "Queue number"
+        constraints:
+          pattern: "^\\d+$"
+          description: "Numeric queue identifier"
       - name: pcc
         type: string
         description: "PCC (pseudo city code) for the queue"
@@ -1241,6 +1329,7 @@ nodes:
       - name: catalogOfferingsIdentifierValue
         type: string
         description: "CatalogOfferingsAncillary Identifier.value from ancillary search"
+        noAutoWire: true
       - name: ancillaryOfferingId
         type: string
         description: "CatalogOffering id of the selected ancillary"
@@ -1271,6 +1360,7 @@ nodes:
       - name: catalogOfferingsIdentifierValue
         type: string
         description: "CatalogOfferingsAncillary Identifier.value from seat map search"
+        noAutoWire: true
       - name: seatOfferingIdentifierValue
         type: string
         description: "Seat CatalogOffering Identifier.value"
@@ -1365,6 +1455,11 @@ nodes:
       - name: locator
         type: string
         description: "PNR record locator"
+        constraints:
+          minLength: 6
+          maxLength: 6
+          pattern: "^[A-Z]{6}$"
+          description: "Travelport PNR locator"
     outputs:
       - name: receipts
         type: receipt[]
@@ -1382,6 +1477,11 @@ nodes:
       - name: locator
         type: string
         description: "PNR record locator to cancel"
+        constraints:
+          minLength: 6
+          maxLength: 6
+          pattern: "^[A-Z]{6}$"
+          description: "Travelport PNR locator"
     outputs: []
 
   # ============================================================
@@ -1395,6 +1495,11 @@ nodes:
       - name: locator
         type: string
         description: "PNR record locator"
+        constraints:
+          minLength: 6
+          maxLength: 6
+          pattern: "^[A-Z]{6}$"
+          description: "Travelport PNR locator"
     outputs:
       - name: fareRules
         type: string
@@ -1515,6 +1620,10 @@ nodes:
       - name: phoneNumber
         type: string
         description: "Travel agency phone number"
+        constraints:
+          minLength: 7
+          maxLength: 15
+          pattern: "^\\d{7,15}$"
     outputs:
       - name: travelAgencyId
         type: string
@@ -1522,471 +1631,187 @@ nodes:
         path: "TravelAgencyResponse.TravelAgency.id"
 
 # ============================================================
-# EDGES — Data flow between nodes
+# EDGES — Explicit edges only; auto-wire handles name-matched
+# scalar output→input connections for non-optional inputs.
 # ============================================================
 edges:
-  # Search → Next Leg
-  - from: searchFlights.catalogProductOfferingsId
-    to: searchFlightsNextLeg.catalogProductOfferingsId
+  # ============================================================
+  # SELECT EDGES — Array output → element selection
+  # ============================================================
+
+  # Search flights → downstream (select offering from results)
   - from: searchFlights.catalogProductOfferings
     to: searchFlightsNextLeg.offeringId
     select: true
-
-  # Search → Upsells
-  - from: searchFlights.catalogProductOfferingsId
-    to: searchUpsells.catalogProductOfferingsId
   - from: searchFlights.catalogProductOfferings
     to: searchUpsells.offeringId
     select: true
-
-  # Search → Price (Reference)
-  - from: searchFlights.catalogProductOfferingsId
-    to: priceOfferReference.catalogProductOfferingsId
   - from: searchFlights.catalogProductOfferings
     to: priceOfferReference.offeringId
     select: true
     preferred: true
-
-  # Search → Price (Full Payload)
-  - from: searchFlights.catalogProductOfferingsId
-    to: priceOfferFullPayload.catalogProductOfferingsId
   - from: searchFlights.catalogProductOfferings
     to: priceOfferFullPayload.offeringId
     select: true
-
-  # Search → Add Offer to Workbench (Reference)
-  - from: searchFlights.catalogProductOfferingsId
-    to: addOfferReference.catalogProductOfferingsId
   - from: searchFlights.catalogProductOfferings
     to: addOfferReference.offeringId
     select: true
-
-  # Search → Add Offer to Workbench (Full Payload)
-  - from: searchFlights.catalogProductOfferingsId
-    to: addOfferFullPayload.catalogProductOfferingsId
   - from: searchFlights.catalogProductOfferings
     to: addOfferFullPayload.offeringId
     select: true
-
-  # Search → Fare Rules (from search)
-  - from: searchFlights.catalogProductOfferingsId
-    to: getFareRulesFromSearch.catalogProductOfferingsId
   - from: searchFlights.catalogProductOfferings
     to: getFareRulesFromSearch.offeringId
     select: true
 
-  # Price → Fare Rules (from offer)
-  - from: priceOfferReference.offerIdentifierValue
-    to: getFareRulesFromOffer.offerIdentifierValue
-
-  # Workbench → Add Offer
-  - from: createWorkbench.workbenchId
-    to: addOfferReference.workbenchId
-    preferred: true
-  - from: createWorkbench.workbenchId
-    to: addOfferFullPayload.workbenchId
-
-  # Add Offer → Traveler
-  - from: addOfferReference.workbenchId
-    to: addTraveler.workbenchId
-    preferred: true
-  - from: addOfferFullPayload.workbenchId
-    to: addTraveler.workbenchId
-
-  # Add Offer → Primary Contact
-  - from: addOfferReference.workbenchId
-    to: addPrimaryContact.workbenchId
-  - from: addOfferFullPayload.workbenchId
-    to: addPrimaryContact.workbenchId
-
-  # Traveler → Primary Contact (traveler identifier for association)
-  - from: addTraveler.travelerIdentifierValue
-    to: addPrimaryContact.travelerIdentifierValue
-
-  # Add Offer → FOP (Cash)
-  - from: addOfferReference.workbenchId
-    to: addFormOfPaymentCash.workbenchId
-  - from: addOfferFullPayload.workbenchId
-    to: addFormOfPaymentCash.workbenchId
-
-  # Add Offer → FOP (Card)
-  - from: addOfferReference.workbenchId
-    to: addFormOfPaymentCard.workbenchId
-  - from: addOfferFullPayload.workbenchId
-    to: addFormOfPaymentCard.workbenchId
-
-  # FOP → Payment
-  - from: addFormOfPaymentCash.fopIdentifierValue
-    to: addPayment.fopIdentifierValue
-  - from: addFormOfPaymentCard.fopIdentifierValue
-    to: addPayment.fopIdentifierValue
-
-  # Add Offer → Payment (offer reference + price)
-  - from: addOfferReference.offerIdentifierValue
-    to: addPayment.offerIdentifierValue
-    preferred: true
-  - from: addOfferReference.offerId
-    to: addPayment.offerId
-  - from: addOfferReference.offerAuthority
-    to: addPayment.offerAuthority
-  - from: addOfferReference.totalPrice
-    to: addPayment.amount
-  - from: addOfferReference.currencyCode
-    to: addPayment.currencyCode
-  - from: addOfferReference.workbenchId
-    to: addPayment.workbenchId
-
-  - from: addOfferFullPayload.offerIdentifierValue
-    to: addPayment.offerIdentifierValue
-  - from: addOfferFullPayload.offerId
-    to: addPayment.offerId
-  - from: addOfferFullPayload.offerAuthority
-    to: addPayment.offerAuthority
-  - from: addOfferFullPayload.totalPrice
-    to: addPayment.amount
-  - from: addOfferFullPayload.currencyCode
-    to: addPayment.currencyCode
-  - from: addOfferFullPayload.workbenchId
-    to: addPayment.workbenchId
-
-  # Workbench → Commit
-  - from: createWorkbench.workbenchId
-    to: commitReservation.workbenchId
-  - from: createWorkbench.workbenchId
-    to: ignoreWorkbench.workbenchId
-
-  # Workbench → Retrieve Workbench
-  - from: createWorkbench.workbenchId
-    to: retrieveWorkbench.workbenchId
-
-  # Workbench → Ancillaries
-  - from: createWorkbench.workbenchId
-    to: searchAncillaries.workbenchId
-  - from: addOfferReference.offerIdentifierValue
-    to: searchAncillaries.offerIdentifierValue
-
-  # Workbench → Seat Map
-  - from: createWorkbench.workbenchId
-    to: searchSeatMap.workbenchId
-  - from: addOfferReference.offerIdentifierValue
-    to: searchSeatMap.offerIdentifierValue
-
-  # Workbench → Special Services
-  - from: createWorkbench.workbenchId
-    to: addSpecialService.workbenchId
-
-  # Commit → Retrieve Reservation
-  - from: commitReservation.reservationIdentifierValue
-    to: retrieveReservation.identifier
-  - from: commitReservation.locator
-    to: retrieveReservation.identifier
-
-  # Commit → Post-commit workbench (for ticketing)
-  - from: commitReservation.locator
-    to: createWorkbenchFromLocator.locator
-
-  # Post-commit workbench → FOP (for ticketing)
-  - from: createWorkbenchFromLocator.workbenchId
-    to: addFormOfPaymentCash.workbenchId
-  - from: createWorkbenchFromLocator.workbenchId
-    to: addFormOfPaymentCard.workbenchId
-
-  # Post-commit workbench → Ticket commit
-  - from: createWorkbenchFromLocator.workbenchId
-    to: commitTicket.workbenchId
-
-  # Commit → Ticket retrieval
-  - from: commitReservation.locator
-    to: getTicketByLocator.locator
-
-  # Ticket → Void
+  # Ticket selection
   - from: getTicketByLocator.tickets
     to: voidTicket.ticketIdentifier
     select: true
-
-  # Commit → Cancel Offer
-  - from: commitReservation.reservationIdentifierValue
-    to: cancelOffer.reservationIdentifier
-
-  # Retrieve → Cancel Offer (offer selection)
-  - from: retrieveReservation.offers
-    to: cancelOffer.offerIdentifierValue
-    select: true
-
-  # Commit → Exchange Eligibility (by locator)
-  - from: commitReservation.locator
-    to: getExchangeEligibility.locator
-
-  # Commit → Exchange Search (via workbench)
-  - from: createWorkbenchFromLocator.workbenchId
-    to: searchExchange.reservationIdentifier
-  - from: createWorkbenchFromLocator.offerIdentifierValue
-    to: searchExchange.offerIdentifierValue
-
-  # Exchange Search → Add Exchange Offer
-  - from: createWorkbenchFromLocator.workbenchId
-    to: addExchangeOffer.workbenchId
-  - from: searchExchange.catalogOfferingsIdentifierValue
-    to: addExchangeOffer.catalogOfferingsIdentifierValue
-  - from: searchExchange.exchangeOfferings
-    to: addExchangeOffer.catalogOfferingIdentifierValue
-    select: true
-
-  # Add Exchange Offer → Exchange FOPs
-  - from: addExchangeOffer.workbenchId
-    to: addFormOfPaymentForfeit.workbenchId
-  - from: addExchangeOffer.workbenchId
-    to: addFormOfPaymentWaiver.workbenchId
-  - from: addExchangeOffer.workbenchId
-    to: addFormOfPaymentInvoice.workbenchId
-  - from: addExchangeOffer.workbenchId
-    to: addFormOfPaymentCash.workbenchId
-  - from: addExchangeOffer.workbenchId
-    to: addFormOfPaymentCard.workbenchId
-
-  # Exchange FOPs → Payment
-  - from: addFormOfPaymentForfeit.fopIdentifierValue
-    to: addPayment.fopIdentifierValue
-  - from: addFormOfPaymentWaiver.fopIdentifierValue
-    to: addPayment.fopIdentifierValue
-  - from: addFormOfPaymentInvoice.fopIdentifierValue
-    to: addPayment.fopIdentifierValue
-
-  # Add Exchange Offer → Payment (offer reference + price)
-  - from: addExchangeOffer.offerIdentifierValue
-    to: addPayment.offerIdentifierValue
-  - from: addExchangeOffer.offerId
-    to: addPayment.offerId
-  - from: addExchangeOffer.offerAuthority
-    to: addPayment.offerAuthority
-  - from: addExchangeOffer.totalPrice
-    to: addPayment.amount
-  - from: addExchangeOffer.currencyCode
-    to: addPayment.currencyCode
-  - from: addExchangeOffer.workbenchId
-    to: addPayment.workbenchId
-
-  # Add Exchange Offer → Document Overrides
-  - from: addExchangeOffer.workbenchId
-    to: addDocumentOverrides.workbenchId
-  - from: createWorkbenchFromLocator.workbenchId
-    to: addDocumentOverrides.workbenchId
-
-  # Exchange Ticket Issuance
-  - from: createWorkbenchFromLocator.workbenchId
-    to: commitExchangeTicket.workbenchId
-
-  # Reservation Comments (usable in both booking and exchange)
-  - from: createWorkbench.workbenchId
-    to: addReservationComment.workbenchId
-  - from: createWorkbenchFromLocator.workbenchId
-    to: addReservationComment.workbenchId
-
-  # Accounting Remarks (usable in both booking and exchange)
-  - from: createWorkbench.workbenchId
-    to: addAccountingRemark.workbenchId
-  - from: createWorkbenchFromLocator.workbenchId
-    to: addAccountingRemark.workbenchId
-
-  # Post-commit workbench → Exchange FOPs (direct use)
-  - from: createWorkbenchFromLocator.workbenchId
-    to: addFormOfPaymentForfeit.workbenchId
-  - from: createWorkbenchFromLocator.workbenchId
-    to: addFormOfPaymentWaiver.workbenchId
-  - from: createWorkbenchFromLocator.workbenchId
-    to: addFormOfPaymentInvoice.workbenchId
-
-  # Ticket → Exchange Eligibility (by ticket number)
   - from: getTicketByLocator.tickets
     to: getExchangeEligibilityByTicket.ticketNumber
     select: true
-
-  # Reservation Comments → Delete Comment
-  - from: addReservationComment.reservationCommentId
-    to: deleteReservationComment.reservationCommentId
-  - from: addReservationComment.commentId
-    to: deleteReservationComment.commentId
-  - from: createWorkbench.workbenchId
-    to: deleteReservationComment.workbenchId
-  - from: createWorkbenchFromLocator.workbenchId
-    to: deleteReservationComment.workbenchId
-
-  # Accounting Remarks → Delete Accounting Remark
-  - from: addAccountingRemark.accountingId
-    to: deleteAccountingRemark.accountingId
-  - from: addAccountingRemark.nameValuePairId
-    to: deleteAccountingRemark.nameValuePairId
-  - from: createWorkbench.workbenchId
-    to: deleteAccountingRemark.workbenchId
-  - from: createWorkbenchFromLocator.workbenchId
-    to: deleteAccountingRemark.workbenchId
-
-  # Commit → Queue Placement
-  - from: commitReservation.reservationIdentifierValue
-    to: placeOnQueue.reservationIdentifier
-
-  # ============================================================
-  # ANCILLARY / SEAT BOOKING EDGES
-  # ============================================================
-
-  # Search Ancillaries → Add Ancillary Offer
-  - from: searchAncillaries.catalogOfferingsIdentifierValue
-    to: addAncillaryOffer.catalogOfferingsIdentifierValue
-  - from: searchAncillaries.ancillaryOfferings
-    to: addAncillaryOffer.ancillaryOfferingId
-    select: true
-  - from: addTraveler.travelerIdentifierValue
-    to: addAncillaryOffer.travelerIdentifierValue
-  - from: createWorkbench.workbenchId
-    to: addAncillaryOffer.workbenchId
-  - from: createWorkbenchFromLocator.workbenchId
-    to: addAncillaryOffer.workbenchId
-
-  # Search Seat Map → Add Seat Offer
-  - from: searchSeatMap.catalogOfferingsIdentifierValue
-    to: addSeatOffer.catalogOfferingsIdentifierValue
-  - from: searchSeatMap.seatOfferings
-    to: addSeatOffer.seatOfferingIdentifierValue
-    select: true
-  - from: addTraveler.travelerIdentifierValue
-    to: addSeatOffer.travelerIdentifierValue
-  - from: createWorkbench.workbenchId
-    to: addSeatOffer.workbenchId
-  - from: createWorkbenchFromLocator.workbenchId
-    to: addSeatOffer.workbenchId
-
-  # ============================================================
-  # DELETE / CANCEL WORKBENCH OFFER EDGES
-  # ============================================================
-
-  # Delete Special Service
-  - from: addSpecialService.specialServiceId
-    to: deleteSpecialService.specialServiceId
-  - from: createWorkbench.workbenchId
-    to: deleteSpecialService.workbenchId
-  - from: createWorkbenchFromLocator.workbenchId
-    to: deleteSpecialService.workbenchId
-
-  # Delete Primary Contact
-  - from: addPrimaryContact.primaryContactId
-    to: deletePrimaryContact.primaryContactId
-  - from: createWorkbench.workbenchId
-    to: deletePrimaryContact.workbenchId
-  - from: createWorkbenchFromLocator.workbenchId
-    to: deletePrimaryContact.workbenchId
-
-  # Cancel Workbench Offer (seat/ancillary/flight offer pre-commit)
-  - from: addSeatOffer.offerIdentifierValue
-    to: cancelWorkbenchOffer.offerIdentifierValue
-  - from: addAncillaryOffer.offerIdentifierValue
-    to: cancelWorkbenchOffer.offerIdentifierValue
-  - from: addOfferReference.offerIdentifierValue
-    to: cancelWorkbenchOffer.offerIdentifierValue
-  - from: addOfferFullPayload.offerIdentifierValue
-    to: cancelWorkbenchOffer.offerIdentifierValue
-  - from: createWorkbench.workbenchId
-    to: cancelWorkbenchOffer.workbenchId
-  - from: createWorkbenchFromLocator.workbenchId
-    to: cancelWorkbenchOffer.workbenchId
-
-  # ============================================================
-  # TICKET DETAILS & RECEIPT EDGES
-  # ============================================================
-
-  # Ticket → Ticket Details
   - from: getTicketByLocator.tickets
     to: getTicketDetails.ticketNumber
     select: true
-
-  # Commit → Receipt Index
-  - from: commitReservation.locator
-    to: getReceiptIndex.locator
-
-  # Commit → Cancel Reservation
-  - from: commitReservation.locator
-    to: cancelReservation.locator
-
-  # Commit → Fare Rules from Reservation
-  - from: commitReservation.locator
-    to: getFareRulesFromReservation.locator
-
-  # ============================================================
-  # WORKBENCH FROM IDENTIFIER EDGES
-  # ============================================================
-
-  # Ticket → Workbench from Identifier
   - from: getTicketByLocator.tickets
     to: createWorkbenchFromIdentifier.ticketNumber
     select: true
 
-  # Workbench from Identifier → downstream (same as createWorkbenchFromLocator)
-  - from: createWorkbenchFromIdentifier.workbenchId
-    to: addFormOfPaymentCash.workbenchId
-  - from: createWorkbenchFromIdentifier.workbenchId
-    to: addFormOfPaymentCard.workbenchId
-  - from: createWorkbenchFromIdentifier.workbenchId
-    to: addFormOfPaymentForfeit.workbenchId
-  - from: createWorkbenchFromIdentifier.workbenchId
-    to: addFormOfPaymentWaiver.workbenchId
-  - from: createWorkbenchFromIdentifier.workbenchId
-    to: addFormOfPaymentInvoice.workbenchId
-  - from: createWorkbenchFromIdentifier.workbenchId
-    to: commitTicket.workbenchId
-  - from: createWorkbenchFromIdentifier.workbenchId
-    to: searchExchange.reservationIdentifier
-  - from: createWorkbenchFromIdentifier.offerIdentifierValue
-    to: searchExchange.offerIdentifierValue
-  - from: createWorkbenchFromIdentifier.workbenchId
+  # Reservation offer selection
+  - from: retrieveReservation.offers
+    to: cancelOffer.offerIdentifierValue
+    select: true
+
+  # Exchange offering selection
+  - from: searchExchange.exchangeOfferings
+    to: addExchangeOffer.catalogOfferingIdentifierValue
+    select: true
+
+  # Ancillary selection
+  - from: searchAncillaries.ancillaryOfferings
+    to: addAncillaryOffer.ancillaryOfferingId
+    select: true
+
+  # Seat selection
+  - from: searchSeatMap.seatOfferings
+    to: addSeatOffer.seatOfferingIdentifierValue
+    select: true
+
+  # ============================================================
+  # PREFERRED EDGES — Backward chaining hints
+  # ============================================================
+  - from: createWorkbench.workbenchId
+    to: addOfferReference.workbenchId
+    preferred: true
+  - from: addOfferReference.workbenchId
+    to: addTraveler.workbenchId
+    preferred: true
+  - from: addOfferReference.offerIdentifierValue
+    to: addPayment.offerIdentifierValue
+    preferred: true
+
+  # Co-targets: these inputs have a preferred edge above, so auto-wire
+  # is blocked; additional explicit edges needed for alternative flows.
+  - from: addOfferFullPayload.workbenchId
+    to: addTraveler.workbenchId
+  - from: addOfferFullPayload.offerIdentifierValue
+    to: addPayment.offerIdentifierValue
+  - from: addExchangeOffer.offerIdentifierValue
+    to: addPayment.offerIdentifierValue
+
+  # ============================================================
+  # NO-AUTO-WIRE EDGES — Explicit wiring for inputs with noAutoWire
+  # (pass-through workbenchId, locator loops, cross-domain catalogs)
+  # ============================================================
+
+  # Pass-through workbenchId nodes need explicit sources
+  - from: createWorkbench.workbenchId
+    to: addOfferFullPayload.workbenchId
+  - from: createWorkbenchFromLocator.workbenchId
     to: addExchangeOffer.workbenchId
   - from: createWorkbenchFromIdentifier.workbenchId
-    to: addDocumentOverrides.workbenchId
-  - from: createWorkbenchFromIdentifier.workbenchId
-    to: commitExchangeTicket.workbenchId
-  - from: createWorkbenchFromIdentifier.workbenchId
-    to: addReservationComment.workbenchId
-  - from: createWorkbenchFromIdentifier.workbenchId
-    to: addAccountingRemark.workbenchId
-  - from: createWorkbenchFromIdentifier.workbenchId
-    to: deleteReservationComment.workbenchId
-  - from: createWorkbenchFromIdentifier.workbenchId
-    to: deleteAccountingRemark.workbenchId
-  - from: createWorkbenchFromIdentifier.workbenchId
-    to: ignoreWorkbench.workbenchId
+    to: addExchangeOffer.workbenchId
+  - from: createWorkbench.workbenchId
+    to: retrieveWorkbench.workbenchId
   - from: createWorkbenchFromIdentifier.workbenchId
     to: retrieveWorkbench.workbenchId
 
-  # ============================================================
-  # TRAVELER MODIFICATION EDGES
-  # ============================================================
+  # Locator loop prevention
+  - from: commitReservation.locator
+    to: createWorkbenchFromLocator.locator
 
-  # Workbench → Updatable Traveler Items
-  - from: createWorkbenchFromLocator.workbenchId
-    to: getUpdatableTravelerItems.workbenchId
-  - from: createWorkbenchFromIdentifier.workbenchId
-    to: getUpdatableTravelerItems.workbenchId
-  - from: addTraveler.travelerIdentifierValue
-    to: getUpdatableTravelerItems.travelerIdentifierValue
+  # Catalog offerings wired to correct downstream nodes
+  - from: searchAncillaries.catalogOfferingsIdentifierValue
+    to: addAncillaryOffer.catalogOfferingsIdentifierValue
+  - from: searchSeatMap.catalogOfferingsIdentifierValue
+    to: addSeatOffer.catalogOfferingsIdentifierValue
+  - from: searchExchange.catalogOfferingsIdentifierValue
+    to: addExchangeOffer.catalogOfferingsIdentifierValue
 
-  # Workbench → Update Traveler
-  - from: createWorkbenchFromLocator.workbenchId
-    to: updateTraveler.workbenchId
-  - from: createWorkbenchFromIdentifier.workbenchId
-    to: updateTraveler.workbenchId
-  - from: addTraveler.travelerId
-    to: updateTraveler.travelerId
+  # Offer ID for ancillary/seat searches
+  - from: addOfferReference.offerIdentifierValue
+    to: searchAncillaries.offerIdentifierValue
+  - from: addOfferReference.offerIdentifierValue
+    to: searchSeatMap.offerIdentifierValue
 
-  # ============================================================
-  # ADVANCED OPERATION EDGES
-  # ============================================================
-
-  # Commit → Divide Reservation
-  - from: commitReservation.reservationIdentifierValue
-    to: divideReservation.reservationIdentifierValue
-  - from: addTraveler.travelerIdentifierValue
-    to: divideReservation.travelerIdentifierValue
-
-  # Workbench → Add Travel Agency
+  # Commit nodes — explicit workbench sources
   - from: createWorkbench.workbenchId
-    to: addTravelAgency.workbenchId
+    to: commitReservation.workbenchId
   - from: createWorkbenchFromLocator.workbenchId
-    to: addTravelAgency.workbenchId
+    to: commitTicket.workbenchId
+  - from: createWorkbenchFromIdentifier.workbenchId
+    to: commitTicket.workbenchId
+  - from: createWorkbenchFromLocator.workbenchId
+    to: commitExchangeTicket.workbenchId
+  - from: createWorkbenchFromIdentifier.workbenchId
+    to: commitExchangeTicket.workbenchId
+
+  # Exchange search — explicit offer ID sources
+  - from: createWorkbenchFromLocator.offerIdentifierValue
+    to: searchExchange.offerIdentifierValue
+  - from: createWorkbenchFromIdentifier.offerIdentifierValue
+    to: searchExchange.offerIdentifierValue
+
+  # Ticket retrieval — explicit locator source
+  - from: commitReservation.locator
+    to: getTicketByLocator.locator
+
+  # ============================================================
+  # NAME-MISMATCHED EDGES — Output name ≠ input name
+  # ============================================================
+
+  # totalPrice → amount
+  - from: addOfferReference.totalPrice
+    to: addPayment.amount
+  - from: addOfferFullPayload.totalPrice
+    to: addPayment.amount
+  - from: addExchangeOffer.totalPrice
+    to: addPayment.amount
+
+  # Commit outputs → reservation management (name mismatches)
+  - from: commitReservation.reservationIdentifierValue
+    to: retrieveReservation.identifier
+  - from: commitReservation.locator
+    to: retrieveReservation.identifier
+  - from: commitReservation.reservationIdentifierValue
+    to: cancelOffer.reservationIdentifier
+  - from: commitReservation.reservationIdentifierValue
+    to: placeOnQueue.reservationIdentifier
+
+  # Workbench → exchange search (workbenchId → reservationIdentifier)
+  - from: createWorkbenchFromLocator.workbenchId
+    to: searchExchange.reservationIdentifier
+  - from: createWorkbenchFromIdentifier.workbenchId
+    to: searchExchange.reservationIdentifier
+
+  # ============================================================
+  # OPTIONAL-INPUT EDGES — Auto-wire skips optional inputs
+  # ============================================================
+  - from: addTraveler.travelerIdentifierValue
+    to: addPrimaryContact.travelerIdentifierValue
+  - from: addOfferReference.offerAuthority
+    to: addPayment.offerAuthority
+  - from: addOfferFullPayload.offerAuthority
+    to: addPayment.offerAuthority
+  - from: addExchangeOffer.offerAuthority
+    to: addPayment.offerAuthority
