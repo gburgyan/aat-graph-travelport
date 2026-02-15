@@ -8,10 +8,11 @@ request:
     Content-Type: application/json
   body: |
     {
-      "@type": "FormOfPaymentCash"
+      "@type": "FormOfPaymentCash",
+      "id": "formOfPayment_1",
+      "FormOfPaymentRef": "formOfPayment_1"
     }
 
 response:
   extract:
     fopIdentifierValue: "FormOfPaymentResponse.FormOfPayment.Identifier.value"
-    fopId: "FormOfPaymentResponse.FormOfPayment.id"

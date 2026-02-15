@@ -35,4 +35,3 @@ request:
 response:
   extract:
     travelerIdentifierValue: "TravelerResponse.Traveler.Identifier.value"
-    travelerId: "TravelerResponse.Traveler.id"

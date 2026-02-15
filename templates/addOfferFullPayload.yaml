@@ -42,7 +42,7 @@ request:
 
 response:
   extract:
-    workbenchId: "ReservationResponse.Identifier.value"
+    workbenchId: "ReservationResponse.Reservation.Identifier.value"
     offerIdentifierValue: "ReservationResponse.Reservation.Offer.0.Identifier.value"
     offerId: "ReservationResponse.Reservation.Offer.0.id"
     offerAuthority: "ReservationResponse.Reservation.Offer.0.Identifier.authority"

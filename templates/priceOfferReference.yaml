@@ -19,7 +19,9 @@ request:
         "CatalogProductOfferingSelection": [
           {
             "CatalogProductOfferingIdentifier": {
-              "id": "{{offeringId}}"
+              "Identifier": {
+                "value": "{{offeringId}}"
+              }
             },
             "ProductIdentifier": [
               {
@@ -35,8 +37,6 @@ request:
 
 response:
   extract:
-    offerIdentifierValue: "OfferResponse.Offer.Identifier.value"
-    offerId: "OfferResponse.Offer.id"
-    totalPrice: "OfferResponse.Offer.Price.TotalPrice.value"
-    currencyCode: "OfferResponse.Offer.Price.TotalPrice.code"
-    productIdentifiers: "OfferResponse.Offer.Product"
+    offerId: "OfferListResponse.OfferID.0.id"
+    totalPrice: "OfferListResponse.OfferID.0.Price.TotalPrice"
+    currencyCode: "OfferListResponse.OfferID.0.Price.CurrencyCode.value"

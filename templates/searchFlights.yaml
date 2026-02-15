@@ -36,16 +36,6 @@ request:
         ]
       }
     }
-    # NOTE: Optional fields cabinPreference, carrierPreference, maxConnections,
-    # and returnDate require a SearchModifiersAir object to be added to the
-    # CatalogProductOfferingsRequestAir payload. For example:
-    #   "SearchModifiersAir": {
-    #     "@type": "SearchModifiersAir",
-    #     "CabinPreference": { ... },
-    #     "CarrierPreference": { ... },
-    #     "MaxConnectionQuantity": 1
-    #   }
-    # A second SearchCriteriaFlight entry would be needed for returnDate.
 
 response:
   extract:

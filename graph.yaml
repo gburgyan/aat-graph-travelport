@@ -53,6 +53,7 @@ nodes:
     description: "Search for air catalog product offerings (flights). This is step 1 in all booking flows."
     adapter: searchFlights
     tags: [search]
+    satisfies: [flightsSearched]
     inputs:
       - name: origin
         type: string
@@ -124,6 +125,12 @@ nodes:
           - name: offeringId
             type: string
             path: "id"
+          - name: productId
+            type: string
+            path: "ProductBrandOptions.0.ProductBrandOffering.0.Product.0.productRef"
+          - name: productIds
+            type: string
+            path: "ProductBrandOptions.0.ProductBrandOffering.0.Product.0.productRef"
           - name: departure
             type: string
             path: "Departure"
@@ -213,6 +220,9 @@ nodes:
     description: "Price a flight offer using reference payload (references search results by identifier)."
     adapter: priceOfferReference
     tags: [pricing]
+    requires: [flightsSearched]
+    satisfies: [offerPriced]
+    preferred: true
     inputs:
       - name: catalogProductOfferingsId
         type: string
@@ -224,38 +234,25 @@ nodes:
         type: string
         description: "Comma-separated Product ids to include in the price request"
     outputs:
-      - name: offerIdentifierValue
-        type: string
-        description: "Offer Identifier.value from the price response"
-        path: "OfferResponse.Offer.Identifier.value"
       - name: offerId
         type: string
         description: "Offer id from the price response"
-        path: "OfferResponse.Offer.id"
+        path: "OfferListResponse.OfferID.0.id"
       - name: totalPrice
         type: float
         description: "Total price amount"
-        path: "OfferResponse.Offer.Price.TotalPrice.value"
+        path: "OfferListResponse.OfferID.0.Price.TotalPrice"
       - name: currencyCode
         type: string
         description: "Currency code of the price"
-        path: "OfferResponse.Offer.Price.TotalPrice.code"
-      - name: productIdentifiers
-        type: product[]
-        description: "Product identifiers in the priced offer"
-        path: "OfferResponse.Offer.Product"
-        elementFields:
-          - name: productId
-            type: string
-            path: "id"
-          - name: productIdentifierValue
-            type: string
-            path: "Identifier.value"
+        path: "OfferListResponse.OfferID.0.Price.CurrencyCode.value"
 
   priceOfferFullPayload:
     description: "Price a flight offer using full payload (sends complete trip details)."
     adapter: priceOfferFullPayload
     tags: [pricing]
+    requires: [flightsSearched]
+    satisfies: [offerPriced]
     inputs:
       - name: catalogProductOfferingsId
         type: string
@@ -291,18 +288,21 @@ nodes:
     description: "Create a new reservation workbench (booking session). Required before adding offers, travelers, etc."
     adapter: createWorkbench
     tags: [workbench]
+    satisfies: [workbenchCreated]
+    preferred: true
     inputs: []
     outputs:
       - name: workbenchId
         type: string
         description: "Reservation workbench Identifier.value (used in all subsequent workbench operations)"
-        path: "ReservationResponse.Identifier.value"
+        path: "ReservationResponse.Reservation.Identifier.value"
     cleanup: ignoreWorkbench
 
   createWorkbenchFromLocator:
     description: "Create a workbench from an existing reservation (by PNR locator). Used for post-commit operations like ticketing."
     adapter: createWorkbenchFromLocator
     tags: [workbench]
+    satisfies: [workbenchCreated]
     inputs:
       - name: locator
         type: string
@@ -317,7 +317,7 @@ nodes:
       - name: workbenchId
         type: string
         description: "Reservation workbench Identifier.value"
-        path: "ReservationResponse.Identifier.value"
+        path: "ReservationResponse.Reservation.Identifier.value"
       - name: offerIdentifierValue
         type: string
         description: "Offer Identifier.value from the existing reservation"
@@ -355,7 +355,7 @@ nodes:
       - name: workbenchId
         type: string
         description: "Workbench Identifier.value"
-        path: "ReservationResponse.Identifier.value"
+        path: "ReservationResponse.Reservation.Identifier.value"
       - name: offers
         type: offer[]
         description: "Offers currently in the workbench"
@@ -378,6 +378,9 @@ nodes:
     description: "Add a priced offer to the workbench using reference payload."
     adapter: addOfferReference
     tags: [offer]
+    requires: [offerPriced, workbenchCreated]
+    satisfies: [offerAdded]
+    preferred: true
     inputs:
       - name: workbenchId
         type: string
@@ -393,35 +396,21 @@ nodes:
         type: string
         description: "Comma-separated Product ids"
     outputs:
-      - name: workbenchId
-        type: string
-        description: "Updated workbench Identifier.value"
-        path: "ReservationResponse.Identifier.value"
       - name: offerIdentifierValue
         type: string
         description: "Offer Identifier.value now in the workbench"
-        path: "ReservationResponse.Reservation.Offer.0.Identifier.value"
-      - name: offerId
-        type: string
-        description: "Offer id in the workbench"
-        path: "ReservationResponse.Reservation.Offer.0.id"
+        path: "OfferListResponse.OfferID.0.Identifier.value"
       - name: offerAuthority
         type: string
         description: "Offer authority"
-        path: "ReservationResponse.Reservation.Offer.0.Identifier.authority"
-      - name: totalPrice
-        type: float
-        description: "Total price of the offer"
-        path: "ReservationResponse.Reservation.Offer.0.Price.TotalPrice.value"
-      - name: currencyCode
-        type: string
-        description: "Currency code"
-        path: "ReservationResponse.Reservation.Offer.0.Price.TotalPrice.code"
+        path: "OfferListResponse.OfferID.0.Identifier.authority"
 
   addOfferFullPayload:
     description: "Add a priced offer to the workbench using full payload."
     adapter: addOfferFullPayload
     tags: [offer]
+    requires: [offerPriced, workbenchCreated]
+    satisfies: [offerAdded]
     inputs:
       - name: workbenchId
         type: string
@@ -440,7 +429,7 @@ nodes:
       - name: workbenchId
         type: string
         description: "Updated workbench Identifier.value"
-        path: "ReservationResponse.Identifier.value"
+        path: "ReservationResponse.Reservation.Identifier.value"
       - name: offerIdentifierValue
         type: string
         description: "Offer Identifier.value now in the workbench"
@@ -469,6 +458,8 @@ nodes:
     description: "Add a traveler to the reservation workbench. Each traveler must be added in a separate request."
     adapter: addTraveler
     tags: [traveler]
+    requires: [workbenchCreated]
+    satisfies: [travelerAdded]
     inputs:
       - name: workbenchId
         type: string
@@ -489,10 +480,12 @@ nodes:
         type: enum[Male, Female, Unknown, Undisclosed]
         description: "Traveler gender"
         optional: true
+        default: Male
       - name: birthDate
         type: date
         description: "Traveler date of birth (YYYY-MM-DD)"
         optional: true
+        default: "1990-01-15"
       - name: passengerTypeCode
         type: string
         description: "Passenger type code (ADT, CNN, INF)"
@@ -502,10 +495,12 @@ nodes:
         type: string
         description: "Traveler email address"
         optional: true
+        default: "test@example.com"
       - name: phoneNumber
         type: string
         description: "Traveler phone number"
         optional: true
+        default: "5551234567"
         constraints:
           minLength: 7
           maxLength: 15
@@ -565,6 +560,9 @@ nodes:
     description: "Add cash as the form of payment."
     adapter: addFormOfPaymentCash
     tags: [payment]
+    requires: [workbenchCreated]
+    satisfies: [formOfPaymentAdded]
+    preferred: true
     inputs:
       - name: workbenchId
         type: string
@@ -583,6 +581,8 @@ nodes:
     description: "Add a credit card as the form of payment."
     adapter: addFormOfPaymentCard
     tags: [payment]
+    requires: [workbenchCreated]
+    satisfies: [formOfPaymentAdded]
     inputs:
       - name: workbenchId
         type: string
@@ -627,6 +627,8 @@ nodes:
     description: "Apply payment to the offer in the workbench. Must be done after AddFormOfPayment."
     adapter: addPayment
     tags: [payment]
+    requires: [formOfPaymentAdded]
+    satisfies: [paymentApplied]
     inputs:
       - name: workbenchId
         type: string
@@ -669,6 +671,7 @@ nodes:
     description: "Commit the workbench to create a held booking (PNR). If payment was added, this also tickets the itinerary."
     adapter: commitReservation
     tags: [commit]
+    requires: [offerAdded, travelerAdded, paymentApplied]
     inputs:
       - name: workbenchId
         type: string
@@ -677,16 +680,12 @@ nodes:
     outputs:
       - name: reservationIdentifierValue
         type: string
-        description: "Reservation Identifier.value (persistent ID)"
-        path: "ReservationResponse.Reservation.Identifier.value"
+        description: "Receipt Identifier.value from the commit response"
+        path: "ReservationResponse.Reservation.Receipt.0.Identifier.value"
       - name: locator
         type: string
         description: "PNR record locator (e.g., ABCDEF)"
-        path: "ReservationResponse.Reservation.Locator.value"
-      - name: reservationStatus
-        type: string
-        description: "Reservation status"
-        path: "ReservationResponse.reservationStatus"
+        path: "ReservationResponse.Reservation.Receipt.0.Confirmation.Locator.value"
 
   # ============================================================
   # RESERVATION MANAGEMENT
@@ -748,6 +747,7 @@ nodes:
     description: "Commit reservation workbench with ticket issuance. Used post-commit when ticketing separately."
     adapter: commitTicket
     tags: [ticketing, commit]
+    requires: [paymentApplied]
     inputs:
       - name: workbenchId
         type: string
@@ -1019,6 +1019,7 @@ nodes:
     description: "Add an exchange offer to the workbench (build from catalog offerings). This replaces the original offer with the new exchange offer."
     adapter: addExchangeOffer
     tags: [exchange, offer]
+    satisfies: [exchangeOfferAdded]
     inputs:
       - name: workbenchId
         type: string
@@ -1062,6 +1063,7 @@ nodes:
     description: "Commit the exchange and issue new tickets (payLaterInd=false)."
     adapter: commitExchangeTicket
     tags: [exchange, ticketing, commit]
+    requires: [exchangeOfferAdded, paymentApplied]
     inputs:
       - name: workbenchId
         type: string
@@ -1088,6 +1090,7 @@ nodes:
     description: "Add forfeit as form of payment (penalty amount forfeited by passenger)."
     adapter: addFormOfPaymentForfeit
     tags: [payment, exchange]
+    satisfies: [formOfPaymentAdded]
     inputs:
       - name: workbenchId
         type: string
@@ -1106,6 +1109,7 @@ nodes:
     description: "Add a waiver code as form of payment (airline-issued disruption waiver)."
     adapter: addFormOfPaymentWaiver
     tags: [payment, exchange]
+    satisfies: [formOfPaymentAdded]
     inputs:
       - name: workbenchId
         type: string
@@ -1127,6 +1131,7 @@ nodes:
     description: "Add an agent invoice as form of payment."
     adapter: addFormOfPaymentInvoice
     tags: [payment]
+    satisfies: [formOfPaymentAdded]
     inputs:
       - name: workbenchId
         type: string
@@ -1513,6 +1518,7 @@ nodes:
     description: "Create a workbench from a ticket/document number instead of PNR locator. Alternative entry point for post-commit operations."
     adapter: createWorkbenchFromIdentifier
     tags: [workbench]
+    satisfies: [workbenchCreated]
     inputs:
       - name: ticketNumber
         type: string
@@ -1521,7 +1527,7 @@ nodes:
       - name: workbenchId
         type: string
         description: "Reservation workbench Identifier.value"
-        path: "ReservationResponse.Identifier.value"
+        path: "ReservationResponse.Reservation.Identifier.value"
       - name: offerIdentifierValue
         type: string
         description: "Offer Identifier.value from the existing reservation"
@@ -1644,23 +1650,45 @@ edges:
     to: searchFlightsNextLeg.offeringId
     select: true
   - from: searchFlights.catalogProductOfferings
+    to: searchFlightsNextLeg.productId
+    select: true
+  - from: searchFlights.catalogProductOfferings
     to: searchUpsells.offeringId
+    select: true
+  - from: searchFlights.catalogProductOfferings
+    to: searchUpsells.productId
     select: true
   - from: searchFlights.catalogProductOfferings
     to: priceOfferReference.offeringId
     select: true
     preferred: true
   - from: searchFlights.catalogProductOfferings
+    to: priceOfferReference.productIds
+    select: true
+    preferred: true
+  - from: searchFlights.catalogProductOfferings
     to: priceOfferFullPayload.offeringId
+    select: true
+  - from: searchFlights.catalogProductOfferings
+    to: priceOfferFullPayload.productIds
     select: true
   - from: searchFlights.catalogProductOfferings
     to: addOfferReference.offeringId
     select: true
   - from: searchFlights.catalogProductOfferings
+    to: addOfferReference.productIds
+    select: true
+  - from: searchFlights.catalogProductOfferings
     to: addOfferFullPayload.offeringId
     select: true
   - from: searchFlights.catalogProductOfferings
+    to: addOfferFullPayload.productIds
+    select: true
+  - from: searchFlights.catalogProductOfferings
     to: getFareRulesFromSearch.offeringId
+    select: true
+  - from: searchFlights.catalogProductOfferings
+    to: getFareRulesFromSearch.productId
     select: true
 
   # Ticket selection
@@ -1703,7 +1731,7 @@ edges:
   - from: createWorkbench.workbenchId
     to: addOfferReference.workbenchId
     preferred: true
-  - from: addOfferReference.workbenchId
+  - from: createWorkbench.workbenchId
     to: addTraveler.workbenchId
     preferred: true
   - from: addOfferReference.offerIdentifierValue
@@ -1781,7 +1809,7 @@ edges:
   # ============================================================
 
   # totalPrice → amount
-  - from: addOfferReference.totalPrice
+  - from: priceOfferReference.totalPrice
     to: addPayment.amount
   - from: addOfferFullPayload.totalPrice
     to: addPayment.amount

@@ -9,6 +9,7 @@ request:
   body: |
     {
       "@type": "Payment",
+      "id": "payment_1",
       "Amount": {
         "code": "{{currencyCode}}",
         "minorUnit": 2,
@@ -16,13 +17,17 @@ request:
         "value": {{amount}}
       },
       "FormOfPaymentIdentifier": {
+        "id": "formOfPayment_1",
+        "FormOfPaymentRef": "formOfPayment_1",
         "Identifier": {
+          "authority": "Travelport",
           "value": "{{fopIdentifierValue}}"
         }
       },
       "OfferIdentifier": [
         {
           "id": "{{offerId}}",
+          "offerRef": "{{offerId}}",
           "Identifier": {
             "authority": "{{offerAuthority}}",
             "value": "{{offerIdentifierValue}}"

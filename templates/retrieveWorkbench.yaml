@@ -9,5 +9,5 @@ request:
 
 response:
   extract:
-    workbenchId: "ReservationResponse.Identifier.value"
+    workbenchId: "ReservationResponse.Reservation.Identifier.value"
     offers: "ReservationResponse.Reservation.Offer"

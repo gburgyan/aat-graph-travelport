@@ -50,86 +50,105 @@ concepts:
 types:
   airportCode:
     description: "3-letter IATA airport or city code"
+    format: string
     validation: "^[A-Z]{3}$"
     pool: airportCodes
 
   passengerTypeCode:
     description: "IATA passenger type code"
+    format: string
     validation: "^[A-Z]{3}$"
     pool: passengerTypeCodes
 
   cabinPreference:
     description: "Cabin class name"
+    format: string
     pool: cabinClasses
 
   carrierCode:
     description: "2-letter IATA airline code"
+    format: string
     validation: "^[A-Z0-9]{2}$"
     pool: carrierCodes
 
   cardCode:
     description: "Payment card type code"
+    format: string
     validation: "^[A-Z]{2}$"
     pool: cardCodes
 
   ssrCode:
     description: "IATA Special Service Request code"
+    format: string
     validation: "^[A-Z]{4}$"
     pool: ssrCodes
 
   currencyCode:
     description: "ISO 4217 three-letter currency code"
+    format: string
     validation: "^[A-Z]{3}$"
     pool: currencyCodes
 
   pnrLocator:
     description: "6-character PNR record locator"
+    format: string
     validation: "^[A-Z]{6}$"
 
   givenName:
     description: "Traveler given/first name"
+    format: string
     validation: "^[A-Za-z][A-Za-z '-]{0,49}$"
     pool: givenNames
 
   surname:
     description: "Traveler family/last name"
+    format: string
     validation: "^[A-Za-z][A-Za-z '-]{0,49}$"
     pool: surnames
 
   email:
     description: "Email address"
+    format: string
     validation: "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
 
   phoneNumber:
     description: "Phone number (digits only)"
+    format: string
     validation: "^[0-9]{7,15}$"
 
   dateYMD:
     description: "Date in YYYY-MM-DD format"
+    format: date
     validation: "^\\d{4}-\\d{2}-\\d{2}$"
 
   cardExpiry:
     description: "Card expiration in MMYY format"
+    format: string
     validation: "^(0[1-9]|1[0-2])\\d{2}$"
 
   waiverCode:
     description: "Airline disruption waiver code"
+    format: string
     validation: "^[A-Za-z0-9]{1,128}$"
 
   invoiceNumber:
     description: "Agent invoice number"
+    format: string
     validation: "^[A-Za-z0-9]{1,38}$"
 
   commentName:
     description: "Reservation comment category code"
+    format: string
     pool: commentCategories
 
   accountingName:
     description: "Accounting field name code"
+    format: string
     pool: accountingCodes
 
 valuePools:
   airportCodes:
+    description: "IATA airport and city codes for major hubs"
     type: string
     values:
       # Major US hubs
@@ -166,6 +185,7 @@ valuePools:
       - DEL
 
   passengerTypeCodes:
+    description: "IATA passenger type codes for fare pricing"
     type: string
     values:
       - ADT   # Adult
@@ -178,6 +198,7 @@ valuePools:
       - STU   # Student
 
   cabinClasses:
+    description: "Cabin class options for flight search preferences"
     type: string
     values:
       - Economy
@@ -186,12 +207,14 @@ valuePools:
       - First
 
   contentSources:
+    description: "Content source types for flight search"
     type: string
     values:
       - GDS
       - NDC
 
   carrierCodes:
+    description: "IATA 2-letter airline designator codes"
     type: string
     values:
       - UA   # United Airlines
@@ -214,6 +237,7 @@ valuePools:
       - TK   # Turkish Airlines
 
   genders:
+    description: "Traveler gender options per Travelport API specification"
     type: string
     values:
       - Male
@@ -222,6 +246,7 @@ valuePools:
       - Undisclosed
 
   cardCodes:
+    description: "Payment card type codes for credit card forms of payment"
     type: string
     values:
       - VI   # Visa
@@ -233,6 +258,7 @@ valuePools:
       - TP   # UATP (Universal Air Travel Plan)
 
   ssrCodes:
+    description: "IATA Special Service Request codes for traveler assistance and meals"
     type: string
     values:
       - WCHR   # Wheelchair (ramp)
@@ -251,6 +277,7 @@ valuePools:
       - AVIH   # Animal in hold
 
   currencyCodes:
+    description: "ISO 4217 currency codes for payment amounts"
     type: string
     values:
       - USD
@@ -268,6 +295,7 @@ valuePools:
       - INR
 
   commentCategories:
+    description: "Reservation comment category codes for remark types"
     type: string
     values:
       - RE   # General remark
@@ -277,6 +305,7 @@ valuePools:
       - RV   # Vendor remark
 
   accountingCodes:
+    description: "Accounting field name codes for financial tracking"
     type: string
     values:
       - IN   # Invoice
@@ -284,6 +313,7 @@ valuePools:
       - AC   # Account code
 
   givenNames:
+    description: "Sample traveler given/first names for testing"
     type: string
     values:
       - James
@@ -298,6 +328,7 @@ valuePools:
       - Elizabeth
 
   surnames:
+    description: "Sample traveler family/last names for testing"
     type: string
     values:
       - Smith
