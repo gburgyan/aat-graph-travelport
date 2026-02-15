@@ -37,5 +37,5 @@ request:
 
 response:
   extract:
-    seatOfferings: "CatalogOfferingsAncillaryListResponse.CatalogOfferingsID"
+    seatOfferings: "CatalogOfferingsAncillaryListResponse.CatalogOfferingsAncillary"
     catalogOfferingsIdentifierValue: "CatalogOfferingsAncillaryListResponse.Identifier.value"

@@ -9,4 +9,4 @@ request:
 
 response:
   extract:
-    fareRules: "FareRuleListResponse.FareRule"
+    fareRules: "FareRuleResponse.FareRule"

@@ -15,4 +15,4 @@ request:
 
 response:
   extract:
-    ticketStatus: "TicketIDResponse.Ticket.TicketStatusCode"
+    ticketStatus: "TicketResponse.Ticket.TicketStatusCode"

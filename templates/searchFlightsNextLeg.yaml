@@ -37,4 +37,3 @@ response:
   extract:
     catalogProductOfferings: "CatalogProductOfferingsResponse.CatalogProductOfferings.CatalogProductOffering"
     catalogProductOfferingsId: "CatalogProductOfferingsResponse.CatalogProductOfferings.Identifier.value"
-    transactionId: "CatalogProductOfferingsResponse.transactionId"

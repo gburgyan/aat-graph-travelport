@@ -120,7 +120,6 @@ nodes:
       - name: catalogProductOfferings
         type: offering[]
         description: "List of flight offerings grouped by O&D"
-        path: "CatalogProductOfferingsResponse.CatalogProductOfferings.CatalogProductOffering"
         elementFields:
           - name: offeringId
             type: string
@@ -143,11 +142,9 @@ nodes:
       - name: catalogProductOfferingsId
         type: string
         description: "Identifier.value for the entire CatalogProductOfferings container"
-        path: "CatalogProductOfferingsResponse.CatalogProductOfferings.Identifier.value"
       - name: transactionId
         type: string
         description: "Transaction tracking ID from the response"
-        path: "CatalogProductOfferingsResponse.transactionId"
 
   searchFlightsNextLeg:
     description: "Search for flights on the next leg of a multi-leg itinerary (e.g., return flight)."
@@ -167,7 +164,6 @@ nodes:
       - name: catalogProductOfferings
         type: offering[]
         description: "Flight offerings for the next leg"
-        path: "CatalogProductOfferingsResponse.CatalogProductOfferings.CatalogProductOffering"
         elementFields:
           - name: offeringId
             type: string
@@ -184,7 +180,6 @@ nodes:
       - name: catalogProductOfferingsId
         type: string
         description: "Updated CatalogProductOfferings Identifier.value"
-        path: "CatalogProductOfferingsResponse.CatalogProductOfferings.Identifier.value"
 
   searchUpsells:
     description: "Return all upsell options for a specific flight offering."
@@ -204,7 +199,6 @@ nodes:
       - name: upsellOfferings
         type: offering[]
         description: "Available upsell offerings"
-        path: "CatalogProductOfferingsResponse.CatalogProductOfferings.UpsellOffering"
         elementFields:
           - name: offeringId
             type: string
@@ -237,15 +231,12 @@ nodes:
       - name: offerId
         type: string
         description: "Offer id from the price response"
-        path: "OfferListResponse.OfferID.0.id"
       - name: totalPrice
         type: float
         description: "Total price amount"
-        path: "OfferListResponse.OfferID.0.Price.TotalPrice"
       - name: currencyCode
         type: string
         description: "Currency code of the price"
-        path: "OfferListResponse.OfferID.0.Price.CurrencyCode.value"
 
   priceOfferFullPayload:
     description: "Price a flight offer using full payload (sends complete trip details)."
@@ -267,19 +258,15 @@ nodes:
       - name: offerIdentifierValue
         type: string
         description: "Offer Identifier.value from price response"
-        path: "OfferResponse.Offer.Identifier.value"
       - name: offerId
         type: string
         description: "Offer id from price response"
-        path: "OfferResponse.Offer.id"
       - name: totalPrice
         type: float
         description: "Total price amount"
-        path: "OfferResponse.Offer.Price.TotalPrice.value"
       - name: currencyCode
         type: string
         description: "Currency code of the price"
-        path: "OfferResponse.Offer.Price.TotalPrice.code"
 
   # ============================================================
   # RESERVATION WORKBENCH
@@ -295,7 +282,6 @@ nodes:
       - name: workbenchId
         type: string
         description: "Reservation workbench Identifier.value (used in all subsequent workbench operations)"
-        path: "ReservationResponse.Reservation.Identifier.value"
     cleanup: ignoreWorkbench
 
   createWorkbenchFromLocator:
@@ -317,19 +303,15 @@ nodes:
       - name: workbenchId
         type: string
         description: "Reservation workbench Identifier.value"
-        path: "ReservationResponse.Reservation.Identifier.value"
       - name: offerIdentifierValue
         type: string
         description: "Offer Identifier.value from the existing reservation"
-        path: "ReservationResponse.Reservation.Offer.0.Identifier.value"
       - name: offerId
         type: string
         description: "Offer id from the existing reservation"
-        path: "ReservationResponse.Reservation.Offer.0.id"
       - name: offerAuthority
         type: string
         description: "Offer Identifier.authority from the existing reservation"
-        path: "ReservationResponse.Reservation.Offer.0.Identifier.authority"
     cleanup: ignoreWorkbench
 
   ignoreWorkbench:
@@ -355,11 +337,9 @@ nodes:
       - name: workbenchId
         type: string
         description: "Workbench Identifier.value"
-        path: "ReservationResponse.Reservation.Identifier.value"
       - name: offers
         type: offer[]
         description: "Offers currently in the workbench"
-        path: "ReservationResponse.Reservation.Offer"
         elementFields:
           - name: offerId
             type: string
@@ -399,11 +379,9 @@ nodes:
       - name: offerIdentifierValue
         type: string
         description: "Offer Identifier.value now in the workbench"
-        path: "OfferListResponse.OfferID.0.Identifier.value"
       - name: offerAuthority
         type: string
         description: "Offer authority"
-        path: "OfferListResponse.OfferID.0.Identifier.authority"
 
   addOfferFullPayload:
     description: "Add a priced offer to the workbench using full payload."
@@ -429,27 +407,21 @@ nodes:
       - name: workbenchId
         type: string
         description: "Updated workbench Identifier.value"
-        path: "ReservationResponse.Reservation.Identifier.value"
       - name: offerIdentifierValue
         type: string
         description: "Offer Identifier.value now in the workbench"
-        path: "ReservationResponse.Reservation.Offer.0.Identifier.value"
       - name: offerId
         type: string
         description: "Offer id in the workbench"
-        path: "ReservationResponse.Reservation.Offer.0.id"
       - name: offerAuthority
         type: string
         description: "Offer authority"
-        path: "ReservationResponse.Reservation.Offer.0.Identifier.authority"
       - name: totalPrice
         type: float
         description: "Total price of the offer"
-        path: "ReservationResponse.Reservation.Offer.0.Price.TotalPrice.value"
       - name: currencyCode
         type: string
         description: "Currency code"
-        path: "ReservationResponse.Reservation.Offer.0.Price.TotalPrice.code"
 
   # ============================================================
   # TRAVELERS
@@ -514,11 +486,9 @@ nodes:
       - name: travelerIdentifierValue
         type: string
         description: "Traveler Identifier.value"
-        path: "TravelerResponse.Traveler.Identifier.value"
       - name: travelerId
         type: string
         description: "Traveler id"
-        path: "TravelerResponse.Traveler.id"
 
   addPrimaryContact:
     description: "Add a primary contact (email/phone) to the reservation workbench."
@@ -551,7 +521,6 @@ nodes:
       - name: primaryContactId
         type: string
         description: "Primary contact id"
-        path: "PrimaryContactResponse.PrimaryContact.id"
 
   # ============================================================
   # FORM OF PAYMENT
@@ -571,11 +540,9 @@ nodes:
       - name: fopIdentifierValue
         type: string
         description: "Form of payment Identifier.value"
-        path: "FormOfPaymentResponse.FormOfPayment.Identifier.value"
       - name: fopId
         type: string
         description: "Form of payment id"
-        path: "FormOfPaymentResponse.FormOfPayment.id"
 
   addFormOfPaymentCard:
     description: "Add a credit card as the form of payment."
@@ -614,11 +581,9 @@ nodes:
       - name: fopIdentifierValue
         type: string
         description: "Form of payment Identifier.value"
-        path: "FormOfPaymentResponse.FormOfPayment.Identifier.value"
       - name: fopId
         type: string
         description: "Form of payment id"
-        path: "FormOfPaymentResponse.FormOfPayment.id"
 
   # ============================================================
   # PAYMENT
@@ -662,7 +627,6 @@ nodes:
       - name: paymentIdentifierValue
         type: string
         description: "Payment Identifier.value"
-        path: "PaymentResponse.Payment.Identifier.value"
 
   # ============================================================
   # COMMIT
@@ -681,11 +645,9 @@ nodes:
       - name: reservationIdentifierValue
         type: string
         description: "Receipt Identifier.value from the commit response"
-        path: "ReservationResponse.Reservation.Receipt.0.Identifier.value"
       - name: locator
         type: string
         description: "PNR record locator (e.g., ABCDEF)"
-        path: "ReservationResponse.Reservation.Receipt.0.Confirmation.Locator.value"
 
   # ============================================================
   # RESERVATION MANAGEMENT
@@ -702,19 +664,15 @@ nodes:
       - name: reservationIdentifierValue
         type: string
         description: "Reservation Identifier.value"
-        path: "ReservationResponse.Reservation.Identifier.value"
       - name: locator
         type: string
         description: "PNR record locator"
-        path: "ReservationResponse.Reservation.Locator.value"
       - name: reservationStatus
         type: string
         description: "Reservation status"
-        path: "ReservationResponse.reservationStatus"
       - name: offers
         type: offer[]
         description: "Offers in the reservation"
-        path: "ReservationResponse.Reservation.Offer"
         elementFields:
           - name: offerId
             type: string
@@ -738,7 +696,6 @@ nodes:
       - name: reservationStatus
         type: string
         description: "Updated reservation status"
-        path: "ReservationResponse.reservationStatus"
 
   # ============================================================
   # TICKETING
@@ -757,11 +714,9 @@ nodes:
       - name: reservationIdentifierValue
         type: string
         description: "Reservation Identifier.value"
-        path: "ReservationResponse.Reservation.Identifier.value"
       - name: locator
         type: string
         description: "PNR record locator"
-        path: "ReservationResponse.Reservation.Locator.value"
 
   getTicketByLocator:
     description: "Retrieve tickets associated with a PNR locator."
@@ -781,7 +736,6 @@ nodes:
       - name: tickets
         type: ticket[]
         description: "List of tickets"
-        path: "TicketListResponse.Ticket"
         elementFields:
           - name: ticketNumber
             type: string
@@ -805,7 +759,6 @@ nodes:
       - name: ticketStatus
         type: string
         description: "Updated ticket status"
-        path: "TicketResponse.Ticket.TicketStatusCode"
 
   # ============================================================
   # ANCILLARIES
@@ -826,7 +779,6 @@ nodes:
       - name: ancillaryOfferings
         type: ancillary[]
         description: "Available ancillary offerings"
-        path: "CatalogOfferingsAncillaryListResponse.CatalogOfferingsAncillary"
         elementFields:
           - name: ancillaryId
             type: string
@@ -840,7 +792,6 @@ nodes:
       - name: catalogOfferingsIdentifierValue
         type: string
         description: "CatalogOfferingsAncillary Identifier.value for downstream add"
-        path: "CatalogOfferingsAncillaryListResponse.Identifier.value"
 
   # ============================================================
   # SEAT MAP
@@ -864,7 +815,6 @@ nodes:
       - name: seatOfferings
         type: seat[]
         description: "Available seat offerings"
-        path: "CatalogOfferingsAncillaryListResponse.CatalogOfferingsAncillary"
         elementFields:
           - name: seatId
             type: string
@@ -875,7 +825,6 @@ nodes:
       - name: catalogOfferingsIdentifierValue
         type: string
         description: "CatalogOfferingsAncillary Identifier.value for downstream add"
-        path: "CatalogOfferingsAncillaryListResponse.Identifier.value"
 
   # ============================================================
   # FARE RULES
@@ -898,7 +847,6 @@ nodes:
       - name: fareRules
         type: string
         description: "Fare rules text"
-        path: "FareRuleResponse.FareRule"
 
   getFareRulesFromOffer:
     description: "Get fare rules by reference to a priced offer."
@@ -912,7 +860,6 @@ nodes:
       - name: fareRules
         type: string
         description: "Fare rules text"
-        path: "FareRuleResponse.FareRule"
 
   # ============================================================
   # EXCHANGE
@@ -934,7 +881,6 @@ nodes:
       - name: eligibilities
         type: eligibility[]
         description: "Per-ticket exchange eligibility results"
-        path: "TicketChangeEligibilityListResponse.TicketChangeEligibility"
         elementFields:
           - name: ticketNumber
             type: string
@@ -955,7 +901,6 @@ nodes:
       - name: eligibilities
         type: eligibility[]
         description: "Per-ticket exchange eligibility results"
-        path: "TicketChangeEligibilityListResponse.TicketChangeEligibility"
         elementFields:
           - name: ticketNumber
             type: string
@@ -999,7 +944,6 @@ nodes:
       - name: exchangeOfferings
         type: offering[]
         description: "Available exchange flight offerings"
-        path: "CatalogOfferingsAirChangeResponse.CatalogOfferings.CatalogOffering"
         elementFields:
           - name: offeringId
             type: string
@@ -1013,7 +957,6 @@ nodes:
       - name: catalogOfferingsIdentifierValue
         type: string
         description: "CatalogOfferings Identifier.value for downstream addExchangeOffer"
-        path: "CatalogOfferingsAirChangeResponse.CatalogOfferings.Identifier.value"
 
   addExchangeOffer:
     description: "Add an exchange offer to the workbench (build from catalog offerings). This replaces the original offer with the new exchange offer."
@@ -1036,27 +979,21 @@ nodes:
       - name: workbenchId
         type: string
         description: "Updated workbench Identifier.value"
-        path: "ExchangeOfferListResponse.Identifier.value"
       - name: offerIdentifierValue
         type: string
         description: "Exchange offer Identifier.value"
-        path: "ExchangeOfferListResponse.Offer.0.Identifier.value"
       - name: offerId
         type: string
         description: "Exchange offer id"
-        path: "ExchangeOfferListResponse.Offer.0.id"
       - name: offerAuthority
         type: string
         description: "Exchange offer Identifier.authority"
-        path: "ExchangeOfferListResponse.Offer.0.Identifier.authority"
       - name: totalPrice
         type: float
         description: "Total price of the exchange offer"
-        path: "ExchangeOfferListResponse.Offer.0.Price.TotalPrice.value"
       - name: currencyCode
         type: string
         description: "Currency code"
-        path: "ExchangeOfferListResponse.Offer.0.Price.TotalPrice.code"
     cleanup: ignoreWorkbench
 
   commitExchangeTicket:
@@ -1073,15 +1010,12 @@ nodes:
       - name: reservationIdentifierValue
         type: string
         description: "Reservation Identifier.value"
-        path: "ReservationResponse.Reservation.Identifier.value"
       - name: locator
         type: string
         description: "PNR record locator"
-        path: "ReservationResponse.Reservation.Locator.value"
       - name: reservationStatus
         type: string
         description: "Reservation status after exchange"
-        path: "ReservationResponse.reservationStatus"
 
   # ============================================================
   # EXCHANGE FORM OF PAYMENT
@@ -1099,11 +1033,9 @@ nodes:
       - name: fopIdentifierValue
         type: string
         description: "Form of payment Identifier.value"
-        path: "FormOfPaymentResponse.FormOfPayment.Identifier.value"
       - name: fopId
         type: string
         description: "Form of payment id"
-        path: "FormOfPaymentResponse.FormOfPayment.id"
 
   addFormOfPaymentWaiver:
     description: "Add a waiver code as form of payment (airline-issued disruption waiver)."
@@ -1121,11 +1053,9 @@ nodes:
       - name: fopIdentifierValue
         type: string
         description: "Form of payment Identifier.value"
-        path: "FormOfPaymentResponse.FormOfPayment.Identifier.value"
       - name: fopId
         type: string
         description: "Form of payment id"
-        path: "FormOfPaymentResponse.FormOfPayment.id"
 
   addFormOfPaymentInvoice:
     description: "Add an agent invoice as form of payment."
@@ -1143,11 +1073,9 @@ nodes:
       - name: fopIdentifierValue
         type: string
         description: "Form of payment Identifier.value"
-        path: "FormOfPaymentResponse.FormOfPayment.Identifier.value"
       - name: fopId
         type: string
         description: "Form of payment id"
-        path: "FormOfPaymentResponse.FormOfPayment.id"
 
   # ============================================================
   # DOCUMENT OVERRIDES
@@ -1188,7 +1116,6 @@ nodes:
       - name: documentOverridesId
         type: string
         description: "Document overrides id"
-        path: "DocumentOverridesResponse.DocumentOverrides.id"
 
   # ============================================================
   # RESERVATION REMARKS
@@ -1211,11 +1138,9 @@ nodes:
       - name: reservationCommentId
         type: string
         description: "Reservation comment id"
-        path: "ReservationCommentListResponse.ReservationComment.0.id"
       - name: commentId
         type: string
         description: "Individual comment id within the reservation comment"
-        path: "ReservationCommentListResponse.ReservationComment.0.Comment.0.id"
 
   deleteReservationComment:
     description: "Delete a specific comment from a reservation comment entry."
@@ -1251,11 +1176,9 @@ nodes:
       - name: accountingId
         type: string
         description: "Accounting entry id"
-        path: "AccountingResponse.Accounting.id"
       - name: nameValuePairId
         type: string
         description: "Name-value pair id within the accounting entry"
-        path: "AccountingResponse.Accounting.NameValuePair.0.id"
 
   deleteAccountingRemark:
     description: "Delete a specific name-value pair from an accounting entry."
@@ -1295,7 +1218,6 @@ nodes:
       - name: specialServiceId
         type: string
         description: "Special service id"
-        path: "SpecialServiceResponse.SpecialService.id"
 
   # ============================================================
   # QUEUES
@@ -1348,11 +1270,9 @@ nodes:
       - name: offerIdentifierValue
         type: string
         description: "Offer Identifier.value of the added ancillary"
-        path: "OfferListResponse.OfferID.0.Identifier.value"
       - name: offerId
         type: string
         description: "Offer id of the added ancillary"
-        path: "OfferListResponse.OfferID.0.id"
 
   addSeatOffer:
     description: "Add a seat offer to the workbench from seat map catalog offerings."
@@ -1379,11 +1299,9 @@ nodes:
       - name: offerIdentifierValue
         type: string
         description: "Offer Identifier.value of the added seat"
-        path: "OfferListResponse.OfferID.0.Identifier.value"
       - name: offerId
         type: string
         description: "Offer id of the added seat"
-        path: "OfferListResponse.OfferID.0.id"
 
   # ============================================================
   # DELETE OPERATIONS
@@ -1442,15 +1360,12 @@ nodes:
       - name: ticketNumber
         type: string
         description: "Ticket number"
-        path: "TicketResponse.Ticket.TicketNumber"
       - name: ticketStatus
         type: string
         description: "Ticket status code"
-        path: "TicketResponse.Ticket.TicketStatusCode"
       - name: ticketIdentifierValue
         type: string
         description: "Ticket Identifier.value"
-        path: "TicketResponse.Ticket.Identifier.value"
 
   getReceiptIndex:
     description: "List all tickets/receipts for a PNR (receipt/document view)."
@@ -1469,7 +1384,6 @@ nodes:
       - name: receipts
         type: receipt[]
         description: "List of receipts/tickets for the PNR"
-        path: "ReceiptListResponse.Receipt"
 
   # ============================================================
   # RESERVATION CANCELLATION
@@ -1509,7 +1423,6 @@ nodes:
       - name: fareRules
         type: string
         description: "Fare rules text"
-        path: "FareRuleListResponse.FareRule"
 
   # ============================================================
   # WORKBENCH FROM TICKET NUMBER
@@ -1527,19 +1440,15 @@ nodes:
       - name: workbenchId
         type: string
         description: "Reservation workbench Identifier.value"
-        path: "ReservationResponse.Reservation.Identifier.value"
       - name: offerIdentifierValue
         type: string
         description: "Offer Identifier.value from the existing reservation"
-        path: "ReservationResponse.Reservation.Offer.0.Identifier.value"
       - name: offerId
         type: string
         description: "Offer id from the existing reservation"
-        path: "ReservationResponse.Reservation.Offer.0.id"
       - name: offerAuthority
         type: string
         description: "Offer Identifier.authority from the existing reservation"
-        path: "ReservationResponse.Reservation.Offer.0.Identifier.authority"
     cleanup: ignoreWorkbench
 
   # ============================================================
@@ -1560,7 +1469,6 @@ nodes:
       - name: updatableItems
         type: json
         description: "Updatable item list for use in updateTraveler"
-        path: "TravelerUpdatableItemListResponse.TravelerUpdatableItem"
 
   updateTraveler:
     description: "Modify traveler details (email, phone, address, frequent flyer). Step 2 of traveler update workflow."
@@ -1583,7 +1491,6 @@ nodes:
       - name: travelerIdentifierValue
         type: string
         description: "Updated traveler Identifier.value"
-        path: "TravelerResponse.Traveler.Identifier.value"
 
   # ============================================================
   # ADVANCED OPERATIONS
@@ -1603,11 +1510,9 @@ nodes:
       - name: locator
         type: string
         description: "PNR record locator of the new reservation"
-        path: "ReservationResponse.Reservation.Locator.value"
       - name: reservationIdentifierValue
         type: string
         description: "Reservation Identifier.value of the new reservation"
-        path: "ReservationResponse.Reservation.Identifier.value"
 
   addTravelAgency:
     description: "Add travel agency details to the reservation."
@@ -1634,7 +1539,6 @@ nodes:
       - name: travelAgencyId
         type: string
         description: "Travel agency id"
-        path: "TravelAgencyResponse.TravelAgency.id"
 
 # ============================================================
 # EDGES — Explicit edges only; auto-wire handles name-matched

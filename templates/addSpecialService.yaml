@@ -21,4 +21,4 @@ request:
 
 response:
   extract:
-    specialServiceId: "SpecialServiceListResponse.SpecialServiceID.0.id"
+    specialServiceId: "SpecialServiceResponse.SpecialService.id"

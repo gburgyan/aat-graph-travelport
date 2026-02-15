@@ -46,4 +46,3 @@ response:
     offerId: "OfferResponse.Offer.id"
     totalPrice: "OfferResponse.Offer.Price.TotalPrice.value"
     currencyCode: "OfferResponse.Offer.Price.TotalPrice.code"
-    productIdentifiers: "OfferResponse.Offer.Product"

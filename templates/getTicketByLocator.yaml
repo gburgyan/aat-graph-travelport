@@ -17,4 +17,4 @@ request:
 
 response:
   extract:
-    tickets: "TicketListResponse.TicketID"
+    tickets: "TicketListResponse.Ticket"

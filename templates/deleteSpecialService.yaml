@@ -7,5 +7,4 @@ request:
   headers:
     Accept: application/json
 
-response:
-  extract: {}
+response: {}

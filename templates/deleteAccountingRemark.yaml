@@ -8,5 +8,4 @@ request:
     Content-Type: application/json
     Accept: application/json
 
-response:
-  extract: {}
+response: {}

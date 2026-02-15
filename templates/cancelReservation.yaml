@@ -8,5 +8,4 @@ request:
     Accept: application/json
     RetainFlag: "false"
 
-response:
-  extract: {}
+response: {}

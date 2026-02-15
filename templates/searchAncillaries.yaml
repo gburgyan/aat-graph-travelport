@@ -30,5 +30,5 @@ request:
 
 response:
   extract:
-    ancillaryOfferings: "CatalogOfferingsAncillaryListResponse.CatalogOfferingsID"
+    ancillaryOfferings: "CatalogOfferingsAncillaryListResponse.CatalogOfferingsAncillary"
     catalogOfferingsIdentifierValue: "CatalogOfferingsAncillaryListResponse.Identifier.value"
