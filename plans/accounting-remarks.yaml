@@ -1,0 +1,14 @@
+# Accounting remarks addon.
+# Add accounting remarks to the reservation within an existing workbench.
+
+intent:
+  description: "Add accounting remarks to the reservation"
+
+execution:
+  steps:
+    - node: addAccountingRemark
+      description: "Add an accounting remark"
+      values:
+        workbenchId: AUTOWIRE
+        accountingName: IN
+        accountingValue: AUTOWIRE

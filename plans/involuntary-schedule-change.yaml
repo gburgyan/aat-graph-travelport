@@ -1,0 +1,25 @@
+# Involuntary schedule change workflow.
+# Accept an involuntary schedule change on an impacted PNR.
+# Opens the workbench and commits with scheduleChangeAcceptedInd: true.
+
+intent:
+  description: "Accept an involuntary schedule change on an impacted PNR"
+
+execution:
+  steps:
+    - node: createWorkbenchFromLocator
+      description: "Open workbench from the impacted PNR"
+      values:
+        locator: ABCDEF
+
+    - node: commitReservation
+      description: "Commit with schedule change acceptance"
+      dependsOn: [createWorkbenchFromLocator]
+      isGoal: true
+      values:
+        workbenchId: {from: createWorkbenchFromLocator.workbenchId}
+        scheduleChangeAcceptedInd: true
+
+  cleanup:
+    - node: ignoreWorkbench
+      runOn: always

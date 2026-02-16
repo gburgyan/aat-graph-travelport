@@ -1,0 +1,25 @@
+# Order divide workflow.
+# Split a traveler out of a multi-traveler PNR into a separate reservation.
+# Opens the workbench and divides the reservation.
+
+intent:
+  description: "Split a traveler out of a multi-traveler PNR"
+
+execution:
+  steps:
+    - node: createWorkbenchFromLocator
+      description: "Open workbench from the multi-traveler PNR"
+      values:
+        locator: ABCDEF
+
+    - node: divideReservation
+      description: "Divide the reservation to split the traveler"
+      dependsOn: [createWorkbenchFromLocator]
+      isGoal: true
+      values:
+        reservationIdentifierValue: {from: createWorkbenchFromLocator.workbenchId}
+        travelerIdentifierValue: AUTOWIRE
+
+  cleanup:
+    - node: ignoreWorkbench
+      runOn: always

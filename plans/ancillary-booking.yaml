@@ -10,8 +10,8 @@ execution:
     - node: searchAncillaries
       description: "Search for available ancillary services"
       values:
-        workbenchId: PLACEHOLDER
-        offerIdentifierValue: PLACEHOLDER
+        workbenchId: AUTOWIRE
+        offerIdentifierValue: AUTOWIRE
 
     - node: addAncillaryOffer
       description: "Add the selected ancillary offer to the workbench"
@@ -21,8 +21,8 @@ execution:
           from: searchAncillaries.ancillaryOfferings
           strategy: first
       values:
-        workbenchId: PLACEHOLDER
+        workbenchId: AUTOWIRE
         catalogOfferingsIdentifierValue: {from: searchAncillaries.catalogOfferingsIdentifierValue}
         ancillaryOfferingId: {fromSelection: ancillary.ancillaryId}
-        ancillaryProductId: PLACEHOLDER
-        travelerIdentifierValue: PLACEHOLDER
+        ancillaryProductId: AUTOWIRE
+        travelerIdentifierValue: AUTOWIRE

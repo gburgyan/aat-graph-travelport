@@ -30,6 +30,30 @@ request:
           "value": "{{email}}"
         }
       ]
+      {{?passportNumber}},
+      "TravelDocument": [{
+        "@type": "TravelDocumentDetail",
+        "docNumber": "{{passportNumber}}",
+        "docType": "Passport",
+        "expireDate": "{{passportExpiry}}",
+        "issueCountry": "{{passportIssueCountry}}",
+        "nationality": "{{passportNationality}}",
+        "birthDate": "{{birthDate}}",
+        "Gender": "{{gender}}",
+        "PersonName": {
+          "@type": "PersonNameDetail",
+          "Given": "{{givenName}}",
+          "Surname": "{{surname}}"
+        }
+      }]
+      {{/passportNumber}}
+      {{?loyaltyNumber}},
+      "CustomerLoyalty": [{
+        "@type": "CustomerLoyalty",
+        "value": "{{loyaltyNumber}}",
+        "supplier": "{{loyaltySupplier}}"
+      }]
+      {{/loyaltyNumber}}
     }
 
 response:

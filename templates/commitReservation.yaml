@@ -3,12 +3,27 @@ protocol: http
 
 request:
   method: POST
-  path: /11/air/book/reservation/reservations/{{workbenchId}}
+  path: /11/air/book/reservation/reservations/{{workbenchId}}{{?autoDeleteDate}}?autoDeleteDate={{autoDeleteDate}}{{/autoDeleteDate}}
   headers:
     Content-Type: application/json
   body: |
     {
       "@type": "ReservationQueryCommitReservation"
+      {{?scheduleChangeAcceptedInd}},
+      "scheduleChangeAcceptedInd": true
+      {{/scheduleChangeAcceptedInd}}
+      {{?queueNumber}},
+      "QueuePlacement": {
+        "@type": "QueuePlacement",
+        "queueNumber": "{{queueNumber}}"
+        {{?queuePcc}},"pcc": "{{queuePcc}}"{{/queuePcc}}
+      }
+      {{/queueNumber}}
+      {{?ticketingTimeLimit}},
+      "NotificationDate": {
+        "value": "{{ticketingTimeLimit}}"
+      }
+      {{/ticketingTimeLimit}}
     }
 
 response:

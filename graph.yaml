@@ -44,6 +44,54 @@ workflows:
   - name: Round-Trip Leg-Based Booking
     description: "Leg-based round-trip: search outbound, next-leg search for return, then price and book"
     template: plans/roundtrip-legbased.yaml
+  - name: Post-Commit Seat Selection
+    description: "Select and assign seats on an existing booking using the post-commit seat map"
+    template: plans/post-commit-seat-selection.yaml
+  - name: Post-Commit Ancillary
+    description: "Add ancillary services (bags, meals, etc.) to an existing booking"
+    template: plans/post-commit-ancillary.yaml
+  - name: Involuntary Schedule Change
+    description: "Accept an involuntary schedule change on an impacted PNR"
+    template: plans/involuntary-schedule-change.yaml
+  - name: Ticket Void
+    description: "Void a ticket on an existing booking"
+    template: plans/ticket-void.yaml
+  - name: Cancel Reservation
+    description: "Cancel an entire PNR reservation"
+    template: plans/cancel-reservation.yaml
+  - name: Order Divide
+    description: "Split a traveler out of a multi-traveler PNR into a separate reservation"
+    template: plans/order-divide.yaml
+  - name: Special Services
+    kind: addon
+    after: addTraveler
+    description: "Add special service requests (wheelchair, meal preference, etc.)"
+    template: plans/special-services.yaml
+  - name: Reservation Comments
+    kind: addon
+    after: addTraveler
+    description: "Add reservation comments/remarks"
+    template: plans/reservation-comments.yaml
+  - name: Accounting Remarks
+    kind: addon
+    after: addTraveler
+    description: "Add accounting remarks to the reservation"
+    template: plans/accounting-remarks.yaml
+  - name: Document Overrides
+    kind: addon
+    after: addTraveler
+    description: "Add document overrides (commissions, restrictions, tour codes)"
+    template: plans/document-overrides.yaml
+  - name: Primary Contact
+    kind: addon
+    after: addTraveler
+    description: "Add a primary contact (email/phone) to the reservation"
+    template: plans/primary-contact.yaml
+  - name: Travel Agency
+    kind: addon
+    after: addTraveler
+    description: "Add travel agency details to the reservation"
+    template: plans/travel-agency.yaml
 
 notes: |
   Key identifier patterns:
@@ -639,6 +687,30 @@ nodes:
         description: "Phone country access code"
         optional: true
         default: "1"
+      - name: passportNumber
+        type: string
+        description: "Passport document number"
+        optional: true
+      - name: passportExpiry
+        type: date
+        description: "Passport expiration date"
+        optional: true
+      - name: passportIssueCountry
+        type: string
+        description: "Passport issuing country code"
+        optional: true
+      - name: passportNationality
+        type: string
+        description: "Passport holder nationality code"
+        optional: true
+      - name: loyaltyNumber
+        type: string
+        description: "Frequent flyer loyalty number"
+        optional: true
+      - name: loyaltySupplier
+        type: string
+        description: "Frequent flyer airline IATA code"
+        optional: true
     outputs:
       - name: travelerIdentifierValue
         type: string
@@ -789,6 +861,26 @@ nodes:
         type: string
         description: "Reservation workbench Identifier.value to commit"
         noAutoWire: true
+      - name: scheduleChangeAcceptedInd
+        type: boolean
+        description: "Accept involuntary schedule change on commit"
+        optional: true
+      - name: queueNumber
+        type: string
+        description: "Queue number for placement on commit"
+        optional: true
+      - name: queuePcc
+        type: string
+        description: "PCC for queue placement on commit"
+        optional: true
+      - name: ticketingTimeLimit
+        type: date
+        description: "Ticketing time limit date"
+        optional: true
+      - name: autoDeleteDate
+        type: date
+        description: "Auto-delete date for the reservation"
+        optional: true
     outputs:
       - name: reservationIdentifierValue
         type: string
@@ -952,6 +1044,35 @@ nodes:
       - name: productId
         type: string
         description: "Product id (e.g. 'p0') from the pricing response"
+        noAutoWire: true
+    outputs:
+      - name: seatOfferings
+        type: seat[]
+        description: "Available seat offerings"
+        elementFields:
+          - name: seatId
+            type: string
+          - name: seatIdentifierValue
+            type: string
+      - name: catalogOfferingsIdentifierValue
+        type: string
+        description: "CatalogOfferingsAncillary Identifier.value for downstream add"
+
+  searchSeatMapFromWorkbench:
+    description: "Request seat availability (seat map) from a reservation workbench. Used for post-commit seat selection."
+    adapter: searchSeatMapFromWorkbench
+    tags: [seat, search]
+    inputs:
+      - name: workbenchId
+        type: string
+        description: "Reservation workbench Identifier.value"
+      - name: offerIdentifierValue
+        type: string
+        description: "Offer Identifier.value from the workbench"
+        noAutoWire: true
+      - name: productIdentifierValue
+        type: string
+        description: "Product Identifier.value from the workbench"
         noAutoWire: true
     outputs:
       - name: seatOfferings
@@ -1907,6 +2028,13 @@ edges:
     to: addSeatOffer.seatOfferingIdentifierValue
     select: true
 
+  # Post-commit seat selection
+  - from: searchSeatMapFromWorkbench.seatOfferings
+    to: addSeatOffer.seatOfferingIdentifierValue
+    select: true
+  - from: searchSeatMapFromWorkbench.catalogOfferingsIdentifierValue
+    to: addSeatOffer.catalogOfferingsIdentifierValue
+
   # ============================================================
   # PREFERRED EDGES — Backward chaining hints
   # ============================================================
@@ -1960,6 +2088,17 @@ edges:
   - from: addOfferReference.offerIdentifierValue
     to: searchAncillaries.offerIdentifierValue
 
+  # Post-commit ancillary — offer ID from locator workbench
+  - from: createWorkbenchFromLocator.offerIdentifierValue
+    to: searchAncillaries.offerIdentifierValue
+
+  # Post-commit seat map — explicit wiring for noAutoWire inputs
+  - from: createWorkbenchFromLocator.offerIdentifierValue
+    to: searchSeatMapFromWorkbench.offerIdentifierValue
+  - from: retrieveWorkbench.wbProductIdentifierValue
+    to: searchSeatMapFromWorkbench.productIdentifierValue
+
+
   # Commit nodes — explicit workbench sources
   - from: createWorkbench.workbenchId
     to: commitReservation.workbenchId
@@ -2009,6 +2148,10 @@ edges:
     to: searchExchange.reservationIdentifier
   - from: createWorkbenchFromIdentifier.workbenchId
     to: searchExchange.reservationIdentifier
+
+  # Order divide — workbenchId → reservationIdentifierValue (name mismatch)
+  - from: createWorkbenchFromLocator.workbenchId
+    to: divideReservation.reservationIdentifierValue
 
   # ============================================================
   # OPTIONAL-INPUT EDGES — Auto-wire skips optional inputs

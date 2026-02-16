@@ -1,0 +1,45 @@
+# Post-commit ancillary workflow.
+# Add ancillary services (bags, meals, etc.) to an existing booking.
+# Starts from a PNR locator, searches ancillaries, adds the selected one, and commits.
+
+intent:
+  description: "Add ancillary services to an existing booking"
+
+execution:
+  steps:
+    - node: createWorkbenchFromLocator
+      description: "Open workbench from the existing booking PNR"
+      values:
+        locator: ABCDEF
+
+    - node: searchAncillaries
+      description: "Search for available ancillary services"
+      dependsOn: [createWorkbenchFromLocator]
+      values:
+        workbenchId: {from: createWorkbenchFromLocator.workbenchId}
+        offerIdentifierValue: {from: createWorkbenchFromLocator.offerIdentifierValue}
+
+    - node: addAncillaryOffer
+      description: "Add the selected ancillary offer to the workbench"
+      dependsOn: [searchAncillaries, createWorkbenchFromLocator]
+      selections:
+        ancillary:
+          from: searchAncillaries.ancillaryOfferings
+          strategy: first
+      values:
+        workbenchId: {from: createWorkbenchFromLocator.workbenchId}
+        catalogOfferingsIdentifierValue: {from: searchAncillaries.catalogOfferingsIdentifierValue}
+        ancillaryOfferingId: {fromSelection: ancillary.ancillaryId}
+        ancillaryProductId: AUTOWIRE
+        travelerIdentifierValue: AUTOWIRE
+
+    - node: commitReservation
+      description: "Commit the ancillary addition"
+      dependsOn: [addAncillaryOffer, createWorkbenchFromLocator]
+      isGoal: true
+      values:
+        workbenchId: {from: createWorkbenchFromLocator.workbenchId}
+
+  cleanup:
+    - node: ignoreWorkbench
+      runOn: always

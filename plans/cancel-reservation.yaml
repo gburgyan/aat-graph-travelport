@@ -1,0 +1,13 @@
+# Cancel reservation workflow.
+# Cancel an entire PNR reservation.
+
+intent:
+  description: "Cancel an entire PNR reservation"
+
+execution:
+  steps:
+    - node: cancelReservation
+      description: "Cancel the reservation by PNR locator"
+      isGoal: true
+      values:
+        locator: ABCDEF

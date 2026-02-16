@@ -1,0 +1,14 @@
+# Reservation comments addon.
+# Add reservation comments/remarks within an existing workbench.
+
+intent:
+  description: "Add reservation comments/remarks"
+
+execution:
+  steps:
+    - node: addReservationComment
+      description: "Add a reservation comment"
+      values:
+        workbenchId: AUTOWIRE
+        commentName: RE
+        commentValue: AUTOWIRE

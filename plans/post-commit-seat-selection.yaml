@@ -1,0 +1,53 @@
+# Post-commit seat selection workflow.
+# Select and assign seats on an existing booking using the post-commit seat map.
+# Starts from a PNR locator, retrieves workbench to get product identifiers,
+# searches the seat map, adds the seat, and commits.
+
+intent:
+  description: "Select and assign seats on an existing booking"
+
+execution:
+  steps:
+    - node: createWorkbenchFromLocator
+      description: "Open workbench from the existing booking PNR"
+      values:
+        locator: ABCDEF
+
+    - node: retrieveWorkbench
+      description: "Retrieve workbench to get offer and product identifiers"
+      dependsOn: [createWorkbenchFromLocator]
+      values:
+        workbenchId: {from: createWorkbenchFromLocator.workbenchId}
+
+    - node: searchSeatMapFromWorkbench
+      description: "Search seat availability from the reservation workbench"
+      dependsOn: [createWorkbenchFromLocator, retrieveWorkbench]
+      values:
+        workbenchId: {from: createWorkbenchFromLocator.workbenchId}
+        offerIdentifierValue: {from: createWorkbenchFromLocator.offerIdentifierValue}
+        productIdentifierValue: {from: retrieveWorkbench.wbProductIdentifierValue}
+
+    - node: addSeatOffer
+      description: "Add the selected seat to the workbench"
+      dependsOn: [searchSeatMapFromWorkbench, createWorkbenchFromLocator]
+      selections:
+        seat:
+          from: searchSeatMapFromWorkbench.seatOfferings
+          strategy: first
+      values:
+        workbenchId: {from: createWorkbenchFromLocator.workbenchId}
+        catalogOfferingsIdentifierValue: {from: searchSeatMapFromWorkbench.catalogOfferingsIdentifierValue}
+        seatOfferingIdentifierValue: {fromSelection: seat.seatIdentifierValue}
+        travelerIdentifierValue: AUTOWIRE
+        seatAssignment: 12A
+
+    - node: commitReservation
+      description: "Commit the seat addition"
+      dependsOn: [addSeatOffer, createWorkbenchFromLocator]
+      isGoal: true
+      values:
+        workbenchId: {from: createWorkbenchFromLocator.workbenchId}
+
+  cleanup:
+    - node: ignoreWorkbench
+      runOn: always

@@ -1,0 +1,15 @@
+# Travel agency addon.
+# Add travel agency details to the reservation within an existing workbench.
+
+intent:
+  description: "Add travel agency details to the reservation"
+
+execution:
+  steps:
+    - node: addTravelAgency
+      description: "Add travel agency information"
+      values:
+        workbenchId: AUTOWIRE
+        corporateCode: AUTOWIRE
+        email: AUTOWIRE
+        phoneNumber: AUTOWIRE

@@ -1,0 +1,14 @@
+# Primary contact addon.
+# Add a primary contact (email/phone) to the reservation within an existing workbench.
+
+intent:
+  description: "Add a primary contact to the reservation"
+
+execution:
+  steps:
+    - node: addPrimaryContact
+      description: "Add primary contact details"
+      values:
+        workbenchId: AUTOWIRE
+        email: AUTOWIRE
+        phoneNumber: AUTOWIRE

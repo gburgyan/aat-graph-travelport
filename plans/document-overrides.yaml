@@ -1,0 +1,14 @@
+# Document overrides addon.
+# Add document overrides (commissions, restrictions, tour codes) within an existing workbench.
+
+intent:
+  description: "Add document overrides to the reservation"
+
+execution:
+  steps:
+    - node: addDocumentOverrides
+      description: "Add document overrides"
+      values:
+        workbenchId: AUTOWIRE
+        commissionAmount: 0
+        commissionCurrencyCode: USD

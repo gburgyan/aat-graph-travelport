@@ -1,0 +1,24 @@
+# Ticket void workflow.
+# Void a ticket on an existing booking.
+# Retrieves tickets by PNR locator and voids the selected one.
+
+intent:
+  description: "Void a ticket on an existing booking"
+
+execution:
+  steps:
+    - node: getTicketByLocator
+      description: "Retrieve tickets for the PNR"
+      values:
+        locator: ABCDEF
+
+    - node: voidTicket
+      description: "Void the selected ticket"
+      dependsOn: [getTicketByLocator]
+      isGoal: true
+      selections:
+        ticket:
+          from: getTicketByLocator.tickets
+          strategy: first
+      values:
+        ticketIdentifier: {fromSelection: ticket.ticketIdentifierValue}

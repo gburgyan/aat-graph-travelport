@@ -11,9 +11,9 @@ execution:
     - node: searchSeatMap
       description: "Request seat availability for the flight segment"
       values:
-        offerListIdentifier: PLACEHOLDER
-        offerId: PLACEHOLDER
-        productId: PLACEHOLDER
+        offerListIdentifier: AUTOWIRE
+        offerId: AUTOWIRE
+        productId: AUTOWIRE
 
     - node: addSeatOffer
       description: "Add the selected seat to the workbench"
@@ -23,8 +23,8 @@ execution:
           from: searchSeatMap.seatOfferings
           strategy: first
       values:
-        workbenchId: PLACEHOLDER
+        workbenchId: AUTOWIRE
         catalogOfferingsIdentifierValue: {from: searchSeatMap.catalogOfferingsIdentifierValue}
         seatOfferingIdentifierValue: {fromSelection: seat.seatIdentifierValue}
-        travelerIdentifierValue: PLACEHOLDER
+        travelerIdentifierValue: AUTOWIRE
         seatAssignment: 12A
