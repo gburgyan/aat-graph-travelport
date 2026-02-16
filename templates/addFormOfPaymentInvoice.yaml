@@ -18,4 +18,3 @@ request:
 response:
   extract:
     fopIdentifierValue: "FormOfPaymentResponse.FormOfPayment.Identifier.value"
-    fopId: "FormOfPaymentResponse.FormOfPayment.id"

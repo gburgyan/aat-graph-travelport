@@ -20,16 +20,12 @@ request:
         "CatalogProductOfferingSelection": [
           {
             "CatalogProductOfferingIdentifier": {
-              "Identifier": {
-                "value": "{{offeringId}}"
-              }
+              "id": "{{offeringId}}"
             },
             "ProductIdentifier": [
-              {
-                "Identifier": {
-                  "value": "{{productIds}}"
-                }
-              }
+              {{#productIds}}
+              {"Identifier": {"value": "{{.}}"}}
+              {{/productIds}}
             ]
           }
         ]

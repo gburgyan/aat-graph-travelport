@@ -9,12 +9,12 @@ description: |
 autoWire: true
 
 workflows:
-  - name: Reference-Based Booking
-    description: "Standard GDS booking flow using identifier references"
-    steps: [searchFlights, priceOfferReference, createWorkbench, addOfferReference, addTraveler, addFormOfPaymentCash, addPayment, commitReservation]
   - name: Full-Payload Booking
-    description: "Alternative flow sending complete trip details instead of references"
-    steps: [searchFlights, priceOfferFullPayload, createWorkbench, addOfferFullPayload, addTraveler, addFormOfPaymentCard, addPayment, commitReservation]
+    description: "Recommended flow sending complete trip details (carrier, flight, class) instead of references"
+    steps: [searchFlights, priceOfferFullPayload, createWorkbench, addOfferFullPayload, addTraveler, addFormOfPaymentCash, addPayment, commitReservation]
+  - name: Reference-Based Booking
+    description: "Alternative GDS booking flow using identifier references"
+    steps: [searchFlights, priceOfferReference, createWorkbench, addOfferReference, addTraveler, addFormOfPaymentCash, addPayment, commitReservation]
   - name: Post-Commit Ticketing
     description: "Separate ticketing after a held booking"
     steps: [commitReservation, createWorkbenchFromLocator, addFormOfPaymentCash, addPayment, commitTicket]
@@ -133,6 +133,24 @@ nodes:
             type: string
           - name: offeringIdentifierValue
             type: string
+          - name: carrier
+            type: string
+          - name: flightNumber
+            type: string
+          - name: departureDate
+            type: date
+          - name: departureTime
+            type: string
+          - name: arrivalTime
+            type: string
+          - name: cabin
+            type: string
+          - name: classOfService
+            type: string
+          - name: totalPrice
+            type: float
+          - name: currency
+            type: string
       - name: catalogProductOfferingsId
         type: string
         description: "Identifier.value for the entire CatalogProductOfferings container"
@@ -204,7 +222,6 @@ nodes:
     tags: [pricing]
     requires: [flightsSearched]
     satisfies: [offerPriced]
-    preferred: true
     inputs:
       - name: catalogProductOfferingsId
         type: string
@@ -232,16 +249,37 @@ nodes:
     tags: [pricing]
     requires: [flightsSearched]
     satisfies: [offerPriced]
+    preferred: true
     inputs:
-      - name: catalogProductOfferingsId
+      - name: carrier
         type: string
-        description: "CatalogProductOfferings Identifier.value from search"
-      - name: offeringId
+        description: "IATA carrier code from the selected flight"
+      - name: flightNumber
         type: string
-        description: "Selected CatalogProductOffering id"
-      - name: productIds
+        description: "Flight number from the selected flight"
+      - name: departureDate
+        type: date
+        description: "Departure date from the selected flight"
+      - name: origin
         type: string
-        description: "Comma-separated Product ids to include"
+        description: "Departure airport IATA code"
+      - name: destination
+        type: string
+        description: "Arrival airport IATA code"
+      - name: classOfService
+        type: string
+        description: "Class of service code from the selected flight"
+        optional: true
+      - name: passengers
+        type: integer
+        description: "Number of adult passengers"
+        optional: true
+        default: 1
+      - name: passengerTypeCode
+        type: string
+        description: "Passenger type code"
+        optional: true
+        default: ADT
     outputs:
       - name: offerIdentifierValue
         type: string
@@ -345,7 +383,6 @@ nodes:
     tags: [offer]
     requires: [offerPriced, workbenchCreated]
     satisfies: [offerAdded]
-    preferred: true
     inputs:
       - name: workbenchId
         type: string
@@ -374,20 +411,27 @@ nodes:
     tags: [offer]
     requires: [offerPriced, workbenchCreated]
     satisfies: [offerAdded]
+    preferred: true
     inputs:
       - name: workbenchId
         type: string
         description: "Reservation workbench Identifier.value"
         noAutoWire: true
-      - name: catalogProductOfferingsId
+      - name: carrier
         type: string
-        description: "CatalogProductOfferings Identifier.value from search"
-      - name: offeringId
+        description: "IATA carrier code from the selected flight"
+      - name: flightNumber
         type: string
-        description: "Selected CatalogProductOffering id"
-      - name: productIds
+        description: "Flight number from the selected flight"
+      - name: departureDate
+        type: date
+        description: "Departure date from the selected flight"
+      - name: origin
         type: string
-        description: "Comma-separated Product ids"
+        description: "Departure airport IATA code"
+      - name: destination
+        type: string
+        description: "Arrival airport IATA code"
     outputs:
       - name: workbenchId
         type: string
@@ -525,9 +569,6 @@ nodes:
       - name: fopIdentifierValue
         type: string
         description: "Form of payment Identifier.value"
-      - name: fopId
-        type: string
-        description: "Form of payment id"
 
   addFormOfPaymentCard:
     description: "Add a credit card as the form of payment."
@@ -566,9 +607,6 @@ nodes:
       - name: fopIdentifierValue
         type: string
         description: "Form of payment Identifier.value"
-      - name: fopId
-        type: string
-        description: "Form of payment id"
 
   # ============================================================
   # PAYMENT
@@ -1001,9 +1039,6 @@ nodes:
       - name: fopIdentifierValue
         type: string
         description: "Form of payment Identifier.value"
-      - name: fopId
-        type: string
-        description: "Form of payment id"
 
   addFormOfPaymentWaiver:
     description: "Add a waiver code as form of payment (airline-issued disruption waiver)."
@@ -1021,9 +1056,6 @@ nodes:
       - name: fopIdentifierValue
         type: string
         description: "Form of payment Identifier.value"
-      - name: fopId
-        type: string
-        description: "Form of payment id"
 
   addFormOfPaymentInvoice:
     description: "Add an agent invoice as form of payment."
@@ -1041,9 +1073,6 @@ nodes:
       - name: fopIdentifierValue
         type: string
         description: "Form of payment Identifier.value"
-      - name: fopId
-        type: string
-        description: "Form of payment id"
 
   # ============================================================
   # DOCUMENT OVERRIDES
@@ -1538,23 +1567,50 @@ edges:
     to: priceOfferReference.productIds
     select: true
     preferred: true
+  # Full-payload pricing — flight details from selected search element
   - from: searchFlights.catalogProductOfferings
-    to: priceOfferFullPayload.offeringId
+    to: priceOfferFullPayload.carrier
+    select: true
+    preferred: true
+  - from: searchFlights.catalogProductOfferings
+    to: priceOfferFullPayload.flightNumber
+    select: true
+    preferred: true
+  - from: searchFlights.catalogProductOfferings
+    to: priceOfferFullPayload.departureDate
+    select: true
+    preferred: true
+  - from: searchFlights.catalogProductOfferings
+    to: priceOfferFullPayload.classOfService
     select: true
   - from: searchFlights.catalogProductOfferings
-    to: priceOfferFullPayload.productIds
+    to: priceOfferFullPayload.origin
     select: true
+  - from: searchFlights.catalogProductOfferings
+    to: priceOfferFullPayload.destination
+    select: true
+  # Reference-based pricing — identifiers from selected search element
   - from: searchFlights.catalogProductOfferings
     to: addOfferReference.offeringId
     select: true
   - from: searchFlights.catalogProductOfferings
     to: addOfferReference.productIds
     select: true
+  # Full-payload add offer — flight details from selected search element
   - from: searchFlights.catalogProductOfferings
-    to: addOfferFullPayload.offeringId
+    to: addOfferFullPayload.carrier
     select: true
   - from: searchFlights.catalogProductOfferings
-    to: addOfferFullPayload.productIds
+    to: addOfferFullPayload.flightNumber
+    select: true
+  - from: searchFlights.catalogProductOfferings
+    to: addOfferFullPayload.departureDate
+    select: true
+  - from: searchFlights.catalogProductOfferings
+    to: addOfferFullPayload.origin
+    select: true
+  - from: searchFlights.catalogProductOfferings
+    to: addOfferFullPayload.destination
     select: true
   - from: searchFlights.catalogProductOfferings
     to: getFareRulesFromSearch.offeringId
@@ -1601,12 +1657,12 @@ edges:
   # PREFERRED EDGES — Backward chaining hints
   # ============================================================
   - from: createWorkbench.workbenchId
-    to: addOfferReference.workbenchId
+    to: addOfferFullPayload.workbenchId
     preferred: true
   - from: createWorkbench.workbenchId
     to: addTraveler.workbenchId
     preferred: true
-  - from: addOfferReference.offerIdentifierValue
+  - from: addOfferFullPayload.offerIdentifierValue
     to: addPayment.offerIdentifierValue
     preferred: true
 
@@ -1614,7 +1670,9 @@ edges:
   # is blocked; additional explicit edges needed for alternative flows.
   - from: addOfferFullPayload.workbenchId
     to: addTraveler.workbenchId
-  - from: addOfferFullPayload.offerIdentifierValue
+  - from: createWorkbench.workbenchId
+    to: addOfferReference.workbenchId
+  - from: addOfferReference.offerIdentifierValue
     to: addPayment.offerIdentifierValue
   - from: addExchangeOffer.offerIdentifierValue
     to: addPayment.offerIdentifierValue
@@ -1625,8 +1683,6 @@ edges:
   # ============================================================
 
   # Pass-through workbenchId nodes need explicit sources
-  - from: createWorkbench.workbenchId
-    to: addOfferFullPayload.workbenchId
   - from: createWorkbenchFromLocator.workbenchId
     to: addExchangeOffer.workbenchId
   - from: createWorkbenchFromIdentifier.workbenchId

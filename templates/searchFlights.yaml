@@ -16,7 +16,17 @@ request:
         "contentSourceList": [
           "{{contentSource}}"
         ],
-        "PassengerCriteria": [
+        {{?carrierPreference}}"SearchModifiersAir": {
+          "@type": "SearchModifiersAir",
+          "CarrierPreference": [
+            {
+              "@type": "CarrierPreference",
+              "preferenceType": "Permitted",
+              "carriers": ["{{carrierPreference}}"]
+            }
+          ]
+        },
+        {{/carrierPreference}}"PassengerCriteria": [
           {
             "@type": "PassengerCriteria",
             "number": {{passengers}},
@@ -44,9 +54,19 @@ response:
       fields:
         offeringId: "id"
         productId: "ProductBrandOptions.0.ProductBrandOffering.0.Product.0.productRef"
-        productIds: "ProductBrandOptions.0.ProductBrandOffering.0.Product.0.productRef"
+        productIds: "ProductBrandOptions.#.ProductBrandOffering.#.Product.#.productRef|@flatten|@flatten"
         departure: "Departure"
         arrival: "Arrival"
         offeringIdentifierValue: "Identifier.value"
+        # Full-payload flight details (from inline ProductAir objects)
+        carrier: "ProductBrandOptions.0.ProductBrandOffering.0.Product.0.FlightSegment.0.Flight.carrier"
+        flightNumber: "ProductBrandOptions.0.ProductBrandOffering.0.Product.0.FlightSegment.0.Flight.number"
+        departureDate: "ProductBrandOptions.0.ProductBrandOffering.0.Product.0.FlightSegment.0.Flight.Departure.date"
+        departureTime: "ProductBrandOptions.0.ProductBrandOffering.0.Product.0.FlightSegment.0.Flight.Departure.time"
+        arrivalTime: "ProductBrandOptions.0.ProductBrandOffering.0.Product.0.FlightSegment.0.Flight.Arrival.time"
+        cabin: "ProductBrandOptions.0.ProductBrandOffering.0.Product.0.PassengerFlight.0.FlightProduct.0.cabin"
+        classOfService: "ProductBrandOptions.0.ProductBrandOffering.0.Product.0.PassengerFlight.0.FlightProduct.0.classOfService"
+        totalPrice: "ProductBrandOptions.0.ProductBrandOffering.0.BestCombinablePrice.TotalPrice"
+        currency: "ProductBrandOptions.0.ProductBrandOffering.0.BestCombinablePrice.CurrencyCode.value"
     catalogProductOfferingsId: "CatalogProductOfferingsResponse.CatalogProductOfferings.Identifier.value"
     transactionId: "CatalogProductOfferingsResponse.transactionId"
