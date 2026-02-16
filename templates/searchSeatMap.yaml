@@ -11,24 +11,17 @@ request:
     {
       "@type": "CatalogOfferingsQuerySeatAvailability",
       "SeatAvailabilityOfferings": {
-        "@type": "SeatAvailabilityOfferingsBuildFromReservationWorkbench",
-        "BuildFromReservationWorkbench": {
-          "@type": "BuildFromReservationWorkbench",
-          "ReservationIdentifier": {
-            "Identifier": {
-              "value": "{{workbenchId}}"
+        "@type": "SeatAvailabilityOfferingsBuildFromOfferList",
+        "BuildFromOfferList": {
+          "OfferListIdentifier": "{{offerListIdentifier}}",
+          "OfferIdentifier": [
+            {
+              "id": "{{offerId}}"
             }
-          },
-          "OfferIdentifier": {
-            "Identifier": {
-              "value": "{{offerIdentifierValue}}"
-            }
-          },
+          ],
           "ProductIdentifier": [
             {
-              "Identifier": {
-                "value": "{{productIdentifierValue}}"
-              }
+              "id": "{{productId}}"
             }
           ]
         }
@@ -38,8 +31,8 @@ request:
 response:
   extract:
     seatOfferings:
-      path: "CatalogOfferingsAncillaryListResponse.CatalogOfferingsAncillary"
+      path: "CatalogOfferingsAncillaryListResponse.CatalogOfferingsID.0.CatalogOffering"
       fields:
         seatId: "id"
         seatIdentifierValue: "Identifier.value"
-    catalogOfferingsIdentifierValue: "CatalogOfferingsAncillaryListResponse.Identifier.value"
+    catalogOfferingsIdentifierValue: "CatalogOfferingsAncillaryListResponse.CatalogOfferingsID.0.Identifier.value"

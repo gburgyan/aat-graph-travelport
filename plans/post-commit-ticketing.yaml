@@ -1,0 +1,41 @@
+# Post-commit ticketing template.
+# For ticketing a held booking that was committed without payment.
+# Starts from a PNR locator, opens the workbench, adds FOP and payment, then tickets.
+
+metadata:
+  prompt: "ticket a held booking"
+
+intent:
+  goal: commitTicket
+  description: "Issue tickets for a held booking using PNR locator"
+
+execution:
+  steps:
+    - node: createWorkbenchFromLocator
+      description: "Open workbench from the held booking PNR"
+      values:
+        locator: ABCDEF
+
+    - node: addFormOfPaymentCash
+      dependsOn: [createWorkbenchFromLocator]
+      values:
+        workbenchId: {from: createWorkbenchFromLocator.workbenchId}
+
+    - node: addPayment
+      dependsOn: [addFormOfPaymentCash, createWorkbenchFromLocator]
+      values:
+        workbenchId: {from: createWorkbenchFromLocator.workbenchId}
+        amount: 100.00
+        currencyCode: USD
+        offerIdentifierValue: {from: createWorkbenchFromLocator.offerIdentifierValue}
+        offerAuthority: {from: createWorkbenchFromLocator.offerAuthority}
+
+    - node: commitTicket
+      dependsOn: [addPayment, createWorkbenchFromLocator]
+      isGoal: true
+      values:
+        workbenchId: {from: createWorkbenchFromLocator.workbenchId}
+
+  cleanup:
+    - node: ignoreWorkbench
+      runOn: always

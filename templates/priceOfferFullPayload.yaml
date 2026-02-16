@@ -64,5 +64,6 @@ response:
   extract:
     offerIdentifierValue: "OfferListResponse.Identifier.value"
     offerId: "OfferListResponse.OfferID.0.id"
+    productId: "OfferListResponse.OfferID.0.Product.0.id"
     totalPrice: "OfferListResponse.OfferID.0.Price.TotalPrice"
     currencyCode: "OfferListResponse.OfferID.0.Price.CurrencyCode.value"

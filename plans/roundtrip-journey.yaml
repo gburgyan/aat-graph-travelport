@@ -1,0 +1,127 @@
+# Round-trip flight booking using journey-based search.
+# searchFlights returns offerings for BOTH legs when returnDate is provided.
+# Two named selections (outbound/inbound) pick different elements from the
+# same array based on departure airport.
+
+metadata:
+  prompt: "book a round-trip flight from Melbourne to Sydney on Qantas"
+
+intent:
+  goal: commitReservation
+  description: "Book a round-trip flight MEL→SYD→MEL on Qantas"
+  constraints:
+    hard:
+      - type: carrier
+        name: Qantas
+        description: "Carrier must be QF"
+        applies_to: [searchFlights]
+
+execution:
+  steps:
+    - node: searchFlights
+      description: "Search for round-trip flights MEL↔SYD on Qantas"
+      values:
+        origin: MEL
+        destination: SYD
+        departureDate: "{{today + 14 days}}"
+        returnDate: "{{today + 21 days}}"
+        carrierPreference: QF
+
+    - node: priceOfferFullPayload
+      description: "Price the selected outbound and return flights"
+      dependsOn: [searchFlights]
+      selections:
+        outbound:
+          from: searchFlights.catalogProductOfferings
+          strategy: match
+          filter: "departure == 'MEL'"
+        inbound:
+          from: searchFlights.catalogProductOfferings
+          strategy: match
+          filter: "departure == 'SYD'"
+      values:
+        carrier: {fromSelection: outbound.carrier}
+        flightNumber: {fromSelection: outbound.flightNumber}
+        departureDate: {fromSelection: outbound.departureDate}
+        departureTime: {fromSelection: outbound.departureTime}
+        arrivalDate: {fromSelection: outbound.arrivalDate}
+        arrivalTime: {fromSelection: outbound.arrivalTime}
+        origin: MEL
+        destination: SYD
+        classOfService: {fromSelection: outbound.classOfService}
+        returnCarrier: {fromSelection: inbound.carrier}
+        returnFlightNumber: {fromSelection: inbound.flightNumber}
+        returnDepartureDate: {fromSelection: inbound.departureDate}
+        returnDepartureTime: {fromSelection: inbound.departureTime}
+        returnArrivalDate: {fromSelection: inbound.arrivalDate}
+        returnArrivalTime: {fromSelection: inbound.arrivalTime}
+        returnOrigin: SYD
+        returnDestination: MEL
+        returnClassOfService: {fromSelection: inbound.classOfService}
+
+    - node: createWorkbench
+      dependsOn: [priceOfferFullPayload]
+
+    - node: addOfferFullPayload
+      description: "Add round-trip offer to workbench"
+      dependsOn: [createWorkbench, searchFlights]
+      selections:
+        outbound:
+          from: searchFlights.catalogProductOfferings
+          strategy: match
+          filter: "departure == 'MEL'"
+        inbound:
+          from: searchFlights.catalogProductOfferings
+          strategy: match
+          filter: "departure == 'SYD'"
+      values:
+        workbenchId: {from: createWorkbench.workbenchId}
+        carrier: {fromSelection: outbound.carrier}
+        flightNumber: {fromSelection: outbound.flightNumber}
+        departureDate: {fromSelection: outbound.departureDate}
+        departureTime: {fromSelection: outbound.departureTime}
+        arrivalDate: {fromSelection: outbound.arrivalDate}
+        arrivalTime: {fromSelection: outbound.arrivalTime}
+        origin: MEL
+        destination: SYD
+        returnCarrier: {fromSelection: inbound.carrier}
+        returnFlightNumber: {fromSelection: inbound.flightNumber}
+        returnDepartureDate: {fromSelection: inbound.departureDate}
+        returnDepartureTime: {fromSelection: inbound.departureTime}
+        returnArrivalDate: {fromSelection: inbound.arrivalDate}
+        returnArrivalTime: {fromSelection: inbound.arrivalTime}
+        returnOrigin: SYD
+        returnDestination: MEL
+
+    - node: addTraveler
+      dependsOn: [createWorkbench]
+      values:
+        workbenchId: {from: createWorkbench.workbenchId}
+        givenName: Test
+        surname: Traveler
+        birthDate: "1990-01-15"
+        gender: Male
+
+    - node: addFormOfPaymentCash
+      dependsOn: [createWorkbench]
+      values:
+        workbenchId: {from: createWorkbench.workbenchId}
+
+    - node: addPayment
+      dependsOn: [addOfferFullPayload, addTraveler, addFormOfPaymentCash, createWorkbench, priceOfferFullPayload]
+      values:
+        workbenchId: {from: createWorkbench.workbenchId}
+        amount: {from: priceOfferFullPayload.totalPrice}
+        currencyCode: {from: priceOfferFullPayload.currencyCode}
+        offerIdentifierValue: {from: addOfferFullPayload.offerIdentifierValue}
+        offerAuthority: {from: addOfferFullPayload.offerAuthority}
+
+    - node: commitReservation
+      dependsOn: [addPayment, createWorkbench]
+      isGoal: true
+      values:
+        workbenchId: {from: createWorkbench.workbenchId}
+
+  cleanup:
+    - node: ignoreWorkbench
+      runOn: always

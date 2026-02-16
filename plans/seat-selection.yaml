@@ -1,0 +1,33 @@
+# Seat selection sub-workflow template.
+# Searches the seat map using pricing identifiers and adds a seat offer.
+# The caller provides offerListIdentifier, offerId, productId (from pricing),
+# workbenchId, travelerIdentifierValue, and seatAssignment.
+
+metadata:
+  prompt: "select a seat for a booking"
+
+intent:
+  description: "Search seat map and assign a seat within an existing workbench"
+
+execution:
+  steps:
+    - node: searchSeatMap
+      description: "Request seat availability for the flight segment"
+      values:
+        offerListIdentifier: PLACEHOLDER
+        offerId: PLACEHOLDER
+        productId: PLACEHOLDER
+
+    - node: addSeatOffer
+      description: "Add the selected seat to the workbench"
+      dependsOn: [searchSeatMap]
+      selections:
+        seat:
+          from: searchSeatMap.seatOfferings
+          strategy: first
+      values:
+        workbenchId: PLACEHOLDER
+        catalogOfferingsIdentifierValue: {from: searchSeatMap.catalogOfferingsIdentifierValue}
+        seatOfferingIdentifierValue: {fromSelection: seat.seatIdentifierValue}
+        travelerIdentifierValue: PLACEHOLDER
+        seatAssignment: 12A

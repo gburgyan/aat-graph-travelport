@@ -1,0 +1,26 @@
+# Traveler modification sub-workflow template.
+# Two-step traveler update: discover updatable fields, then apply changes.
+# The caller provides workbenchId, travelerIdentifierValue, travelerId, and updateValue.
+
+metadata:
+  prompt: "modify traveler details on a booking"
+
+intent:
+  description: "Discover updatable traveler fields and apply a change"
+
+execution:
+  steps:
+    - node: getUpdatableTravelerItems
+      description: "Discover which traveler fields can be modified"
+      values:
+        workbenchId: PLACEHOLDER
+        travelerIdentifierValue: PLACEHOLDER
+
+    - node: updateTraveler
+      description: "Apply the traveler modification"
+      dependsOn: [getUpdatableTravelerItems]
+      values:
+        workbenchId: PLACEHOLDER
+        travelerId: PLACEHOLDER
+        updatableItemId: PLACEHOLDER
+        updateValue: PLACEHOLDER

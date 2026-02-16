@@ -1,0 +1,91 @@
+# One-way full-payload booking template.
+# Search for flights, price using full payload, and book with workbench flow.
+# The LLM fills origin, destination, dates, and traveler details.
+
+metadata:
+  prompt: "book a one-way flight"
+
+intent:
+  goal: commitReservation
+  description: "Book a one-way flight using full-payload flow"
+
+execution:
+  steps:
+    - node: searchFlights
+      description: "Search for one-way flights"
+      values:
+        origin: DEN
+        destination: SFO
+        departureDate: "{{today + 14 days}}"
+
+    - node: priceOfferFullPayload
+      description: "Price the selected flight using full payload"
+      dependsOn: [searchFlights]
+      selections:
+        offering:
+          from: searchFlights.catalogProductOfferings
+          strategy: first
+      values:
+        carrier: {fromSelection: offering.carrier}
+        flightNumber: {fromSelection: offering.flightNumber}
+        departureDate: {fromSelection: offering.departureDate}
+        departureTime: {fromSelection: offering.departureTime}
+        arrivalDate: {fromSelection: offering.arrivalDate}
+        arrivalTime: {fromSelection: offering.arrivalTime}
+        origin: {fromSelection: offering.departure}
+        destination: {fromSelection: offering.arrival}
+        classOfService: {fromSelection: offering.classOfService}
+
+    - node: createWorkbench
+      dependsOn: [priceOfferFullPayload]
+
+    - node: addOfferFullPayload
+      description: "Add the priced offer to the workbench"
+      dependsOn: [createWorkbench, searchFlights]
+      selections:
+        offering:
+          from: searchFlights.catalogProductOfferings
+          strategy: first
+      values:
+        workbenchId: {from: createWorkbench.workbenchId}
+        carrier: {fromSelection: offering.carrier}
+        flightNumber: {fromSelection: offering.flightNumber}
+        departureDate: {fromSelection: offering.departureDate}
+        departureTime: {fromSelection: offering.departureTime}
+        arrivalDate: {fromSelection: offering.arrivalDate}
+        arrivalTime: {fromSelection: offering.arrivalTime}
+        origin: {fromSelection: offering.departure}
+        destination: {fromSelection: offering.arrival}
+
+    - node: addTraveler
+      dependsOn: [createWorkbench]
+      values:
+        workbenchId: {from: createWorkbench.workbenchId}
+        givenName: Test
+        surname: Traveler
+        birthDate: "1990-01-15"
+        gender: Male
+
+    - node: addFormOfPaymentCash
+      dependsOn: [createWorkbench]
+      values:
+        workbenchId: {from: createWorkbench.workbenchId}
+
+    - node: addPayment
+      dependsOn: [addOfferFullPayload, addTraveler, addFormOfPaymentCash, createWorkbench, priceOfferFullPayload]
+      values:
+        workbenchId: {from: createWorkbench.workbenchId}
+        amount: {from: priceOfferFullPayload.totalPrice}
+        currencyCode: {from: priceOfferFullPayload.currencyCode}
+        offerIdentifierValue: {from: addOfferFullPayload.offerIdentifierValue}
+        offerAuthority: {from: addOfferFullPayload.offerAuthority}
+
+    - node: commitReservation
+      dependsOn: [addPayment, createWorkbench]
+      isGoal: true
+      values:
+        workbenchId: {from: createWorkbench.workbenchId}
+
+  cleanup:
+    - node: ignoreWorkbench
+      runOn: always

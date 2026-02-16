@@ -26,17 +26,50 @@ workflows:
     template: plans/exchange.yaml
     steps: [getExchangeEligibility, createWorkbenchFromLocator, searchExchange, addExchangeOffer, addFormOfPaymentForfeit, addPayment, addDocumentOverrides, commitExchangeTicket]
   - name: Ancillary Booking
+    kind: addon
     description: "Search and add ancillary services (bags, meals, etc.)"
     template: plans/ancillary-booking.yaml
     steps: [searchAncillaries, addAncillaryOffer]
   - name: Seat Selection
+    kind: addon
     description: "Search seat map and add seat offer"
     template: plans/seat-selection.yaml
     steps: [searchSeatMap, addSeatOffer]
   - name: Traveler Modification
+    kind: addon
     description: "Two-step traveler update: discover updatable fields, then apply changes"
     template: plans/traveler-modification.yaml
     steps: [getUpdatableTravelerItems, updateTraveler]
+
+  # Pre-declared compositions (shortcuts)
+  - name: Full-Payload Booking with Seat Selection
+    description: "Book a flight with seat selection spliced in after pricing"
+    template: plans/oneway-fullpayload.yaml
+    includes:
+      - workflow: Seat Selection
+        after: priceOfferFullPayload
+        wire:
+          offerListIdentifier: priceOfferFullPayload.offerIdentifierValue
+    steps: [searchFlights, priceOfferFullPayload, searchSeatMap, createWorkbench, addOfferFullPayload, addTraveler, addSeatOffer, addFormOfPaymentCash, addPayment, commitReservation]
+  - name: Full-Payload Booking with Ancillaries
+    description: "Book a flight with ancillary services (bags, meals) added before payment"
+    template: plans/oneway-fullpayload.yaml
+    includes:
+      - workflow: Ancillary Booking
+        after: addTraveler
+    steps: [searchFlights, priceOfferFullPayload, createWorkbench, addOfferFullPayload, addTraveler, searchAncillaries, addAncillaryOffer, addFormOfPaymentCash, addPayment, commitReservation]
+  - name: Full-Payload Booking with Seat and Ancillaries
+    description: "Book a flight with both seat selection and ancillary services"
+    template: plans/oneway-fullpayload.yaml
+    includes:
+      - workflow: Seat Selection
+        after: priceOfferFullPayload
+        wire:
+          offerListIdentifier: priceOfferFullPayload.offerIdentifierValue
+      - workflow: Ancillary Booking
+        after: addTraveler
+    steps: [searchFlights, priceOfferFullPayload, searchSeatMap, createWorkbench, addOfferFullPayload, addTraveler, addSeatOffer, searchAncillaries, addAncillaryOffer, addFormOfPaymentCash, addPayment, commitReservation]
+
   - name: Round-Trip Full-Payload Booking
     description: "Journey-based round-trip: search both legs in one call, price and book with return leg details"
     template: plans/roundtrip-journey.yaml
@@ -377,6 +410,9 @@ nodes:
       - name: offerId
         type: string
         description: "Offer id from price response"
+      - name: productId
+        type: string
+        description: "First product id from price response"
       - name: totalPrice
         type: float
         description: "Total price amount"
@@ -453,6 +489,12 @@ nodes:
       - name: workbenchId
         type: string
         description: "Workbench Identifier.value"
+      - name: wbOfferIdentifierValue
+        type: string
+        description: "First offer's Identifier.value in workbench context"
+      - name: wbProductIdentifierValue
+        type: string
+        description: "First product's Identifier.value in workbench context"
       - name: offers
         type: offer[]
         description: "Offers currently in the workbench"
@@ -929,20 +971,22 @@ nodes:
   # SEAT MAP
   # ============================================================
   searchSeatMap:
-    description: "Request seat availability (seat map) for flights in the workbench."
+    description: "Request seat availability (seat map) using pricing response identifiers."
     adapter: searchSeatMap
     tags: [seat, search]
     inputs:
-      - name: workbenchId
+      - name: offerListIdentifier
         type: string
-        description: "Reservation workbench Identifier.value"
-      - name: offerIdentifierValue
-        type: string
-        description: "Offer Identifier.value"
+        description: "OfferListResponse Identifier.value from the pricing response"
         noAutoWire: true
-      - name: productIdentifierValue
+      - name: offerId
         type: string
-        description: "Product Identifier.value for the specific flight segment"
+        description: "Offer id (e.g. 'o0') from the pricing response"
+        noAutoWire: true
+      - name: productId
+        type: string
+        description: "Product id (e.g. 'p0') from the pricing response"
+        noAutoWire: true
     outputs:
       - name: seatOfferings
         type: seat[]
@@ -1949,8 +1993,6 @@ edges:
   # Offer ID for ancillary/seat searches
   - from: addOfferReference.offerIdentifierValue
     to: searchAncillaries.offerIdentifierValue
-  - from: addOfferReference.offerIdentifierValue
-    to: searchSeatMap.offerIdentifierValue
 
   # Commit nodes — explicit workbench sources
   - from: createWorkbench.workbenchId

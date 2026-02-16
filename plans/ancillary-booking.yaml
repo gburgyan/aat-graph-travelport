@@ -1,0 +1,31 @@
+# Ancillary booking sub-workflow template.
+# Search and add ancillary services (bags, meals, etc.) within an existing workbench.
+# The caller provides workbenchId, offerIdentifierValue, and travelerIdentifierValue.
+
+metadata:
+  prompt: "add ancillary services to a booking"
+
+intent:
+  description: "Search for and add ancillary services within an existing workbench"
+
+execution:
+  steps:
+    - node: searchAncillaries
+      description: "Search for available ancillary services"
+      values:
+        workbenchId: PLACEHOLDER
+        offerIdentifierValue: PLACEHOLDER
+
+    - node: addAncillaryOffer
+      description: "Add the selected ancillary offer to the workbench"
+      dependsOn: [searchAncillaries]
+      selections:
+        ancillary:
+          from: searchAncillaries.ancillaryOfferings
+          strategy: first
+      values:
+        workbenchId: PLACEHOLDER
+        catalogOfferingsIdentifierValue: {from: searchAncillaries.catalogOfferingsIdentifierValue}
+        ancillaryOfferingId: {fromSelection: ancillary.ancillaryId}
+        ancillaryProductId: PLACEHOLDER
+        travelerIdentifierValue: PLACEHOLDER

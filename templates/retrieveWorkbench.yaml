@@ -10,6 +10,8 @@ request:
 response:
   extract:
     workbenchId: "ReservationResponse.Reservation.Identifier.value"
+    wbOfferIdentifierValue: "ReservationResponse.Reservation.Offer.0.Identifier.value"
+    wbProductIdentifierValue: "ReservationResponse.Reservation.Offer.0.Product.0.Identifier.value"
     offers:
       path: "ReservationResponse.Reservation.Offer"
       fields:
