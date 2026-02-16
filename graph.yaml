@@ -123,22 +123,16 @@ nodes:
         elementFields:
           - name: offeringId
             type: string
-            path: "id"
           - name: productId
             type: string
-            path: "ProductBrandOptions.0.ProductBrandOffering.0.Product.0.productRef"
           - name: productIds
             type: string
-            path: "ProductBrandOptions.0.ProductBrandOffering.0.Product.0.productRef"
           - name: departure
             type: string
-            path: "Departure"
           - name: arrival
             type: string
-            path: "Arrival"
           - name: offeringIdentifierValue
             type: string
-            path: "Identifier.value"
       - name: catalogProductOfferingsId
         type: string
         description: "Identifier.value for the entire CatalogProductOfferings container"
@@ -167,16 +161,12 @@ nodes:
         elementFields:
           - name: offeringId
             type: string
-            path: "id"
           - name: departure
             type: string
-            path: "Departure"
           - name: arrival
             type: string
-            path: "Arrival"
           - name: offeringIdentifierValue
             type: string
-            path: "Identifier.value"
       - name: catalogProductOfferingsId
         type: string
         description: "Updated CatalogProductOfferings Identifier.value"
@@ -202,10 +192,8 @@ nodes:
         elementFields:
           - name: offeringId
             type: string
-            path: "id"
           - name: offeringIdentifierValue
             type: string
-            path: "Identifier.value"
 
   # ============================================================
   # PRICING
@@ -343,13 +331,10 @@ nodes:
         elementFields:
           - name: offerId
             type: string
-            path: "id"
           - name: offerIdentifierValue
             type: string
-            path: "Identifier.value"
           - name: offerAuthority
             type: string
-            path: "Identifier.authority"
 
   # ============================================================
   # ADD OFFER TO WORKBENCH
@@ -676,10 +661,8 @@ nodes:
         elementFields:
           - name: offerId
             type: string
-            path: "id"
           - name: offerIdentifierValue
             type: string
-            path: "Identifier.value"
 
   cancelOffer:
     description: "Cancel an offer within an existing reservation."
@@ -739,13 +722,10 @@ nodes:
         elementFields:
           - name: ticketNumber
             type: string
-            path: "TicketNumber"
           - name: ticketIdentifierValue
             type: string
-            path: "Identifier.value"
           - name: ticketStatus
             type: string
-            path: "TicketStatusCode"
 
   voidTicket:
     description: "Void a ticket (GDS only)."
@@ -782,13 +762,10 @@ nodes:
         elementFields:
           - name: ancillaryId
             type: string
-            path: "id"
           - name: ancillaryIdentifierValue
             type: string
-            path: "Identifier.value"
           - name: ancillaryName
             type: string
-            path: "name"
       - name: catalogOfferingsIdentifierValue
         type: string
         description: "CatalogOfferingsAncillary Identifier.value for downstream add"
@@ -818,10 +795,8 @@ nodes:
         elementFields:
           - name: seatId
             type: string
-            path: "id"
           - name: seatIdentifierValue
             type: string
-            path: "Identifier.value"
       - name: catalogOfferingsIdentifierValue
         type: string
         description: "CatalogOfferingsAncillary Identifier.value for downstream add"
@@ -884,10 +859,8 @@ nodes:
         elementFields:
           - name: ticketNumber
             type: string
-            path: "Ticket.TicketNumber"
           - name: exchangeable
             type: string
-            path: "exchangeable"
 
   getExchangeEligibilityByTicket:
     description: "Check if a specific ticket is eligible for exchange (by ticket number)."
@@ -904,10 +877,8 @@ nodes:
         elementFields:
           - name: ticketNumber
             type: string
-            path: "Ticket.TicketNumber"
           - name: exchangeable
             type: string
-            path: "exchangeable"
 
   searchExchange:
     description: "Search for flights to exchange existing tickets."
@@ -947,13 +918,10 @@ nodes:
         elementFields:
           - name: offeringId
             type: string
-            path: "id"
           - name: offeringIdentifierValue
             type: string
-            path: "Identifier.value"
           - name: totalPrice
             type: string
-            path: "Price.TotalPrice.value"
       - name: catalogOfferingsIdentifierValue
         type: string
         description: "CatalogOfferings Identifier.value for downstream addExchangeOffer"

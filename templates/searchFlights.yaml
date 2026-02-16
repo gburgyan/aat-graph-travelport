@@ -39,6 +39,14 @@ request:
 
 response:
   extract:
-    catalogProductOfferings: "CatalogProductOfferingsResponse.CatalogProductOfferings.CatalogProductOffering"
+    catalogProductOfferings:
+      path: "CatalogProductOfferingsResponse.CatalogProductOfferings.CatalogProductOffering"
+      fields:
+        offeringId: "id"
+        productId: "ProductBrandOptions.0.ProductBrandOffering.0.Product.0.productRef"
+        productIds: "ProductBrandOptions.0.ProductBrandOffering.0.Product.0.productRef"
+        departure: "Departure"
+        arrival: "Arrival"
+        offeringIdentifierValue: "Identifier.value"
     catalogProductOfferingsId: "CatalogProductOfferingsResponse.CatalogProductOfferings.Identifier.value"
     transactionId: "CatalogProductOfferingsResponse.transactionId"

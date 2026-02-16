@@ -30,5 +30,10 @@ request:
 
 response:
   extract:
-    ancillaryOfferings: "CatalogOfferingsAncillaryListResponse.CatalogOfferingsAncillary"
+    ancillaryOfferings:
+      path: "CatalogOfferingsAncillaryListResponse.CatalogOfferingsAncillary"
+      fields:
+        ancillaryId: "id"
+        ancillaryIdentifierValue: "Identifier.value"
+        ancillaryName: "name"
     catalogOfferingsIdentifierValue: "CatalogOfferingsAncillaryListResponse.Identifier.value"

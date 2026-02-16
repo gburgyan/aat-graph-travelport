@@ -37,5 +37,9 @@ request:
 
 response:
   extract:
-    seatOfferings: "CatalogOfferingsAncillaryListResponse.CatalogOfferingsAncillary"
+    seatOfferings:
+      path: "CatalogOfferingsAncillaryListResponse.CatalogOfferingsAncillary"
+      fields:
+        seatId: "id"
+        seatIdentifierValue: "Identifier.value"
     catalogOfferingsIdentifierValue: "CatalogOfferingsAncillaryListResponse.Identifier.value"

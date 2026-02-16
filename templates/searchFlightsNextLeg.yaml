@@ -35,5 +35,11 @@ request:
 
 response:
   extract:
-    catalogProductOfferings: "CatalogProductOfferingsResponse.CatalogProductOfferings.CatalogProductOffering"
+    catalogProductOfferings:
+      path: "CatalogProductOfferingsResponse.CatalogProductOfferings.CatalogProductOffering"
+      fields:
+        offeringId: "id"
+        departure: "Departure"
+        arrival: "Arrival"
+        offeringIdentifierValue: "Identifier.value"
     catalogProductOfferingsId: "CatalogProductOfferingsResponse.CatalogProductOfferings.Identifier.value"

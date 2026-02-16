@@ -9,4 +9,8 @@ request:
 
 response:
   extract:
-    eligibilities: "TicketChangeEligibilityListResponse.TicketChangeEligibility"
+    eligibilities:
+      path: "TicketChangeEligibilityListResponse.TicketChangeEligibility"
+      fields:
+        ticketNumber: "Ticket.TicketNumber"
+        exchangeable: "exchangeable"

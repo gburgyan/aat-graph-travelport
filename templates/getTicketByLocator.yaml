@@ -17,4 +17,9 @@ request:
 
 response:
   extract:
-    tickets: "TicketListResponse.Ticket"
+    tickets:
+      path: "TicketListResponse.Ticket"
+      fields:
+        ticketNumber: "TicketNumber"
+        ticketIdentifierValue: "Identifier.value"
+        ticketStatus: "TicketStatusCode"

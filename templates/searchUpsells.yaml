@@ -38,4 +38,8 @@ request:
 
 response:
   extract:
-    upsellOfferings: "CatalogProductOfferingsResponse.CatalogProductOfferings.UpsellOffering"
+    upsellOfferings:
+      path: "CatalogProductOfferingsResponse.CatalogProductOfferings.UpsellOffering"
+      fields:
+        offeringId: "id"
+        offeringIdentifierValue: "Identifier.value"

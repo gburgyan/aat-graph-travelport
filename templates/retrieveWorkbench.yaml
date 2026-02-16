@@ -10,4 +10,9 @@ request:
 response:
   extract:
     workbenchId: "ReservationResponse.Reservation.Identifier.value"
-    offers: "ReservationResponse.Reservation.Offer"
+    offers:
+      path: "ReservationResponse.Reservation.Offer"
+      fields:
+        offerId: "id"
+        offerIdentifierValue: "Identifier.value"
+        offerAuthority: "Identifier.authority"

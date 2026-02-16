@@ -50,5 +50,10 @@ request:
 
 response:
   extract:
-    exchangeOfferings: "CatalogOfferingsAirChangeResponse.CatalogOfferings.CatalogOffering"
+    exchangeOfferings:
+      path: "CatalogOfferingsAirChangeResponse.CatalogOfferings.CatalogOffering"
+      fields:
+        offeringId: "id"
+        offeringIdentifierValue: "Identifier.value"
+        totalPrice: "Price.TotalPrice.value"
     catalogOfferingsIdentifierValue: "CatalogOfferingsAirChangeResponse.CatalogOfferings.Identifier.value"

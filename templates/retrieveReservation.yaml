@@ -12,4 +12,8 @@ response:
     reservationIdentifierValue: "ReservationResponse.Reservation.Identifier.value"
     locator: "ReservationResponse.Reservation.Locator.value"
     reservationStatus: "ReservationResponse.reservationStatus"
-    offers: "ReservationResponse.Reservation.Offer"
+    offers:
+      path: "ReservationResponse.Reservation.Offer"
+      fields:
+        offerId: "id"
+        offerIdentifierValue: "Identifier.value"
