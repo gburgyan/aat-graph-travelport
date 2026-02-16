@@ -29,6 +29,9 @@ request:
                 "carrier": "{{carrier}}",
                 "flightNumber": "{{flightNumber}}",
                 "departureDate": "{{departureDate}}",
+                "departureTime": "{{departureTime}}",
+                "arrivalDate": "{{arrivalDate}}",
+                "arrivalTime": "{{arrivalTime}}",
                 "from": "{{origin}}",
                 "to": "{{destination}}",
                 "classOfService": "{{classOfService}}",
@@ -42,7 +45,7 @@ request:
 
 response:
   extract:
-    offerIdentifierValue: "OfferResponse.Offer.Identifier.value"
-    offerId: "OfferResponse.Offer.id"
-    totalPrice: "OfferResponse.Offer.Price.TotalPrice.value"
-    currencyCode: "OfferResponse.Offer.Price.TotalPrice.code"
+    offerIdentifierValue: "OfferListResponse.Identifier.value"
+    offerId: "OfferListResponse.OfferID.0.id"
+    totalPrice: "OfferListResponse.OfferID.0.Price.TotalPrice"
+    currencyCode: "OfferListResponse.OfferID.0.Price.CurrencyCode.value"

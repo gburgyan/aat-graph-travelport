@@ -63,6 +63,7 @@ response:
         flightNumber: "ProductBrandOptions.0.ProductBrandOffering.0.Product.0.FlightSegment.0.Flight.number"
         departureDate: "ProductBrandOptions.0.ProductBrandOffering.0.Product.0.FlightSegment.0.Flight.Departure.date"
         departureTime: "ProductBrandOptions.0.ProductBrandOffering.0.Product.0.FlightSegment.0.Flight.Departure.time"
+        arrivalDate: "ProductBrandOptions.0.ProductBrandOffering.0.Product.0.FlightSegment.0.Flight.Arrival.date"
         arrivalTime: "ProductBrandOptions.0.ProductBrandOffering.0.Product.0.FlightSegment.0.Flight.Arrival.time"
         cabin: "ProductBrandOptions.0.ProductBrandOffering.0.Product.0.PassengerFlight.0.FlightProduct.0.cabin"
         classOfService: "ProductBrandOptions.0.ProductBrandOffering.0.Product.0.PassengerFlight.0.FlightProduct.0.classOfService"
@@ -70,3 +71,91 @@ response:
         currency: "ProductBrandOptions.0.ProductBrandOffering.0.BestCombinablePrice.CurrencyCode.value"
     catalogProductOfferingsId: "CatalogProductOfferingsResponse.CatalogProductOfferings.Identifier.value"
     transactionId: "CatalogProductOfferingsResponse.transactionId"
+  transform: |
+    -- Resolve GDS ReferenceList cross-references.
+    -- In GDS mode, CatalogProductOfferings contain only reference strings
+    -- (productRef, FlightRef, BrandRef). Actual flight details live in
+    -- ReferenceList arrays at the top level of the response. This script
+    -- builds lookup tables and enriches each offering with carrier,
+    -- flightNumber, departure/arrival times, cabin, and classOfService.
+    -- Fields already populated (from full-payload inline mode) are preserved.
+
+    -- ReferenceList is a sibling of CatalogProductOfferings, not nested inside it.
+    local refLists = json_path("CatalogProductOfferingsResponse.ReferenceList")
+    if not refLists then return outputs end
+
+    -- Build lookup tables from reference lists.
+    local products = {}  -- product id -> ProductAir object
+    local flights = {}   -- flight id -> FlightDetail object
+
+    for _, refList in ipairs(refLists) do
+      local rlType = refList["@type"]
+      if rlType == "ReferenceListProduct" and refList.Product then
+        for _, prod in ipairs(refList.Product) do
+          if prod.id then
+            products[prod.id] = prod
+          end
+        end
+      elseif rlType == "ReferenceListFlight" and refList.Flight then
+        for _, fl in ipairs(refList.Flight) do
+          if fl.id then
+            flights[fl.id] = fl
+          end
+        end
+      end
+    end
+
+    -- Helper: resolve a Flight from a FlightSegment.
+    -- In GDS mode: FlightSegment.Flight = {FlightRef: "s1"} (reference)
+    -- In full-payload mode: FlightSegment.Flight = {carrier: "QF", ...} (inline)
+    local function resolveFlight(seg)
+      if not seg or not seg.Flight then return nil end
+      local fl = seg.Flight
+      -- Inline flight (has carrier directly)
+      if type(fl) == "table" and fl.carrier then
+        return fl
+      end
+      -- Reference: {FlightRef: "s1"}
+      if type(fl) == "table" and fl.FlightRef and flights[fl.FlightRef] then
+        return flights[fl.FlightRef]
+      end
+      return nil
+    end
+
+    if outputs.catalogProductOfferings then
+      for _, offering in ipairs(outputs.catalogProductOfferings) do
+        local pid = offering.productId
+        if pid and products[pid] then
+          local prod = products[pid]
+
+          -- Resolve flight details via Product -> FlightSegment -> Flight(Ref)
+          if prod.FlightSegment and prod.FlightSegment[1] then
+            local flight = resolveFlight(prod.FlightSegment[1])
+            if flight then
+              if not offering.carrier then offering.carrier = flight.carrier end
+              if not offering.flightNumber then offering.flightNumber = flight.number end
+              if flight.Departure then
+                if not offering.departureDate then offering.departureDate = flight.Departure.date end
+                if not offering.departureTime then offering.departureTime = flight.Departure.time end
+              end
+              if flight.Arrival then
+                if not offering.arrivalDate then offering.arrivalDate = flight.Arrival.date end
+                if not offering.arrivalTime then offering.arrivalTime = flight.Arrival.time end
+              end
+            end
+          end
+
+          -- Resolve cabin/classOfService from Product -> PassengerFlight -> FlightProduct
+          if prod.PassengerFlight and prod.PassengerFlight[1] then
+            local pf = prod.PassengerFlight[1]
+            if pf.FlightProduct and pf.FlightProduct[1] then
+              local fp = pf.FlightProduct[1]
+              if not offering.cabin then offering.cabin = fp.cabin end
+              if not offering.classOfService then offering.classOfService = fp.classOfService end
+            end
+          end
+        end
+      end
+    end
+
+    return outputs

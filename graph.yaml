@@ -141,6 +141,8 @@ nodes:
             type: date
           - name: departureTime
             type: string
+          - name: arrivalDate
+            type: date
           - name: arrivalTime
             type: string
           - name: cabin
@@ -260,6 +262,15 @@ nodes:
       - name: departureDate
         type: date
         description: "Departure date from the selected flight"
+      - name: departureTime
+        type: string
+        description: "Departure time from the selected flight (HH:MM:SS)"
+      - name: arrivalDate
+        type: date
+        description: "Arrival date from the selected flight"
+      - name: arrivalTime
+        type: string
+        description: "Arrival time from the selected flight (HH:MM:SS)"
       - name: origin
         type: string
         description: "Departure airport IATA code"
@@ -426,6 +437,15 @@ nodes:
       - name: departureDate
         type: date
         description: "Departure date from the selected flight"
+      - name: departureTime
+        type: string
+        description: "Departure time from the selected flight (HH:MM:SS)"
+      - name: arrivalDate
+        type: date
+        description: "Arrival date from the selected flight"
+      - name: arrivalTime
+        type: string
+        description: "Arrival time from the selected flight (HH:MM:SS)"
       - name: origin
         type: string
         description: "Departure airport IATA code"
@@ -433,24 +453,12 @@ nodes:
         type: string
         description: "Arrival airport IATA code"
     outputs:
-      - name: workbenchId
-        type: string
-        description: "Updated workbench Identifier.value"
       - name: offerIdentifierValue
         type: string
         description: "Offer Identifier.value now in the workbench"
-      - name: offerId
-        type: string
-        description: "Offer id in the workbench"
       - name: offerAuthority
         type: string
         description: "Offer authority"
-      - name: totalPrice
-        type: float
-        description: "Total price of the offer"
-      - name: currencyCode
-        type: string
-        description: "Currency code"
 
   # ============================================================
   # TRAVELERS
@@ -515,9 +523,6 @@ nodes:
       - name: travelerIdentifierValue
         type: string
         description: "Traveler Identifier.value"
-      - name: travelerId
-        type: string
-        description: "Traveler id"
 
   addPrimaryContact:
     description: "Add a primary contact (email/phone) to the reservation workbench."
@@ -1581,6 +1586,18 @@ edges:
     select: true
     preferred: true
   - from: searchFlights.catalogProductOfferings
+    to: priceOfferFullPayload.departureTime
+    select: true
+    preferred: true
+  - from: searchFlights.catalogProductOfferings
+    to: priceOfferFullPayload.arrivalDate
+    select: true
+    preferred: true
+  - from: searchFlights.catalogProductOfferings
+    to: priceOfferFullPayload.arrivalTime
+    select: true
+    preferred: true
+  - from: searchFlights.catalogProductOfferings
     to: priceOfferFullPayload.classOfService
     select: true
   - from: searchFlights.catalogProductOfferings
@@ -1605,6 +1622,15 @@ edges:
     select: true
   - from: searchFlights.catalogProductOfferings
     to: addOfferFullPayload.departureDate
+    select: true
+  - from: searchFlights.catalogProductOfferings
+    to: addOfferFullPayload.departureTime
+    select: true
+  - from: searchFlights.catalogProductOfferings
+    to: addOfferFullPayload.arrivalDate
+    select: true
+  - from: searchFlights.catalogProductOfferings
+    to: addOfferFullPayload.arrivalTime
     select: true
   - from: searchFlights.catalogProductOfferings
     to: addOfferFullPayload.origin
@@ -1668,8 +1694,6 @@ edges:
 
   # Co-targets: these inputs have a preferred edge above, so auto-wire
   # is blocked; additional explicit edges needed for alternative flows.
-  - from: addOfferFullPayload.workbenchId
-    to: addTraveler.workbenchId
   - from: createWorkbench.workbenchId
     to: addOfferReference.workbenchId
   - from: addOfferReference.offerIdentifierValue
@@ -1739,7 +1763,7 @@ edges:
   # totalPrice → amount
   - from: priceOfferReference.totalPrice
     to: addPayment.amount
-  - from: addOfferFullPayload.totalPrice
+  - from: priceOfferFullPayload.totalPrice
     to: addPayment.amount
   - from: addExchangeOffer.totalPrice
     to: addPayment.amount
