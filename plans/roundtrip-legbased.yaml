@@ -2,11 +2,7 @@
 # First search returns outbound flights, then searchFlightsNextLeg returns
 # return flights based on the selected outbound offering.
 
-metadata:
-  prompt: "book a round-trip flight from Melbourne to Sydney using leg-based search"
-
 intent:
-  goal: commitReservation
   description: "Book a round-trip flight MEL→SYD→MEL using leg-based search"
 
 execution:

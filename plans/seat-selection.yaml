@@ -3,9 +3,6 @@
 # The caller provides offerListIdentifier, offerId, productId (from pricing),
 # workbenchId, travelerIdentifierValue, and seatAssignment.
 
-metadata:
-  prompt: "select a seat for a booking"
-
 intent:
   description: "Search seat map and assign a seat within an existing workbench"
 

@@ -2,11 +2,7 @@
 # Full exchange flow: check eligibility, open workbench, search for new flights,
 # add exchange offer, add FOP (forfeit), pay, add document overrides, and commit.
 
-metadata:
-  prompt: "exchange a ticket on an existing booking"
-
 intent:
-  goal: commitExchangeTicket
   description: "Exchange tickets on an existing reservation for new flights"
 
 execution:

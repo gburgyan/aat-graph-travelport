@@ -2,11 +2,7 @@
 # For ticketing a held booking that was committed without payment.
 # Starts from a PNR locator, opens the workbench, adds FOP and payment, then tickets.
 
-metadata:
-  prompt: "ticket a held booking"
-
 intent:
-  goal: commitTicket
   description: "Issue tickets for a held booking using PNR locator"
 
 execution:

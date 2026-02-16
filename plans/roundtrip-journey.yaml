@@ -3,11 +3,7 @@
 # Two named selections (outbound/inbound) pick different elements from the
 # same array based on departure airport.
 
-metadata:
-  prompt: "book a round-trip flight from Melbourne to Sydney on Qantas"
-
 intent:
-  goal: commitReservation
   description: "Book a round-trip flight MEL→SYD→MEL on Qantas"
   constraints:
     hard:

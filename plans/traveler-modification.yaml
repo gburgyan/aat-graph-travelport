@@ -2,9 +2,6 @@
 # Two-step traveler update: discover updatable fields, then apply changes.
 # The caller provides workbenchId, travelerIdentifierValue, travelerId, and updateValue.
 
-metadata:
-  prompt: "modify traveler details on a booking"
-
 intent:
   description: "Discover updatable traveler fields and apply a change"
 

@@ -2,11 +2,7 @@
 # Search for flights, price using identifier references, and book with workbench flow.
 # Uses priceOfferReference + addOfferReference instead of full-payload equivalents.
 
-metadata:
-  prompt: "book a one-way flight using reference-based flow"
-
 intent:
-  goal: commitReservation
   description: "Book a one-way flight using reference-based (identifier) flow"
 
 execution:

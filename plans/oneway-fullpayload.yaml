@@ -2,11 +2,7 @@
 # Search for flights, price using full payload, and book with workbench flow.
 # The LLM fills origin, destination, dates, and traveler details.
 
-metadata:
-  prompt: "book a one-way flight"
-
 intent:
-  goal: commitReservation
   description: "Book a one-way flight using full-payload flow"
 
 execution:
