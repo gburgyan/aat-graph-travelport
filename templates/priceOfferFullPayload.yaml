@@ -39,6 +39,23 @@ request:
               }
             ]
           }
+          {{?returnCarrier}},{
+            "sequence": 2,
+            "SpecificFlightCriteria": [
+              {
+                "carrier": "{{returnCarrier}}",
+                "flightNumber": "{{returnFlightNumber}}",
+                "departureDate": "{{returnDepartureDate}}",
+                "departureTime": "{{returnDepartureTime}}",
+                "arrivalDate": "{{returnArrivalDate}}",
+                "arrivalTime": "{{returnArrivalTime}}",
+                "from": "{{returnOrigin}}",
+                "to": "{{returnDestination}}",
+                "classOfService": "{{returnClassOfService}}",
+                "segmentSequence": 2
+              }
+            ]
+          }{{/returnCarrier}}
         ]
       }
     }

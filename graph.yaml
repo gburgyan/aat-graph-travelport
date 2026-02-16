@@ -11,25 +11,40 @@ autoWire: true
 workflows:
   - name: Full-Payload Booking
     description: "Recommended flow sending complete trip details (carrier, flight, class) instead of references"
+    template: plans/oneway-fullpayload.yaml
     steps: [searchFlights, priceOfferFullPayload, createWorkbench, addOfferFullPayload, addTraveler, addFormOfPaymentCash, addPayment, commitReservation]
   - name: Reference-Based Booking
     description: "Alternative GDS booking flow using identifier references"
+    template: plans/oneway-reference.yaml
     steps: [searchFlights, priceOfferReference, createWorkbench, addOfferReference, addTraveler, addFormOfPaymentCash, addPayment, commitReservation]
   - name: Post-Commit Ticketing
     description: "Separate ticketing after a held booking"
+    template: plans/post-commit-ticketing.yaml
     steps: [commitReservation, createWorkbenchFromLocator, addFormOfPaymentCash, addPayment, commitTicket]
   - name: Exchange
     description: "Full exchange workflow: eligibility check, search, offer, FOP, document overrides, reissue"
+    template: plans/exchange.yaml
     steps: [getExchangeEligibility, createWorkbenchFromLocator, searchExchange, addExchangeOffer, addFormOfPaymentForfeit, addPayment, addDocumentOverrides, commitExchangeTicket]
   - name: Ancillary Booking
     description: "Search and add ancillary services (bags, meals, etc.)"
+    template: plans/ancillary-booking.yaml
     steps: [searchAncillaries, addAncillaryOffer]
   - name: Seat Selection
     description: "Search seat map and add seat offer"
+    template: plans/seat-selection.yaml
     steps: [searchSeatMap, addSeatOffer]
   - name: Traveler Modification
     description: "Two-step traveler update: discover updatable fields, then apply changes"
+    template: plans/traveler-modification.yaml
     steps: [getUpdatableTravelerItems, updateTraveler]
+  - name: Round-Trip Full-Payload Booking
+    description: "Journey-based round-trip: search both legs in one call, price and book with return leg details"
+    template: plans/roundtrip-journey.yaml
+    steps: [searchFlights, priceOfferFullPayload, createWorkbench, addOfferFullPayload, addTraveler, addFormOfPaymentCash, addPayment, commitReservation]
+  - name: Round-Trip Leg-Based Booking
+    description: "Leg-based round-trip: search outbound, next-leg search for return, then price and book"
+    template: plans/roundtrip-legbased.yaml
+    steps: [searchFlights, searchFlightsNextLeg, priceOfferFullPayload, createWorkbench, addOfferFullPayload, addTraveler, addFormOfPaymentCash, addPayment, commitReservation]
 
 notes: |
   Key identifier patterns:
@@ -181,15 +196,42 @@ nodes:
         elementFields:
           - name: offeringId
             type: string
+          - name: productId
+            type: string
+          - name: productIds
+            type: string
           - name: departure
             type: string
           - name: arrival
             type: string
           - name: offeringIdentifierValue
             type: string
+          - name: carrier
+            type: string
+          - name: flightNumber
+            type: string
+          - name: departureDate
+            type: date
+          - name: departureTime
+            type: string
+          - name: arrivalDate
+            type: date
+          - name: arrivalTime
+            type: string
+          - name: cabin
+            type: string
+          - name: classOfService
+            type: string
+          - name: totalPrice
+            type: float
+          - name: currency
+            type: string
       - name: catalogProductOfferingsId
         type: string
         description: "Updated CatalogProductOfferings Identifier.value"
+      - name: transactionId
+        type: string
+        description: "Transaction tracking ID from the response"
 
   searchUpsells:
     description: "Return all upsell options for a specific flight offering."
@@ -291,6 +333,43 @@ nodes:
         description: "Passenger type code"
         optional: true
         default: ADT
+      # Return leg inputs (for round-trip pricing)
+      - name: returnCarrier
+        type: string
+        description: "Return leg carrier IATA code"
+        optional: true
+      - name: returnFlightNumber
+        type: string
+        description: "Return leg flight number"
+        optional: true
+      - name: returnDepartureDate
+        type: date
+        description: "Return leg departure date"
+        optional: true
+      - name: returnDepartureTime
+        type: string
+        description: "Return leg departure time (HH:MM:SS)"
+        optional: true
+      - name: returnArrivalDate
+        type: date
+        description: "Return leg arrival date"
+        optional: true
+      - name: returnArrivalTime
+        type: string
+        description: "Return leg arrival time (HH:MM:SS)"
+        optional: true
+      - name: returnOrigin
+        type: string
+        description: "Return leg departure airport IATA code"
+        optional: true
+      - name: returnDestination
+        type: string
+        description: "Return leg arrival airport IATA code"
+        optional: true
+      - name: returnClassOfService
+        type: string
+        description: "Return leg class of service code"
+        optional: true
     outputs:
       - name: offerIdentifierValue
         type: string
@@ -452,6 +531,39 @@ nodes:
       - name: destination
         type: string
         description: "Arrival airport IATA code"
+      # Return leg inputs (for round-trip booking)
+      - name: returnCarrier
+        type: string
+        description: "Return leg carrier IATA code"
+        optional: true
+      - name: returnFlightNumber
+        type: string
+        description: "Return leg flight number"
+        optional: true
+      - name: returnDepartureDate
+        type: date
+        description: "Return leg departure date"
+        optional: true
+      - name: returnDepartureTime
+        type: string
+        description: "Return leg departure time (HH:MM:SS)"
+        optional: true
+      - name: returnArrivalDate
+        type: date
+        description: "Return leg arrival date"
+        optional: true
+      - name: returnArrivalTime
+        type: string
+        description: "Return leg arrival time (HH:MM:SS)"
+        optional: true
+      - name: returnOrigin
+        type: string
+        description: "Return leg departure airport IATA code"
+        optional: true
+      - name: returnDestination
+        type: string
+        description: "Return leg arrival airport IATA code"
+        optional: true
     outputs:
       - name: offerIdentifierValue
         type: string
@@ -1637,6 +1749,112 @@ edges:
     select: true
   - from: searchFlights.catalogProductOfferings
     to: addOfferFullPayload.destination
+    select: true
+  # Journey-based round-trip: return leg selections from same searchFlights output
+  # priceOfferFullPayload return inputs
+  - from: searchFlights.catalogProductOfferings
+    to: priceOfferFullPayload.returnCarrier
+    select: true
+  - from: searchFlights.catalogProductOfferings
+    to: priceOfferFullPayload.returnFlightNumber
+    select: true
+  - from: searchFlights.catalogProductOfferings
+    to: priceOfferFullPayload.returnDepartureDate
+    select: true
+  - from: searchFlights.catalogProductOfferings
+    to: priceOfferFullPayload.returnDepartureTime
+    select: true
+  - from: searchFlights.catalogProductOfferings
+    to: priceOfferFullPayload.returnArrivalDate
+    select: true
+  - from: searchFlights.catalogProductOfferings
+    to: priceOfferFullPayload.returnArrivalTime
+    select: true
+  - from: searchFlights.catalogProductOfferings
+    to: priceOfferFullPayload.returnOrigin
+    select: true
+  - from: searchFlights.catalogProductOfferings
+    to: priceOfferFullPayload.returnDestination
+    select: true
+  - from: searchFlights.catalogProductOfferings
+    to: priceOfferFullPayload.returnClassOfService
+    select: true
+  # addOfferFullPayload return inputs
+  - from: searchFlights.catalogProductOfferings
+    to: addOfferFullPayload.returnCarrier
+    select: true
+  - from: searchFlights.catalogProductOfferings
+    to: addOfferFullPayload.returnFlightNumber
+    select: true
+  - from: searchFlights.catalogProductOfferings
+    to: addOfferFullPayload.returnDepartureDate
+    select: true
+  - from: searchFlights.catalogProductOfferings
+    to: addOfferFullPayload.returnDepartureTime
+    select: true
+  - from: searchFlights.catalogProductOfferings
+    to: addOfferFullPayload.returnArrivalDate
+    select: true
+  - from: searchFlights.catalogProductOfferings
+    to: addOfferFullPayload.returnArrivalTime
+    select: true
+  - from: searchFlights.catalogProductOfferings
+    to: addOfferFullPayload.returnOrigin
+    select: true
+  - from: searchFlights.catalogProductOfferings
+    to: addOfferFullPayload.returnDestination
+    select: true
+  # Leg-based round-trip: searchFlightsNextLeg → pricing/offer return inputs
+  - from: searchFlightsNextLeg.catalogProductOfferings
+    to: priceOfferFullPayload.returnCarrier
+    select: true
+  - from: searchFlightsNextLeg.catalogProductOfferings
+    to: priceOfferFullPayload.returnFlightNumber
+    select: true
+  - from: searchFlightsNextLeg.catalogProductOfferings
+    to: priceOfferFullPayload.returnDepartureDate
+    select: true
+  - from: searchFlightsNextLeg.catalogProductOfferings
+    to: priceOfferFullPayload.returnDepartureTime
+    select: true
+  - from: searchFlightsNextLeg.catalogProductOfferings
+    to: priceOfferFullPayload.returnArrivalDate
+    select: true
+  - from: searchFlightsNextLeg.catalogProductOfferings
+    to: priceOfferFullPayload.returnArrivalTime
+    select: true
+  - from: searchFlightsNextLeg.catalogProductOfferings
+    to: priceOfferFullPayload.returnOrigin
+    select: true
+  - from: searchFlightsNextLeg.catalogProductOfferings
+    to: priceOfferFullPayload.returnDestination
+    select: true
+  - from: searchFlightsNextLeg.catalogProductOfferings
+    to: priceOfferFullPayload.returnClassOfService
+    select: true
+  - from: searchFlightsNextLeg.catalogProductOfferings
+    to: addOfferFullPayload.returnCarrier
+    select: true
+  - from: searchFlightsNextLeg.catalogProductOfferings
+    to: addOfferFullPayload.returnFlightNumber
+    select: true
+  - from: searchFlightsNextLeg.catalogProductOfferings
+    to: addOfferFullPayload.returnDepartureDate
+    select: true
+  - from: searchFlightsNextLeg.catalogProductOfferings
+    to: addOfferFullPayload.returnDepartureTime
+    select: true
+  - from: searchFlightsNextLeg.catalogProductOfferings
+    to: addOfferFullPayload.returnArrivalDate
+    select: true
+  - from: searchFlightsNextLeg.catalogProductOfferings
+    to: addOfferFullPayload.returnArrivalTime
+    select: true
+  - from: searchFlightsNextLeg.catalogProductOfferings
+    to: addOfferFullPayload.returnOrigin
+    select: true
+  - from: searchFlightsNextLeg.catalogProductOfferings
+    to: addOfferFullPayload.returnDestination
     select: true
   - from: searchFlights.catalogProductOfferings
     to: getFareRulesFromSearch.offeringId

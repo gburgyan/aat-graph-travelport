@@ -43,6 +43,15 @@ request:
               "value": "{{destination}}"
             }
           }
+          {{?returnDate}},{
+            "departureDate": "{{returnDate}}",
+            "From": {
+              "value": "{{destination}}"
+            },
+            "To": {
+              "value": "{{origin}}"
+            }
+          }{{/returnDate}}
         ]
       }
     }

@@ -39,7 +39,95 @@ response:
       path: "CatalogProductOfferingsResponse.CatalogProductOfferings.CatalogProductOffering"
       fields:
         offeringId: "id"
+        productId: "ProductBrandOptions.0.ProductBrandOffering.0.Product.0.productRef"
+        productIds: "ProductBrandOptions.#.ProductBrandOffering.#.Product.#.productRef|@flatten|@flatten"
         departure: "Departure"
         arrival: "Arrival"
         offeringIdentifierValue: "Identifier.value"
+        carrier: "ProductBrandOptions.0.ProductBrandOffering.0.Product.0.FlightSegment.0.Flight.carrier"
+        flightNumber: "ProductBrandOptions.0.ProductBrandOffering.0.Product.0.FlightSegment.0.Flight.number"
+        departureDate: "ProductBrandOptions.0.ProductBrandOffering.0.Product.0.FlightSegment.0.Flight.Departure.date"
+        departureTime: "ProductBrandOptions.0.ProductBrandOffering.0.Product.0.FlightSegment.0.Flight.Departure.time"
+        arrivalDate: "ProductBrandOptions.0.ProductBrandOffering.0.Product.0.FlightSegment.0.Flight.Arrival.date"
+        arrivalTime: "ProductBrandOptions.0.ProductBrandOffering.0.Product.0.FlightSegment.0.Flight.Arrival.time"
+        cabin: "ProductBrandOptions.0.ProductBrandOffering.0.Product.0.PassengerFlight.0.FlightProduct.0.cabin"
+        classOfService: "ProductBrandOptions.0.ProductBrandOffering.0.Product.0.PassengerFlight.0.FlightProduct.0.classOfService"
+        totalPrice: "ProductBrandOptions.0.ProductBrandOffering.0.BestCombinablePrice.TotalPrice"
+        currency: "ProductBrandOptions.0.ProductBrandOffering.0.BestCombinablePrice.CurrencyCode.value"
     catalogProductOfferingsId: "CatalogProductOfferingsResponse.CatalogProductOfferings.Identifier.value"
+    transactionId: "CatalogProductOfferingsResponse.transactionId"
+  transform: |
+    -- Resolve GDS ReferenceList cross-references for next-leg offerings.
+    -- Same logic as searchFlights: enrich offerings with flight details from
+    -- ReferenceList when in GDS mode. Full-payload fields are preserved.
+
+    local refLists = json_path("CatalogProductOfferingsResponse.ReferenceList")
+    if not refLists then return outputs end
+
+    local products = {}
+    local flights = {}
+
+    for _, refList in ipairs(refLists) do
+      local rlType = refList["@type"]
+      if rlType == "ReferenceListProduct" and refList.Product then
+        for _, prod in ipairs(refList.Product) do
+          if prod.id then
+            products[prod.id] = prod
+          end
+        end
+      elseif rlType == "ReferenceListFlight" and refList.Flight then
+        for _, fl in ipairs(refList.Flight) do
+          if fl.id then
+            flights[fl.id] = fl
+          end
+        end
+      end
+    end
+
+    local function resolveFlight(seg)
+      if not seg or not seg.Flight then return nil end
+      local fl = seg.Flight
+      if type(fl) == "table" and fl.carrier then
+        return fl
+      end
+      if type(fl) == "table" and fl.FlightRef and flights[fl.FlightRef] then
+        return flights[fl.FlightRef]
+      end
+      return nil
+    end
+
+    if outputs.catalogProductOfferings then
+      for _, offering in ipairs(outputs.catalogProductOfferings) do
+        local pid = offering.productId
+        if pid and products[pid] then
+          local prod = products[pid]
+
+          if prod.FlightSegment and prod.FlightSegment[1] then
+            local flight = resolveFlight(prod.FlightSegment[1])
+            if flight then
+              if not offering.carrier then offering.carrier = flight.carrier end
+              if not offering.flightNumber then offering.flightNumber = flight.number end
+              if flight.Departure then
+                if not offering.departureDate then offering.departureDate = flight.Departure.date end
+                if not offering.departureTime then offering.departureTime = flight.Departure.time end
+              end
+              if flight.Arrival then
+                if not offering.arrivalDate then offering.arrivalDate = flight.Arrival.date end
+                if not offering.arrivalTime then offering.arrivalTime = flight.Arrival.time end
+              end
+            end
+          end
+
+          if prod.PassengerFlight and prod.PassengerFlight[1] then
+            local pf = prod.PassengerFlight[1]
+            if pf.FlightProduct and pf.FlightProduct[1] then
+              local fp = pf.FlightProduct[1]
+              if not offering.cabin then offering.cabin = fp.cabin end
+              if not offering.classOfService then offering.classOfService = fp.classOfService end
+            end
+          end
+        end
+      end
+    end
+
+    return outputs
