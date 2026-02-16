@@ -10,6 +10,3 @@ execution:
       description: "Add travel agency information"
       values:
         workbenchId: AUTOWIRE
-        corporateCode: AUTOWIRE
-        email: AUTOWIRE
-        phoneNumber: AUTOWIRE

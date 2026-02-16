@@ -16,8 +16,11 @@ execution:
     - node: updateTraveler
       description: "Apply the traveler modification"
       dependsOn: [getUpdatableTravelerItems]
+      selections:
+        item:
+          from: getUpdatableTravelerItems.updatableItems
+          strategy: first
       values:
         workbenchId: AUTOWIRE
         travelerId: AUTOWIRE
-        updatableItemId: AUTOWIRE
-        updateValue: AUTOWIRE
+        updatableItemId: {fromSelection: item.updatableItemId}

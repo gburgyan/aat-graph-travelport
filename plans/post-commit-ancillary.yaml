@@ -30,8 +30,7 @@ execution:
         workbenchId: {from: createWorkbenchFromLocator.workbenchId}
         catalogOfferingsIdentifierValue: {from: searchAncillaries.catalogOfferingsIdentifierValue}
         ancillaryOfferingId: {fromSelection: ancillary.ancillaryId}
-        ancillaryProductId: AUTOWIRE
-        travelerIdentifierValue: AUTOWIRE
+        ancillaryProductId: {fromSelection: ancillary.ancillaryProductId}
 
     - node: commitReservation
       description: "Commit the ancillary addition"

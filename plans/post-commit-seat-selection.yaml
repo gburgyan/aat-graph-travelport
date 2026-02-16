@@ -38,7 +38,6 @@ execution:
         workbenchId: {from: createWorkbenchFromLocator.workbenchId}
         catalogOfferingsIdentifierValue: {from: searchSeatMapFromWorkbench.catalogOfferingsIdentifierValue}
         seatOfferingIdentifierValue: {fromSelection: seat.seatIdentifierValue}
-        travelerIdentifierValue: AUTOWIRE
         seatAssignment: 12A
 
     - node: commitReservation

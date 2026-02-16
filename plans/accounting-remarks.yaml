@@ -11,4 +11,3 @@ execution:
       values:
         workbenchId: AUTOWIRE
         accountingName: IN
-        accountingValue: AUTOWIRE

@@ -38,6 +38,8 @@ workflows:
     after: addTraveler
     description: "Two-step traveler update: discover updatable fields, then apply changes"
     template: plans/traveler-modification.yaml
+    wire:
+      travelerId: addTraveler.travelerIdentifierValue
   - name: Round-Trip Full-Payload Booking
     description: "Journey-based round-trip: search both legs in one call, price and book with return leg details"
     template: plans/roundtrip-journey.yaml
@@ -1021,6 +1023,8 @@ nodes:
             type: string
           - name: ancillaryName
             type: string
+          - name: ancillaryProductId
+            type: string
       - name: catalogOfferingsIdentifierValue
         type: string
         description: "CatalogOfferingsAncillary Identifier.value for downstream add"
@@ -1712,8 +1716,13 @@ nodes:
         description: "Traveler Identifier.value to check updatable fields for"
     outputs:
       - name: updatableItems
-        type: json
+        type: updatableItem[]
         description: "Updatable item list for use in updateTraveler"
+        elementFields:
+          - name: updatableItemId
+            type: string
+          - name: fieldName
+            type: string
 
   updateTraveler:
     description: "Modify traveler details (email, phone, address, frequent flyer). Step 2 of traveler update workflow."
