@@ -36,4 +36,5 @@ response:
         ancillaryId: "id"
         ancillaryIdentifierValue: "Identifier.value"
         ancillaryName: "name"
+        ancillaryProductId: "Product.0.id"
     catalogOfferingsIdentifierValue: "CatalogOfferingsAncillaryListResponse.Identifier.value"
