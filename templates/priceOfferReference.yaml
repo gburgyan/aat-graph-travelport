@@ -29,6 +29,18 @@ request:
               {{/productIds}}
             ]
           }
+          {{?returnOfferingId}},{
+            "CatalogProductOfferingIdentifier": {
+              "Identifier": {
+                "value": "{{returnOfferingId}}"
+              }
+            },
+            "ProductIdentifier": [
+              {{#returnProductIds}}
+              {"Identifier": {"value": "{{.}}"}}
+              {{/returnProductIds}}
+            ]
+          }{{/returnOfferingId}}
         ]
       }
     }

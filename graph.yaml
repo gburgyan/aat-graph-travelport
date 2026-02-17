@@ -43,6 +43,9 @@ workflows:
   - name: Round-Trip Full-Payload Booking
     description: "Journey-based round-trip: search both legs in one call, price and book with return leg details"
     template: plans/roundtrip-journey.yaml
+  - name: Round-Trip Reference-Based Booking
+    description: "Journey-based round-trip using reference identifiers (search both legs in one call)"
+    template: plans/roundtrip-reference.yaml
   - name: Round-Trip Leg-Based Booking
     description: "Leg-based round-trip: search outbound, next-leg search for return, then price and book"
     template: plans/roundtrip-legbased.yaml
@@ -383,6 +386,15 @@ nodes:
       - name: productIds
         type: string
         description: "Comma-separated Product ids to include in the price request"
+      # Return leg inputs (for round-trip reference pricing)
+      - name: returnOfferingId
+        type: string
+        description: "Return leg CatalogProductOffering Identifier.value"
+        optional: true
+      - name: returnProductIds
+        type: string
+        description: "Return leg Product identifiers"
+        optional: true
     outputs:
       - name: offerId
         type: string
@@ -603,6 +615,15 @@ nodes:
       - name: productIds
         type: string
         description: "Comma-separated Product ids"
+      # Return leg inputs (for round-trip reference booking)
+      - name: returnOfferingId
+        type: string
+        description: "Return leg CatalogProductOffering Identifier.value"
+        optional: true
+      - name: returnProductIds
+        type: string
+        description: "Return leg Product identifiers"
+        optional: true
     outputs:
       - name: offerIdentifierValue
         type: string
@@ -1928,6 +1949,19 @@ edges:
     select: true
   - from: searchFlights.catalogProductOfferings
     to: addOfferReference.productIds
+    select: true
+  # Journey-based round-trip: return leg reference selections
+  - from: searchFlights.catalogProductOfferings
+    to: priceOfferReference.returnOfferingId
+    select: true
+  - from: searchFlights.catalogProductOfferings
+    to: priceOfferReference.returnProductIds
+    select: true
+  - from: searchFlights.catalogProductOfferings
+    to: addOfferReference.returnOfferingId
+    select: true
+  - from: searchFlights.catalogProductOfferings
+    to: addOfferReference.returnProductIds
     select: true
   # Full-payload add offer — flight details from selected search element
   - from: searchFlights.catalogProductOfferings
