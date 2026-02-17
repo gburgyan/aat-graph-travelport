@@ -10,8 +10,8 @@ request:
 response:
   extract:
     reservationIdentifierValue: "ReservationResponse.Reservation.Identifier.value"
-    locator: "ReservationResponse.Reservation.Locator.value"
-    reservationStatus: "ReservationResponse.reservationStatus"
+    locator: "ReservationResponse.Reservation.Receipt.0.Confirmation.Locator.value"
+    reservationStatus: "ReservationResponse.Reservation.Receipt.0.Confirmation.OfferStatus.StatusAir.0.value"
     offers:
       path: "ReservationResponse.Reservation.Offer"
       fields:

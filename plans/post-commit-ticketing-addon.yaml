@@ -1,0 +1,36 @@
+# Post-commit ticketing addon.
+# Attaches after commitReservation to issue tickets for a held booking.
+# Opens a workbench from the PNR, adds FOP and payment, then commits with ticketing.
+
+intent:
+  description: "Issue tickets for a held booking (post-commit addon)"
+
+execution:
+  steps:
+    - node: createWorkbenchFromLocator
+      description: "Open workbench from the held booking PNR"
+      values:
+        locator: AUTOWIRE
+
+    - node: addFormOfPaymentCash
+      dependsOn: [createWorkbenchFromLocator]
+      values:
+        workbenchId: {from: createWorkbenchFromLocator.workbenchId}
+
+    - node: addPayment
+      dependsOn: [addFormOfPaymentCash, createWorkbenchFromLocator]
+      values:
+        workbenchId: {from: createWorkbenchFromLocator.workbenchId}
+        amount: 100.00
+        currencyCode: USD
+        offerIdentifierValue: {from: createWorkbenchFromLocator.offerIdentifierValue}
+        offerAuthority: {from: createWorkbenchFromLocator.offerAuthority}
+
+    - node: commitTicket
+      dependsOn: [addPayment, createWorkbenchFromLocator]
+      values:
+        workbenchId: {from: createWorkbenchFromLocator.workbenchId}
+
+  cleanup:
+    - node: ignoreWorkbench
+      runOn: always

@@ -40,4 +40,5 @@ response:
       fields:
         seatId: "id"
         seatIdentifierValue: "Identifier.value"
+        seatAssignment: "ProductOptions.0.Product.0.SeatAvailability.0.value.0"
     catalogOfferingsIdentifierValue: "CatalogOfferingsAncillaryListResponse.CatalogOfferingsID.0.Identifier.value"

@@ -1,0 +1,12 @@
+# Cancel reservation addon.
+# Attaches after commitReservation to cancel the booking (lifecycle test).
+
+intent:
+  description: "Cancel the reservation after booking (post-commit addon)"
+
+execution:
+  steps:
+    - node: cancelReservation
+      description: "Cancel the reservation by PNR locator"
+      values:
+        locator: AUTOWIRE

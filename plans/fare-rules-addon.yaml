@@ -1,0 +1,12 @@
+# Fare rules addon.
+# Attaches after commitReservation to check fare rules on the booking.
+
+intent:
+  description: "Check fare rules on the committed reservation (post-commit addon)"
+
+execution:
+  steps:
+    - node: getFareRulesFromReservation
+      description: "Get fare rules for the committed reservation"
+      values:
+        locator: AUTOWIRE

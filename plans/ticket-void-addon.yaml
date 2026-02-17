@@ -1,0 +1,23 @@
+# Ticket void addon.
+# Attaches after commitReservation to void tickets on the booking.
+# Requires the booking to have been ticketed.
+
+intent:
+  description: "Void tickets after booking (post-commit addon)"
+
+execution:
+  steps:
+    - node: getTicketByLocator
+      description: "Retrieve tickets for the PNR"
+      values:
+        locator: AUTOWIRE
+
+    - node: voidTicket
+      description: "Void the selected ticket"
+      dependsOn: [getTicketByLocator]
+      selections:
+        ticket:
+          from: getTicketByLocator.tickets
+          strategy: first
+      values:
+        ticketIdentifier: {fromSelection: ticket.ticketIdentifierValue}

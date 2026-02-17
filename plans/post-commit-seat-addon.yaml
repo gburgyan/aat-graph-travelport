@@ -1,17 +1,16 @@
-# Post-commit seat selection workflow.
-# Select and assign seats on an existing booking using the post-commit seat map.
-# Starts from a PNR locator, retrieves workbench to get product identifiers,
-# searches the seat map, adds the seat, and commits.
+# Post-commit seat selection addon.
+# Attaches after commitReservation to add seat selection to an existing booking.
+# Uses the PNR locator from the base booking to open a post-commit workbench.
 
 intent:
-  description: "Select and assign seats on an existing booking"
+  description: "Add seat selection to an existing booking (post-commit addon)"
 
 execution:
   steps:
     - node: createWorkbenchFromLocator
-      description: "Open workbench from the existing booking PNR"
+      description: "Open workbench from the committed booking PNR"
       values:
-        locator: ABCDEF
+        locator: AUTOWIRE
 
     - node: retrieveWorkbench
       description: "Retrieve workbench to get offer and product identifiers"
@@ -41,9 +40,9 @@ execution:
         seatAssignment: {fromSelection: seat.seatAssignment}
 
     - node: commitReservation
+      id: commitSeat
       description: "Commit the seat addition"
       dependsOn: [addSeatOffer, createWorkbenchFromLocator]
-      isGoal: true
       values:
         workbenchId: {from: createWorkbenchFromLocator.workbenchId}
 

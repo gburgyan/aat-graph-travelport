@@ -1,0 +1,45 @@
+# Post-commit ancillary addon.
+# Attaches after commitReservation to add ancillary services to an existing booking.
+# Uses the PNR locator from the base booking to open a post-commit workbench.
+
+intent:
+  description: "Add ancillary services to an existing booking (post-commit addon)"
+
+execution:
+  steps:
+    - node: createWorkbenchFromLocator
+      description: "Open workbench from the committed booking PNR"
+      values:
+        locator: AUTOWIRE
+
+    - node: searchAncillaries
+      description: "Search for available ancillary services"
+      dependsOn: [createWorkbenchFromLocator]
+      values:
+        workbenchId: {from: createWorkbenchFromLocator.workbenchId}
+        offerIdentifierValue: {from: createWorkbenchFromLocator.offerIdentifierValue}
+
+    - node: addAncillaryOffer
+      description: "Add the selected ancillary offer to the workbench"
+      dependsOn: [searchAncillaries, createWorkbenchFromLocator]
+      selections:
+        ancillary:
+          from: searchAncillaries.ancillaryOfferings
+          strategy: first
+      values:
+        workbenchId: {from: createWorkbenchFromLocator.workbenchId}
+        catalogOfferingsIdentifierValue: {from: searchAncillaries.catalogOfferingsIdentifierValue}
+        ancillaryOfferingId: {fromSelection: ancillary.ancillaryId}
+        ancillaryProductId: {fromSelection: ancillary.ancillaryProductId}
+        travelerIdentifierValue: AUTOWIRE
+
+    - node: commitReservation
+      id: commitAncillary
+      description: "Commit the ancillary addition"
+      dependsOn: [addAncillaryOffer, createWorkbenchFromLocator]
+      values:
+        workbenchId: {from: createWorkbenchFromLocator.workbenchId}
+
+  cleanup:
+    - node: ignoreWorkbench
+      runOn: always

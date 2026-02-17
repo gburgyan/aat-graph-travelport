@@ -1,7 +1,7 @@
 # Seat selection sub-workflow template.
 # Searches the seat map using pricing identifiers and adds a seat offer.
 # The caller provides offerListIdentifier, offerId, productId (from pricing),
-# workbenchId, travelerIdentifierValue, and seatAssignment.
+# workbenchId, and travelerIdentifierValue. seatAssignment comes from the seat map.
 
 intent:
   description: "Search seat map and assign a seat within an existing workbench"
@@ -25,4 +25,4 @@ execution:
         catalogOfferingsIdentifierValue: {from: searchSeatMap.catalogOfferingsIdentifierValue}
         seatOfferingIdentifierValue: {fromSelection: seat.seatIdentifierValue}
         travelerIdentifierValue: AUTOWIRE
-        seatAssignment: 12A
+        seatAssignment: {fromSelection: seat.seatAssignment}

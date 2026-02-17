@@ -1,0 +1,12 @@
+# Retrieve reservation addon.
+# Attaches after commitReservation to retrieve and verify the booking.
+
+intent:
+  description: "Retrieve and verify the reservation after booking (post-commit addon)"
+
+execution:
+  steps:
+    - node: retrieveReservation
+      description: "Retrieve the committed reservation"
+      values:
+        identifier: AUTOWIRE

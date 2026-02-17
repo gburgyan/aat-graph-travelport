@@ -95,6 +95,64 @@ workflows:
     description: "Add travel agency details to the reservation"
     template: plans/travel-agency.yaml
 
+  # Post-commit addons — attach after commitReservation
+  - name: Post-Commit Seat Selection Addon
+    kind: addon
+    after: commitReservation
+    priority: 20
+    description: "Add seat selection to an existing booking (post-commit)"
+    template: plans/post-commit-seat-addon.yaml
+    wire:
+      locator: commitReservation.locator
+  - name: Post-Commit Ancillary Addon
+    kind: addon
+    after: commitReservation
+    priority: 20
+    description: "Add ancillary services to an existing booking (post-commit)"
+    template: plans/post-commit-ancillary-addon.yaml
+    wire:
+      locator: commitReservation.locator
+  - name: Cancel Booking
+    kind: addon
+    after: commitReservation
+    priority: 90
+    description: "Cancel the reservation after booking (lifecycle test)"
+    template: plans/cancel-addon.yaml
+    wire:
+      locator: commitReservation.locator
+  - name: Void Ticket
+    kind: addon
+    after: commitReservation
+    priority: 80
+    description: "Void tickets after booking (requires ticketed booking)"
+    template: plans/ticket-void-addon.yaml
+    wire:
+      locator: commitReservation.locator
+  - name: Post-Commit Ticketing Addon
+    kind: addon
+    after: commitReservation
+    priority: 30
+    description: "Issue tickets for a held booking (post-commit)"
+    template: plans/post-commit-ticketing-addon.yaml
+    wire:
+      locator: commitReservation.locator
+  - name: Retrieve Booking
+    kind: addon
+    after: commitReservation
+    priority: 10
+    description: "Retrieve and verify the reservation after booking"
+    template: plans/retrieve-reservation-addon.yaml
+    wire:
+      identifier: commitReservation.locator
+  - name: Fare Rules Check
+    kind: addon
+    after: commitReservation
+    priority: 10
+    description: "Check fare rules on the committed reservation"
+    template: plans/fare-rules-addon.yaml
+    wire:
+      locator: commitReservation.locator
+
 notes: |
   Key identifier patterns:
   - `id`: Local, intra-message scope (e.g., CatalogProductOffering.id)
@@ -1058,6 +1116,9 @@ nodes:
             type: string
           - name: seatIdentifierValue
             type: string
+          - name: seatAssignment
+            type: string
+            description: "Seat designation (e.g. 12A)"
       - name: catalogOfferingsIdentifierValue
         type: string
         description: "CatalogOfferingsAncillary Identifier.value for downstream add"
@@ -1087,6 +1148,9 @@ nodes:
             type: string
           - name: seatIdentifierValue
             type: string
+          - name: seatAssignment
+            type: string
+            description: "Seat designation (e.g. 12A)"
       - name: catalogOfferingsIdentifierValue
         type: string
         description: "CatalogOfferingsAncillary Identifier.value for downstream add"
