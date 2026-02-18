@@ -1,0 +1,139 @@
+# Multi-city 4-city leg-based booking template.
+# Leg-based search: initial search sends all three legs with SearchRepresentation=Leg,
+# API returns only leg 1 offerings. First BuildNext with leg 1 selection returns
+# [selected_leg1, leg2_options...]. Second BuildNext with leg 2 selection returns
+# [selected_leg1, selected_leg2, leg3_options...]. Reference pricing uses IDs only —
+# no flight details needed, which correctly handles connecting flights.
+
+intent:
+  description: "Book a 3-leg multi-city flight using reference-based flow"
+
+execution:
+  steps:
+    - node: searchFlights3Leg
+      description: "Search for multi-city flights (leg-based: returns only leg 1 offerings)"
+      values:
+        leg1Origin: "[IATA airport code (ORD)]"
+        leg1Destination: "[IATA airport code (LAX)]"
+        leg1DepartureDate: "{{today + 14 days}}"
+        leg2Origin: "[IATA airport code (LAX)]"
+        leg2Destination: "[IATA airport code (DEN)]"
+        leg2DepartureDate: "{{today + 21 days}}"
+        leg3Origin: "[IATA airport code (DEN)]"
+        leg3Destination: "[IATA airport code (JFK)]"
+        leg3DepartureDate: "{{today + 28 days}}"
+        searchRepresentation: Leg
+
+    - node: searchFlightsNextLeg
+      id: searchNextLeg2
+      description: "BuildNext with leg 1 selection to get leg 2 offerings"
+      dependsOn: [searchFlights3Leg]
+      selections:
+        leg1:
+          from: searchFlights3Leg.catalogProductOfferings
+          strategy: first
+      values:
+        catalogProductOfferingsId: {from: searchFlights3Leg.catalogProductOfferingsId}
+        offeringId: {fromSelection: leg1.offeringId}
+        productId: {fromSelection: leg1.productId}
+
+    - node: searchFlightsNextLeg
+      id: searchNextLeg3
+      description: "BuildNext with leg 2 selection to get leg 3 offerings"
+      dependsOn: [searchNextLeg2]
+      selections:
+        leg2:
+          from: searchNextLeg2.catalogProductOfferings
+          strategy: index
+          index: 1
+      values:
+        catalogProductOfferingsId: {from: searchNextLeg2.catalogProductOfferingsId}
+        offeringId: {fromSelection: leg2.offeringId}
+        productId: {fromSelection: leg2.productId}
+
+    - node: priceOfferReference
+      description: "Price the selected leg 1, leg 2, and leg 3 flights using reference identifiers"
+      dependsOn: [searchFlights3Leg, searchNextLeg2, searchNextLeg3]
+      selections:
+        leg1:
+          from: searchFlights3Leg.catalogProductOfferings
+          strategy: first
+        leg2:
+          from: searchNextLeg2.catalogProductOfferings
+          strategy: index
+          index: 1
+        leg3:
+          from: searchNextLeg3.catalogProductOfferings
+          strategy: index
+          index: 2
+      values:
+        catalogProductOfferingsId: {from: searchNextLeg3.catalogProductOfferingsId}
+        offeringId: {fromSelection: leg1.offeringId}
+        productIds: {fromSelection: leg1.productIds}
+        leg2OfferingId: {fromSelection: leg2.offeringId}
+        leg2ProductIds: {fromSelection: leg2.productIds}
+        leg3OfferingId: {fromSelection: leg3.offeringId}
+        leg3ProductIds: {fromSelection: leg3.productIds}
+
+    - node: createWorkbench
+      dependsOn: [priceOfferReference]
+
+    - node: addOfferReference
+      description: "Add multi-city offer to workbench using reference identifiers"
+      dependsOn: [createWorkbench, searchFlights3Leg, searchNextLeg2, searchNextLeg3]
+      selections:
+        leg1:
+          from: searchFlights3Leg.catalogProductOfferings
+          strategy: first
+        leg2:
+          from: searchNextLeg2.catalogProductOfferings
+          strategy: index
+          index: 1
+        leg3:
+          from: searchNextLeg3.catalogProductOfferings
+          strategy: index
+          index: 2
+      values:
+        workbenchId: {from: createWorkbench.workbenchId}
+        catalogProductOfferingsId: {from: searchNextLeg3.catalogProductOfferingsId}
+        offeringId: {fromSelection: leg1.offeringId}
+        productIds: {fromSelection: leg1.productIds}
+        leg2OfferingId: {fromSelection: leg2.offeringId}
+        leg2ProductIds: {fromSelection: leg2.productIds}
+        leg3OfferingId: {fromSelection: leg3.offeringId}
+        leg3ProductIds: {fromSelection: leg3.productIds}
+
+    - node: addTraveler
+      dependsOn: [createWorkbench]
+      values:
+        workbenchId: {from: createWorkbench.workbenchId}
+        givenName: Test
+        surname: Traveler
+        birthDate: "1990-01-15"
+        gender: Male
+
+    - node: addFormOfPaymentCash
+      dependsOn: [createWorkbench]
+      values:
+        workbenchId: {from: createWorkbench.workbenchId}
+
+    - node: addPayment
+      dependsOn: [addOfferReference, addTraveler, addFormOfPaymentCash, createWorkbench, priceOfferReference]
+      values:
+        workbenchId: {from: createWorkbench.workbenchId}
+        amount: {from: priceOfferReference.totalPrice}
+        currencyCode: {from: priceOfferReference.currencyCode}
+        fopIdentifierValue: {from: addFormOfPaymentCash.fopIdentifierValue}
+        offerIdentifierValue: {from: addOfferReference.offerIdentifierValue}
+        offerId: {from: priceOfferReference.offerId}
+        offerAuthority: {from: addOfferReference.offerAuthority}
+
+    - node: commitReservation
+      dependsOn: [addPayment, createWorkbench]
+      isGoal: true
+      values:
+        workbenchId: {from: createWorkbench.workbenchId}
+
+  cleanup:
+    - node: ignoreWorkbench
+      runOn: always

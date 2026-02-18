@@ -104,19 +104,46 @@ response:
         if pid and products[pid] then
           local prod = products[pid]
 
+          -- Iterate all segments: first segment provides departure, last provides arrival.
+          -- This correctly handles connecting flights (e.g., CLE->ATL->SEA).
           if prod.FlightSegment and prod.FlightSegment[1] then
-            local flight = resolveFlight(prod.FlightSegment[1])
-            if flight then
-              if not offering.carrier then offering.carrier = flight.carrier end
-              if not offering.flightNumber then offering.flightNumber = flight.number end
-              if flight.Departure then
-                if not offering.departureDate then offering.departureDate = flight.Departure.date end
-                if not offering.departureTime then offering.departureTime = flight.Departure.time end
+            local segCount = #prod.FlightSegment
+            local allFlightNumbers = {}
+            local firstFlight = nil
+            local lastFlight = nil
+
+            for idx = 1, segCount do
+              local flight = resolveFlight(prod.FlightSegment[idx])
+              if flight then
+                if idx == 1 then firstFlight = flight end
+                lastFlight = flight
+                if flight.carrier and flight.number then
+                  table.insert(allFlightNumbers, flight.carrier .. " " .. flight.number)
+                end
               end
-              if flight.Arrival then
-                if not offering.arrivalDate then offering.arrivalDate = flight.Arrival.date end
-                if not offering.arrivalTime then offering.arrivalTime = flight.Arrival.time end
+            end
+
+            if firstFlight then
+              if not offering.carrier then offering.carrier = firstFlight.carrier end
+            end
+            if #allFlightNumbers > 0 then
+              if not offering.flightNumber then
+                offering.flightNumber = table.concat(allFlightNumbers, ", ")
               end
+            end
+            if firstFlight and firstFlight.Departure then
+              if not offering.departureDate then offering.departureDate = firstFlight.Departure.date end
+              if not offering.departureTime then offering.departureTime = firstFlight.Departure.time end
+            end
+            if lastFlight and lastFlight.Arrival then
+              if not offering.arrivalDate then offering.arrivalDate = lastFlight.Arrival.date end
+              if not offering.arrivalTime then offering.arrivalTime = lastFlight.Arrival.time end
+            end
+
+            offering.stops = segCount - 1
+
+            if prod.totalDuration then
+              offering.totalDuration = prod.totalDuration
             end
           end
 

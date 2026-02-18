@@ -41,6 +41,42 @@ request:
               {{/returnProductIds}}
             ]
           }{{/returnOfferingId}}
+          {{?leg2OfferingId}},{
+            "CatalogProductOfferingIdentifier": {
+              "Identifier": {
+                "value": "{{leg2OfferingId}}"
+              }
+            },
+            "ProductIdentifier": [
+              {{#leg2ProductIds}}
+              {"Identifier": {"value": "{{.}}"}}
+              {{/leg2ProductIds}}
+            ]
+          }{{/leg2OfferingId}}
+          {{?leg3OfferingId}},{
+            "CatalogProductOfferingIdentifier": {
+              "Identifier": {
+                "value": "{{leg3OfferingId}}"
+              }
+            },
+            "ProductIdentifier": [
+              {{#leg3ProductIds}}
+              {"Identifier": {"value": "{{.}}"}}
+              {{/leg3ProductIds}}
+            ]
+          }{{/leg3OfferingId}}
+          {{?leg4OfferingId}},{
+            "CatalogProductOfferingIdentifier": {
+              "Identifier": {
+                "value": "{{leg4OfferingId}}"
+              }
+            },
+            "ProductIdentifier": [
+              {{#leg4ProductIds}}
+              {"Identifier": {"value": "{{.}}"}}
+              {{/leg4ProductIds}}
+            ]
+          }{{/leg4OfferingId}}
         ]
       }
     }
