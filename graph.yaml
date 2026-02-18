@@ -166,6 +166,14 @@ workflows:
     wire:
       locator: commitReservation.locator
 
+errorDetection:
+  - path: "ErrorResponse.Result.Error"
+    rule: non-empty
+    details:
+      message: "ErrorResponse.Result.Error.0.Message"
+      code: "ErrorResponse.Result.Error.0.SourceCode"
+      category: "ErrorResponse.Result.Error.0.category"
+
 notes: |
   Key identifier patterns:
   - `id`: Local, intra-message scope (e.g., CatalogProductOffering.id)
@@ -1684,9 +1692,11 @@ nodes:
       - name: reservationIdentifierValue
         type: string
         description: "Receipt Identifier.value from the commit response"
+        display: "Reservation ID"
       - name: locator
         type: string
         description: "PNR record locator (e.g., ABCDEF)"
+        display: "PNR"
 
   # ============================================================
   # RESERVATION MANAGEMENT
@@ -1706,9 +1716,11 @@ nodes:
       - name: locator
         type: string
         description: "PNR record locator"
+        display: "PNR"
       - name: reservationStatus
         type: string
         description: "Reservation status"
+        display: "Status"
       - name: offers
         type: offer[]
         description: "Offers in the reservation"
@@ -1733,6 +1745,7 @@ nodes:
       - name: reservationStatus
         type: string
         description: "Updated reservation status"
+        display: "Status"
 
   # ============================================================
   # TICKETING
@@ -1754,6 +1767,7 @@ nodes:
       - name: locator
         type: string
         description: "PNR record locator"
+        display: "PNR"
 
   getTicketByLocator:
     description: "Retrieve tickets associated with a PNR locator."
@@ -2074,9 +2088,11 @@ nodes:
       - name: locator
         type: string
         description: "PNR record locator"
+        display: "PNR"
       - name: reservationStatus
         type: string
         description: "Reservation status after exchange"
+        display: "Status"
 
   # ============================================================
   # EXCHANGE FORM OF PAYMENT
@@ -2567,6 +2583,7 @@ nodes:
       - name: locator
         type: string
         description: "PNR record locator of the new reservation"
+        display: "New PNR"
       - name: reservationIdentifierValue
         type: string
         description: "Reservation Identifier.value of the new reservation"
