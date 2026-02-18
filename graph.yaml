@@ -209,8 +209,9 @@ nodes:
         description: "Departure date (YYYY-MM-DD)"
       - name: passengers
         type: integer
-        description: "Number of adult passengers"
+        description: "Number of adult passengers (1-9)"
         optional: true
+        configurable: true
         default: 1
         constraints:
           min: 1
@@ -222,12 +223,14 @@ nodes:
         default: ADT
       - name: cabinPreference
         type: string
-        description: "Cabin class preference (Economy, PremiumEconomy, Business, First)"
+        description: "Cabin class preference. Values: Economy, PremiumEconomy, Business, First"
         optional: true
+        configurable: true
       - name: carrierPreference
         type: string
-        description: "Preferred airline IATA code (e.g. UA, AA, DL)"
+        description: "Preferred airline IATA code. Examples: AA=American, UA=United, DL=Delta, WN=Southwest, B6=JetBlue"
         optional: true
+        configurable: true
         constraints:
           minLength: 2
           maxLength: 2
@@ -235,8 +238,9 @@ nodes:
           description: "IATA airline code"
       - name: maxConnections
         type: integer
-        description: "Maximum number of connections (0 = nonstop only)"
+        description: "Maximum number of connections. Use 0 for nonstop-only results"
         optional: true
+        configurable: true
         constraints:
           min: 0
           max: 3
@@ -244,10 +248,12 @@ nodes:
         type: date
         description: "Return date for round-trip searches"
         optional: true
+        configurable: true
       - name: contentSource
         type: string
-        description: "Content source (GDS or NDC)"
+        description: "Content source for search results. Use 'NDC' for New Distribution Capability (direct airline content), 'GDS' for traditional GDS content. For NDC you MUST specify an airline in carrierPreference, as NDC searches are airline-specific."
         optional: true
+        configurable: true
         default: GDS
       - name: searchRepresentation
         type: string
@@ -330,8 +336,9 @@ nodes:
         description: "Leg 1 departure date (YYYY-MM-DD)"
       - name: passengers
         type: integer
-        description: "Number of adult passengers"
+        description: "Number of adult passengers (1-9)"
         optional: true
+        configurable: true
         default: 1
         constraints:
           min: 1
@@ -343,12 +350,14 @@ nodes:
         default: ADT
       - name: cabinPreference
         type: string
-        description: "Cabin class preference (Economy, PremiumEconomy, Business, First)"
+        description: "Cabin class preference. Values: Economy, PremiumEconomy, Business, First"
         optional: true
+        configurable: true
       - name: carrierPreference
         type: string
-        description: "Preferred airline IATA code (e.g. UA, AA, DL)"
+        description: "Preferred airline IATA code. Examples: AA=American, UA=United, DL=Delta, WN=Southwest, B6=JetBlue"
         optional: true
+        configurable: true
         constraints:
           minLength: 2
           maxLength: 2
@@ -356,15 +365,17 @@ nodes:
           description: "IATA airline code"
       - name: maxConnections
         type: integer
-        description: "Maximum number of connections (0 = nonstop only)"
+        description: "Maximum number of connections. Use 0 for nonstop-only results"
         optional: true
+        configurable: true
         constraints:
           min: 0
           max: 3
       - name: contentSource
         type: string
-        description: "Content source (GDS or NDC)"
+        description: "Content source for search results. Use 'NDC' for New Distribution Capability (direct airline content), 'GDS' for traditional GDS content. For NDC you MUST specify an airline in carrierPreference, as NDC searches are airline-specific."
         optional: true
+        configurable: true
         default: GDS
       - name: searchRepresentation
         type: string
@@ -466,8 +477,9 @@ nodes:
         description: "Leg 1 departure date (YYYY-MM-DD)"
       - name: passengers
         type: integer
-        description: "Number of adult passengers"
+        description: "Number of adult passengers (1-9)"
         optional: true
+        configurable: true
         default: 1
         constraints:
           min: 1
@@ -479,12 +491,14 @@ nodes:
         default: ADT
       - name: cabinPreference
         type: string
-        description: "Cabin class preference (Economy, PremiumEconomy, Business, First)"
+        description: "Cabin class preference. Values: Economy, PremiumEconomy, Business, First"
         optional: true
+        configurable: true
       - name: carrierPreference
         type: string
-        description: "Preferred airline IATA code (e.g. UA, AA, DL)"
+        description: "Preferred airline IATA code. Examples: AA=American, UA=United, DL=Delta, WN=Southwest, B6=JetBlue"
         optional: true
+        configurable: true
         constraints:
           minLength: 2
           maxLength: 2
@@ -492,15 +506,17 @@ nodes:
           description: "IATA airline code"
       - name: maxConnections
         type: integer
-        description: "Maximum number of connections (0 = nonstop only)"
+        description: "Maximum number of connections. Use 0 for nonstop-only results"
         optional: true
+        configurable: true
         constraints:
           min: 0
           max: 3
       - name: contentSource
         type: string
-        description: "Content source (GDS or NDC)"
+        description: "Content source for search results. Use 'NDC' for New Distribution Capability (direct airline content), 'GDS' for traditional GDS content. For NDC you MUST specify an airline in carrierPreference, as NDC searches are airline-specific."
         optional: true
+        configurable: true
         default: GDS
       - name: searchRepresentation
         type: string
@@ -621,8 +637,9 @@ nodes:
         description: "Leg 1 departure date (YYYY-MM-DD)"
       - name: passengers
         type: integer
-        description: "Number of adult passengers"
+        description: "Number of adult passengers (1-9)"
         optional: true
+        configurable: true
         default: 1
         constraints:
           min: 1
@@ -634,12 +651,14 @@ nodes:
         default: ADT
       - name: cabinPreference
         type: string
-        description: "Cabin class preference (Economy, PremiumEconomy, Business, First)"
+        description: "Cabin class preference. Values: Economy, PremiumEconomy, Business, First"
         optional: true
+        configurable: true
       - name: carrierPreference
         type: string
-        description: "Preferred airline IATA code (e.g. UA, AA, DL)"
+        description: "Preferred airline IATA code. Examples: AA=American, UA=United, DL=Delta, WN=Southwest, B6=JetBlue"
         optional: true
+        configurable: true
         constraints:
           minLength: 2
           maxLength: 2
@@ -647,15 +666,17 @@ nodes:
           description: "IATA airline code"
       - name: maxConnections
         type: integer
-        description: "Maximum number of connections (0 = nonstop only)"
+        description: "Maximum number of connections. Use 0 for nonstop-only results"
         optional: true
+        configurable: true
         constraints:
           min: 0
           max: 3
       - name: contentSource
         type: string
-        description: "Content source (GDS or NDC)"
+        description: "Content source for search results. Use 'NDC' for New Distribution Capability (direct airline content), 'GDS' for traditional GDS content. For NDC you MUST specify an airline in carrierPreference, as NDC searches are airline-specific."
         optional: true
+        configurable: true
         default: GDS
       - name: searchRepresentation
         type: string
