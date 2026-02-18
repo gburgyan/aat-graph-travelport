@@ -38,6 +38,7 @@ execution:
         workbenchId: {from: createWorkbenchFromLocator.workbenchId}
         catalogOfferingsIdentifierValue: {from: searchSeatMapFromWorkbench.catalogOfferingsIdentifierValue}
         seatOfferingIdentifierValue: {fromSelection: seat.seatIdentifierValue}
+        travelerIdentifierValue: placeholder-traveler-id
         seatAssignment: {fromSelection: seat.seatAssignment}
 
     - node: commitReservation

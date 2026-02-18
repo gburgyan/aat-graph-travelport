@@ -23,7 +23,9 @@ execution:
         workbenchId: {from: createWorkbenchFromLocator.workbenchId}
         amount: 100.00
         currencyCode: USD
+        fopIdentifierValue: {from: addFormOfPaymentCash.fopIdentifierValue}
         offerIdentifierValue: {from: createWorkbenchFromLocator.offerIdentifierValue}
+        offerId: {from: createWorkbenchFromLocator.offerId}
         offerAuthority: {from: createWorkbenchFromLocator.offerAuthority}
 
     - node: commitTicket

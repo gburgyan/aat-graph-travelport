@@ -108,7 +108,9 @@ execution:
         workbenchId: {from: createWorkbench.workbenchId}
         amount: {from: priceOfferFullPayload.totalPrice}
         currencyCode: {from: priceOfferFullPayload.currencyCode}
+        fopIdentifierValue: {from: addFormOfPaymentCash.fopIdentifierValue}
         offerIdentifierValue: {from: addOfferFullPayload.offerIdentifierValue}
+        offerId: {from: priceOfferFullPayload.offerId}
         offerAuthority: {from: addOfferFullPayload.offerAuthority}
 
     - node: commitReservation

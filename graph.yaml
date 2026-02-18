@@ -6,8 +6,6 @@ description: |
   management, ticketing, exchanges, ancillary/seat services, and traveler
   modification workflows.
 
-autoWire: true
-
 workflows:
   - name: Full-Payload Booking
     description: "Recommended flow sending complete trip details (carrier, flight, class) instead of references"
@@ -161,8 +159,6 @@ notes: |
   - `id`: Local, intra-message scope (e.g., CatalogProductOffering.id)
   - `*Ref` fields: Cross-reference within a message (e.g., productRef)
   - `Identifier.value`: Globally unique GUID that persists across API calls
-  Graph edges use Identifier.value for cross-node data flow.
-
   Design notes:
   - Reference vs full-payload flows differ only in how pricing/offer data is sent
   - Workbench cleanup (ignoreWorkbench) is set on nodes that create workbenches
@@ -531,7 +527,7 @@ nodes:
       - name: locator
         type: string
         description: "PNR record locator (e.g., ABCDEF)"
-        noAutoWire: true
+
         constraints:
           minLength: 6
           maxLength: 6
@@ -570,7 +566,7 @@ nodes:
       - name: workbenchId
         type: string
         description: "Reservation workbench Identifier.value"
-        noAutoWire: true
+
     outputs:
       - name: workbenchId
         type: string
@@ -605,7 +601,7 @@ nodes:
       - name: workbenchId
         type: string
         description: "Reservation workbench Identifier.value"
-        noAutoWire: true
+
       - name: catalogProductOfferingsId
         type: string
         description: "CatalogProductOfferings Identifier.value from search"
@@ -643,7 +639,7 @@ nodes:
       - name: workbenchId
         type: string
         description: "Reservation workbench Identifier.value"
-        noAutoWire: true
+
       - name: carrier
         type: string
         description: "IATA carrier code from the selected flight"
@@ -941,7 +937,7 @@ nodes:
       - name: workbenchId
         type: string
         description: "Reservation workbench Identifier.value to commit"
-        noAutoWire: true
+
       - name: scheduleChangeAcceptedInd
         type: boolean
         description: "Accept involuntary schedule change on commit"
@@ -1028,7 +1024,7 @@ nodes:
       - name: workbenchId
         type: string
         description: "Reservation workbench Identifier.value (from post-commit workbench)"
-        noAutoWire: true
+
     outputs:
       - name: reservationIdentifierValue
         type: string
@@ -1045,7 +1041,7 @@ nodes:
       - name: locator
         type: string
         description: "PNR record locator"
-        noAutoWire: true
+
         constraints:
           minLength: 6
           maxLength: 6
@@ -1090,7 +1086,7 @@ nodes:
       - name: offerIdentifierValue
         type: string
         description: "Offer Identifier.value to search ancillaries for"
-        noAutoWire: true
+
     outputs:
       - name: ancillaryOfferings
         type: ancillary[]
@@ -1119,15 +1115,15 @@ nodes:
       - name: offerListIdentifier
         type: string
         description: "OfferListResponse Identifier.value from the pricing response"
-        noAutoWire: true
+
       - name: offerId
         type: string
         description: "Offer id (e.g. 'o0') from the pricing response"
-        noAutoWire: true
+
       - name: productId
         type: string
         description: "Product id (e.g. 'p0') from the pricing response"
-        noAutoWire: true
+
     outputs:
       - name: seatOfferings
         type: seat[]
@@ -1155,11 +1151,11 @@ nodes:
       - name: offerIdentifierValue
         type: string
         description: "Offer Identifier.value from the workbench"
-        noAutoWire: true
+
       - name: productIdentifierValue
         type: string
         description: "Product Identifier.value from the workbench"
-        noAutoWire: true
+
     outputs:
       - name: seatOfferings
         type: seat[]
@@ -1266,7 +1262,7 @@ nodes:
       - name: offerIdentifierValue
         type: string
         description: "Original offer Identifier.value to exchange"
-        noAutoWire: true
+
       - name: origin
         type: string
         description: "New departure airport/city code"
@@ -1310,11 +1306,11 @@ nodes:
       - name: workbenchId
         type: string
         description: "Reservation workbench Identifier.value"
-        noAutoWire: true
+
       - name: catalogOfferingsIdentifierValue
         type: string
         description: "CatalogOfferings Identifier.value from exchange search"
-        noAutoWire: true
+
       - name: catalogOfferingIdentifierValue
         type: string
         description: "Selected CatalogOffering Identifier.value from exchange search"
@@ -1348,7 +1344,7 @@ nodes:
       - name: workbenchId
         type: string
         description: "Reservation workbench Identifier.value"
-        noAutoWire: true
+
     outputs:
       - name: reservationIdentifierValue
         type: string
@@ -1590,7 +1586,7 @@ nodes:
       - name: catalogOfferingsIdentifierValue
         type: string
         description: "CatalogOfferingsAncillary Identifier.value from ancillary search"
-        noAutoWire: true
+
       - name: ancillaryOfferingId
         type: string
         description: "CatalogOffering id of the selected ancillary"
@@ -1619,7 +1615,7 @@ nodes:
       - name: catalogOfferingsIdentifierValue
         type: string
         description: "CatalogOfferingsAncillary Identifier.value from seat map search"
-        noAutoWire: true
+
       - name: seatOfferingIdentifierValue
         type: string
         description: "Seat CatalogOffering Identifier.value"
@@ -1878,396 +1874,3 @@ nodes:
       - name: travelAgencyId
         type: string
         description: "Travel agency id"
-
-# ============================================================
-# EDGES — Explicit edges only; auto-wire handles name-matched
-# scalar output→input connections for non-optional inputs.
-# ============================================================
-edges:
-  # ============================================================
-  # SELECT EDGES — Array output → element selection
-  # ============================================================
-
-  # Search flights → downstream (select offering from results)
-  - from: searchFlights.catalogProductOfferings
-    to: searchFlightsNextLeg.offeringId
-    select: true
-  - from: searchFlights.catalogProductOfferings
-    to: searchFlightsNextLeg.productId
-    select: true
-  - from: searchFlights.catalogProductOfferings
-    to: searchUpsells.offeringId
-    select: true
-  - from: searchFlights.catalogProductOfferings
-    to: searchUpsells.productId
-    select: true
-  - from: searchFlights.catalogProductOfferings
-    to: priceOfferReference.offeringId
-    select: true
-    preferred: true
-  - from: searchFlights.catalogProductOfferings
-    to: priceOfferReference.productIds
-    select: true
-    preferred: true
-  # Full-payload pricing — flight details from selected search element
-  - from: searchFlights.catalogProductOfferings
-    to: priceOfferFullPayload.carrier
-    select: true
-    preferred: true
-  - from: searchFlights.catalogProductOfferings
-    to: priceOfferFullPayload.flightNumber
-    select: true
-    preferred: true
-  - from: searchFlights.catalogProductOfferings
-    to: priceOfferFullPayload.departureDate
-    select: true
-    preferred: true
-  - from: searchFlights.catalogProductOfferings
-    to: priceOfferFullPayload.departureTime
-    select: true
-    preferred: true
-  - from: searchFlights.catalogProductOfferings
-    to: priceOfferFullPayload.arrivalDate
-    select: true
-    preferred: true
-  - from: searchFlights.catalogProductOfferings
-    to: priceOfferFullPayload.arrivalTime
-    select: true
-    preferred: true
-  - from: searchFlights.catalogProductOfferings
-    to: priceOfferFullPayload.classOfService
-    select: true
-  - from: searchFlights.catalogProductOfferings
-    to: priceOfferFullPayload.origin
-    select: true
-  - from: searchFlights.catalogProductOfferings
-    to: priceOfferFullPayload.destination
-    select: true
-  # Reference-based pricing — identifiers from selected search element
-  - from: searchFlights.catalogProductOfferings
-    to: addOfferReference.offeringId
-    select: true
-  - from: searchFlights.catalogProductOfferings
-    to: addOfferReference.productIds
-    select: true
-  # Journey-based round-trip: return leg reference selections
-  - from: searchFlights.catalogProductOfferings
-    to: priceOfferReference.returnOfferingId
-    select: true
-  - from: searchFlights.catalogProductOfferings
-    to: priceOfferReference.returnProductIds
-    select: true
-  - from: searchFlights.catalogProductOfferings
-    to: addOfferReference.returnOfferingId
-    select: true
-  - from: searchFlights.catalogProductOfferings
-    to: addOfferReference.returnProductIds
-    select: true
-  # Full-payload add offer — flight details from selected search element
-  - from: searchFlights.catalogProductOfferings
-    to: addOfferFullPayload.carrier
-    select: true
-  - from: searchFlights.catalogProductOfferings
-    to: addOfferFullPayload.flightNumber
-    select: true
-  - from: searchFlights.catalogProductOfferings
-    to: addOfferFullPayload.departureDate
-    select: true
-  - from: searchFlights.catalogProductOfferings
-    to: addOfferFullPayload.departureTime
-    select: true
-  - from: searchFlights.catalogProductOfferings
-    to: addOfferFullPayload.arrivalDate
-    select: true
-  - from: searchFlights.catalogProductOfferings
-    to: addOfferFullPayload.arrivalTime
-    select: true
-  - from: searchFlights.catalogProductOfferings
-    to: addOfferFullPayload.origin
-    select: true
-  - from: searchFlights.catalogProductOfferings
-    to: addOfferFullPayload.destination
-    select: true
-  # Journey-based round-trip: return leg selections from same searchFlights output
-  # priceOfferFullPayload return inputs
-  - from: searchFlights.catalogProductOfferings
-    to: priceOfferFullPayload.returnCarrier
-    select: true
-  - from: searchFlights.catalogProductOfferings
-    to: priceOfferFullPayload.returnFlightNumber
-    select: true
-  - from: searchFlights.catalogProductOfferings
-    to: priceOfferFullPayload.returnDepartureDate
-    select: true
-  - from: searchFlights.catalogProductOfferings
-    to: priceOfferFullPayload.returnDepartureTime
-    select: true
-  - from: searchFlights.catalogProductOfferings
-    to: priceOfferFullPayload.returnArrivalDate
-    select: true
-  - from: searchFlights.catalogProductOfferings
-    to: priceOfferFullPayload.returnArrivalTime
-    select: true
-  - from: searchFlights.catalogProductOfferings
-    to: priceOfferFullPayload.returnOrigin
-    select: true
-  - from: searchFlights.catalogProductOfferings
-    to: priceOfferFullPayload.returnDestination
-    select: true
-  - from: searchFlights.catalogProductOfferings
-    to: priceOfferFullPayload.returnClassOfService
-    select: true
-  # addOfferFullPayload return inputs
-  - from: searchFlights.catalogProductOfferings
-    to: addOfferFullPayload.returnCarrier
-    select: true
-  - from: searchFlights.catalogProductOfferings
-    to: addOfferFullPayload.returnFlightNumber
-    select: true
-  - from: searchFlights.catalogProductOfferings
-    to: addOfferFullPayload.returnDepartureDate
-    select: true
-  - from: searchFlights.catalogProductOfferings
-    to: addOfferFullPayload.returnDepartureTime
-    select: true
-  - from: searchFlights.catalogProductOfferings
-    to: addOfferFullPayload.returnArrivalDate
-    select: true
-  - from: searchFlights.catalogProductOfferings
-    to: addOfferFullPayload.returnArrivalTime
-    select: true
-  - from: searchFlights.catalogProductOfferings
-    to: addOfferFullPayload.returnOrigin
-    select: true
-  - from: searchFlights.catalogProductOfferings
-    to: addOfferFullPayload.returnDestination
-    select: true
-  # Leg-based round-trip: searchFlightsNextLeg → pricing/offer return inputs
-  - from: searchFlightsNextLeg.catalogProductOfferings
-    to: priceOfferFullPayload.returnCarrier
-    select: true
-  - from: searchFlightsNextLeg.catalogProductOfferings
-    to: priceOfferFullPayload.returnFlightNumber
-    select: true
-  - from: searchFlightsNextLeg.catalogProductOfferings
-    to: priceOfferFullPayload.returnDepartureDate
-    select: true
-  - from: searchFlightsNextLeg.catalogProductOfferings
-    to: priceOfferFullPayload.returnDepartureTime
-    select: true
-  - from: searchFlightsNextLeg.catalogProductOfferings
-    to: priceOfferFullPayload.returnArrivalDate
-    select: true
-  - from: searchFlightsNextLeg.catalogProductOfferings
-    to: priceOfferFullPayload.returnArrivalTime
-    select: true
-  - from: searchFlightsNextLeg.catalogProductOfferings
-    to: priceOfferFullPayload.returnOrigin
-    select: true
-  - from: searchFlightsNextLeg.catalogProductOfferings
-    to: priceOfferFullPayload.returnDestination
-    select: true
-  - from: searchFlightsNextLeg.catalogProductOfferings
-    to: priceOfferFullPayload.returnClassOfService
-    select: true
-  - from: searchFlightsNextLeg.catalogProductOfferings
-    to: addOfferFullPayload.returnCarrier
-    select: true
-  - from: searchFlightsNextLeg.catalogProductOfferings
-    to: addOfferFullPayload.returnFlightNumber
-    select: true
-  - from: searchFlightsNextLeg.catalogProductOfferings
-    to: addOfferFullPayload.returnDepartureDate
-    select: true
-  - from: searchFlightsNextLeg.catalogProductOfferings
-    to: addOfferFullPayload.returnDepartureTime
-    select: true
-  - from: searchFlightsNextLeg.catalogProductOfferings
-    to: addOfferFullPayload.returnArrivalDate
-    select: true
-  - from: searchFlightsNextLeg.catalogProductOfferings
-    to: addOfferFullPayload.returnArrivalTime
-    select: true
-  - from: searchFlightsNextLeg.catalogProductOfferings
-    to: addOfferFullPayload.returnOrigin
-    select: true
-  - from: searchFlightsNextLeg.catalogProductOfferings
-    to: addOfferFullPayload.returnDestination
-    select: true
-  - from: searchFlights.catalogProductOfferings
-    to: getFareRulesFromSearch.offeringId
-    select: true
-  - from: searchFlights.catalogProductOfferings
-    to: getFareRulesFromSearch.productId
-    select: true
-
-  # Ticket selection
-  - from: getTicketByLocator.tickets
-    to: voidTicket.ticketIdentifier
-    select: true
-  - from: getTicketByLocator.tickets
-    to: getExchangeEligibilityByTicket.ticketNumber
-    select: true
-  - from: getTicketByLocator.tickets
-    to: getTicketDetails.ticketNumber
-    select: true
-  - from: getTicketByLocator.tickets
-    to: createWorkbenchFromIdentifier.ticketNumber
-    select: true
-
-  # Reservation offer selection
-  - from: retrieveReservation.offers
-    to: cancelOffer.offerIdentifierValue
-    select: true
-
-  # Exchange offering selection
-  - from: searchExchange.exchangeOfferings
-    to: addExchangeOffer.catalogOfferingIdentifierValue
-    select: true
-
-  # Ancillary selection
-  - from: searchAncillaries.ancillaryOfferings
-    to: addAncillaryOffer.ancillaryOfferingId
-    select: true
-
-  # Seat selection
-  - from: searchSeatMap.seatOfferings
-    to: addSeatOffer.seatOfferingIdentifierValue
-    select: true
-
-  # Post-commit seat selection
-  - from: searchSeatMapFromWorkbench.seatOfferings
-    to: addSeatOffer.seatOfferingIdentifierValue
-    select: true
-  - from: searchSeatMapFromWorkbench.catalogOfferingsIdentifierValue
-    to: addSeatOffer.catalogOfferingsIdentifierValue
-
-  # ============================================================
-  # PREFERRED EDGES — Backward chaining hints
-  # ============================================================
-  - from: createWorkbench.workbenchId
-    to: addOfferFullPayload.workbenchId
-    preferred: true
-  - from: createWorkbench.workbenchId
-    to: addTraveler.workbenchId
-    preferred: true
-  - from: addOfferFullPayload.offerIdentifierValue
-    to: addPayment.offerIdentifierValue
-    preferred: true
-
-  # Co-targets: these inputs have a preferred edge above, so auto-wire
-  # is blocked; additional explicit edges needed for alternative flows.
-  - from: createWorkbench.workbenchId
-    to: addOfferReference.workbenchId
-  - from: addOfferReference.offerIdentifierValue
-    to: addPayment.offerIdentifierValue
-  - from: addExchangeOffer.offerIdentifierValue
-    to: addPayment.offerIdentifierValue
-
-  # ============================================================
-  # NO-AUTO-WIRE EDGES — Explicit wiring for inputs with noAutoWire
-  # (pass-through workbenchId, locator loops, cross-domain catalogs)
-  # ============================================================
-
-  # Pass-through workbenchId nodes need explicit sources
-  - from: createWorkbenchFromLocator.workbenchId
-    to: addExchangeOffer.workbenchId
-  - from: createWorkbenchFromIdentifier.workbenchId
-    to: addExchangeOffer.workbenchId
-  - from: createWorkbench.workbenchId
-    to: retrieveWorkbench.workbenchId
-  - from: createWorkbenchFromIdentifier.workbenchId
-    to: retrieveWorkbench.workbenchId
-
-  # Locator loop prevention
-  - from: commitReservation.locator
-    to: createWorkbenchFromLocator.locator
-
-  # Catalog offerings wired to correct downstream nodes
-  - from: searchAncillaries.catalogOfferingsIdentifierValue
-    to: addAncillaryOffer.catalogOfferingsIdentifierValue
-  - from: searchSeatMap.catalogOfferingsIdentifierValue
-    to: addSeatOffer.catalogOfferingsIdentifierValue
-  - from: searchExchange.catalogOfferingsIdentifierValue
-    to: addExchangeOffer.catalogOfferingsIdentifierValue
-
-  # Offer ID for ancillary/seat searches
-  - from: addOfferReference.offerIdentifierValue
-    to: searchAncillaries.offerIdentifierValue
-
-  # Post-commit ancillary — offer ID from locator workbench
-  - from: createWorkbenchFromLocator.offerIdentifierValue
-    to: searchAncillaries.offerIdentifierValue
-
-  # Post-commit seat map — explicit wiring for noAutoWire inputs
-  - from: createWorkbenchFromLocator.offerIdentifierValue
-    to: searchSeatMapFromWorkbench.offerIdentifierValue
-  - from: retrieveWorkbench.wbProductIdentifierValue
-    to: searchSeatMapFromWorkbench.productIdentifierValue
-
-
-  # Commit nodes — explicit workbench sources
-  - from: createWorkbench.workbenchId
-    to: commitReservation.workbenchId
-  - from: createWorkbenchFromLocator.workbenchId
-    to: commitTicket.workbenchId
-  - from: createWorkbenchFromIdentifier.workbenchId
-    to: commitTicket.workbenchId
-  - from: createWorkbenchFromLocator.workbenchId
-    to: commitExchangeTicket.workbenchId
-  - from: createWorkbenchFromIdentifier.workbenchId
-    to: commitExchangeTicket.workbenchId
-
-  # Exchange search — explicit offer ID sources
-  - from: createWorkbenchFromLocator.offerIdentifierValue
-    to: searchExchange.offerIdentifierValue
-  - from: createWorkbenchFromIdentifier.offerIdentifierValue
-    to: searchExchange.offerIdentifierValue
-
-  # Ticket retrieval — explicit locator source
-  - from: commitReservation.locator
-    to: getTicketByLocator.locator
-
-  # ============================================================
-  # NAME-MISMATCHED EDGES — Output name ≠ input name
-  # ============================================================
-
-  # totalPrice → amount
-  - from: priceOfferReference.totalPrice
-    to: addPayment.amount
-  - from: priceOfferFullPayload.totalPrice
-    to: addPayment.amount
-  - from: addExchangeOffer.totalPrice
-    to: addPayment.amount
-
-  # Commit outputs → reservation management (name mismatches)
-  - from: commitReservation.reservationIdentifierValue
-    to: retrieveReservation.identifier
-  - from: commitReservation.locator
-    to: retrieveReservation.identifier
-  - from: commitReservation.reservationIdentifierValue
-    to: cancelOffer.reservationIdentifier
-  - from: commitReservation.reservationIdentifierValue
-    to: placeOnQueue.reservationIdentifier
-
-  # Workbench → exchange search (workbenchId → reservationIdentifier)
-  - from: createWorkbenchFromLocator.workbenchId
-    to: searchExchange.reservationIdentifier
-  - from: createWorkbenchFromIdentifier.workbenchId
-    to: searchExchange.reservationIdentifier
-
-  # Order divide — workbenchId → reservationIdentifierValue (name mismatch)
-  - from: createWorkbenchFromLocator.workbenchId
-    to: divideReservation.reservationIdentifierValue
-
-  # ============================================================
-  # OPTIONAL-INPUT EDGES — Auto-wire skips optional inputs
-  # ============================================================
-  - from: addTraveler.travelerIdentifierValue
-    to: addPrimaryContact.travelerIdentifierValue
-  - from: addOfferReference.offerAuthority
-    to: addPayment.offerAuthority
-  - from: addOfferFullPayload.offerAuthority
-    to: addPayment.offerAuthority
-  - from: addExchangeOffer.offerAuthority
-    to: addPayment.offerAuthority

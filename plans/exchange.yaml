@@ -51,7 +51,9 @@ execution:
         workbenchId: {from: createWorkbenchFromLocator.workbenchId}
         amount: {from: addExchangeOffer.totalPrice}
         currencyCode: {from: addExchangeOffer.currencyCode}
+        fopIdentifierValue: {from: addFormOfPaymentForfeit.fopIdentifierValue}
         offerIdentifierValue: {from: addExchangeOffer.offerIdentifierValue}
+        offerId: {from: addExchangeOffer.offerId}
         offerAuthority: {from: addExchangeOffer.offerAuthority}
 
     - node: addDocumentOverrides
