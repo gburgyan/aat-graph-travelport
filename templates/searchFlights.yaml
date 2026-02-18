@@ -52,6 +52,24 @@ request:
               "value": "{{origin}}"
             }
           }{{/returnDate}}
+          {{?leg2Origin}},{
+            "departureDate": "{{leg2DepartureDate}}",
+            "From": {
+              "value": "{{leg2Origin}}"
+            },
+            "To": {
+              "value": "{{leg2Destination}}"
+            }
+          }{{/leg2Origin}}
+          {{?leg3Origin}},{
+            "departureDate": "{{leg3DepartureDate}}",
+            "From": {
+              "value": "{{leg3Origin}}"
+            },
+            "To": {
+              "value": "{{leg3Destination}}"
+            }
+          }{{/leg3Origin}}
         ]
       }
     }
@@ -165,6 +183,7 @@ response:
           end
         end
       end
+
     end
 
     return outputs

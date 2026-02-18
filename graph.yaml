@@ -41,6 +41,12 @@ workflows:
   - name: Round-Trip Full-Payload Booking
     description: "Journey-based round-trip: search both legs in one call, price and book with return leg details"
     template: plans/roundtrip-journey.yaml
+  - name: 3-City Multi-City Booking
+    description: "Multi-city booking A->B->C: journey-based search with two legs"
+    template: plans/multicity-3city.yaml
+  - name: 4-City Multi-City Booking
+    description: "Multi-city booking A->B->C->D: journey-based search with three legs"
+    template: plans/multicity-4city.yaml
   - name: Round-Trip Reference-Based Booking
     description: "Journey-based round-trip using reference identifiers (search both legs in one call)"
     template: plans/roundtrip-reference.yaml
@@ -274,6 +280,283 @@ nodes:
             type: float
           - name: currency
             type: string
+          - name: leg
+            type: integer
+      - name: catalogProductOfferingsId
+        type: string
+        description: "Identifier.value for the entire CatalogProductOfferings container"
+      - name: transactionId
+        type: string
+        description: "Transaction tracking ID from the response"
+
+  searchFlights2Leg:
+    description: "Search for multi-city flights with two legs. Journey-based search sending both legs in a single call."
+    adapter: searchFlights
+    tags: [search]
+    satisfies: [flightsSearched]
+    inputs:
+      - name: origin
+        type: string
+        description: "Departure airport/city code (3-letter IATA)"
+        constraints:
+          minLength: 3
+          maxLength: 3
+          pattern: "^[A-Z]{3}$"
+          description: "IATA airport/city code"
+      - name: destination
+        type: string
+        description: "Arrival airport/city code (3-letter IATA)"
+        constraints:
+          minLength: 3
+          maxLength: 3
+          pattern: "^[A-Z]{3}$"
+          description: "IATA airport/city code"
+      - name: departureDate
+        type: date
+        description: "Departure date (YYYY-MM-DD)"
+      - name: passengers
+        type: integer
+        description: "Number of adult passengers"
+        optional: true
+        default: 1
+        constraints:
+          min: 1
+          max: 9
+      - name: passengerTypeCode
+        type: string
+        description: "Passenger type code (ADT, CNN, INF, etc.)"
+        optional: true
+        default: ADT
+      - name: cabinPreference
+        type: string
+        description: "Cabin class preference (Economy, PremiumEconomy, Business, First)"
+        optional: true
+      - name: carrierPreference
+        type: string
+        description: "Preferred airline IATA code (e.g. UA, AA, DL)"
+        optional: true
+        constraints:
+          minLength: 2
+          maxLength: 2
+          pattern: "^[A-Z0-9]{2}$"
+          description: "IATA airline code"
+      - name: maxConnections
+        type: integer
+        description: "Maximum number of connections (0 = nonstop only)"
+        optional: true
+        constraints:
+          min: 0
+          max: 3
+      - name: contentSource
+        type: string
+        description: "Content source (GDS or NDC)"
+        optional: true
+        default: GDS
+      - name: leg2Origin
+        type: string
+        description: "Leg 2 departure airport/city code (3-letter IATA)"
+        constraints:
+          minLength: 3
+          maxLength: 3
+          pattern: "^[A-Z]{3}$"
+          description: "IATA airport/city code"
+      - name: leg2Destination
+        type: string
+        description: "Leg 2 arrival airport/city code (3-letter IATA)"
+        constraints:
+          minLength: 3
+          maxLength: 3
+          pattern: "^[A-Z]{3}$"
+          description: "IATA airport/city code"
+      - name: leg2DepartureDate
+        type: date
+        description: "Leg 2 departure date (YYYY-MM-DD)"
+    outputs:
+      - name: catalogProductOfferings
+        type: offering[]
+        description: "List of flight offerings grouped by O&D"
+        elementFields:
+          - name: offeringId
+            type: string
+          - name: productId
+            type: string
+          - name: productIds
+            type: string
+          - name: departure
+            type: string
+          - name: arrival
+            type: string
+          - name: offeringIdentifierValue
+            type: string
+          - name: carrier
+            type: string
+          - name: flightNumber
+            type: string
+          - name: departureDate
+            type: date
+          - name: departureTime
+            type: string
+          - name: arrivalDate
+            type: date
+          - name: arrivalTime
+            type: string
+          - name: cabin
+            type: string
+          - name: classOfService
+            type: string
+          - name: totalPrice
+            type: float
+          - name: currency
+            type: string
+          - name: leg
+            type: integer
+      - name: catalogProductOfferingsId
+        type: string
+        description: "Identifier.value for the entire CatalogProductOfferings container"
+      - name: transactionId
+        type: string
+        description: "Transaction tracking ID from the response"
+
+  searchFlights3Leg:
+    description: "Search for multi-city flights with three legs. Journey-based search sending all three legs in a single call."
+    adapter: searchFlights
+    tags: [search]
+    satisfies: [flightsSearched]
+    inputs:
+      - name: origin
+        type: string
+        description: "Departure airport/city code (3-letter IATA)"
+        constraints:
+          minLength: 3
+          maxLength: 3
+          pattern: "^[A-Z]{3}$"
+          description: "IATA airport/city code"
+      - name: destination
+        type: string
+        description: "Arrival airport/city code (3-letter IATA)"
+        constraints:
+          minLength: 3
+          maxLength: 3
+          pattern: "^[A-Z]{3}$"
+          description: "IATA airport/city code"
+      - name: departureDate
+        type: date
+        description: "Departure date (YYYY-MM-DD)"
+      - name: passengers
+        type: integer
+        description: "Number of adult passengers"
+        optional: true
+        default: 1
+        constraints:
+          min: 1
+          max: 9
+      - name: passengerTypeCode
+        type: string
+        description: "Passenger type code (ADT, CNN, INF, etc.)"
+        optional: true
+        default: ADT
+      - name: cabinPreference
+        type: string
+        description: "Cabin class preference (Economy, PremiumEconomy, Business, First)"
+        optional: true
+      - name: carrierPreference
+        type: string
+        description: "Preferred airline IATA code (e.g. UA, AA, DL)"
+        optional: true
+        constraints:
+          minLength: 2
+          maxLength: 2
+          pattern: "^[A-Z0-9]{2}$"
+          description: "IATA airline code"
+      - name: maxConnections
+        type: integer
+        description: "Maximum number of connections (0 = nonstop only)"
+        optional: true
+        constraints:
+          min: 0
+          max: 3
+      - name: contentSource
+        type: string
+        description: "Content source (GDS or NDC)"
+        optional: true
+        default: GDS
+      - name: leg2Origin
+        type: string
+        description: "Leg 2 departure airport/city code (3-letter IATA)"
+        constraints:
+          minLength: 3
+          maxLength: 3
+          pattern: "^[A-Z]{3}$"
+          description: "IATA airport/city code"
+      - name: leg2Destination
+        type: string
+        description: "Leg 2 arrival airport/city code (3-letter IATA)"
+        constraints:
+          minLength: 3
+          maxLength: 3
+          pattern: "^[A-Z]{3}$"
+          description: "IATA airport/city code"
+      - name: leg2DepartureDate
+        type: date
+        description: "Leg 2 departure date (YYYY-MM-DD)"
+      - name: leg3Origin
+        type: string
+        description: "Leg 3 departure airport/city code (3-letter IATA)"
+        constraints:
+          minLength: 3
+          maxLength: 3
+          pattern: "^[A-Z]{3}$"
+          description: "IATA airport/city code"
+      - name: leg3Destination
+        type: string
+        description: "Leg 3 arrival airport/city code (3-letter IATA)"
+        constraints:
+          minLength: 3
+          maxLength: 3
+          pattern: "^[A-Z]{3}$"
+          description: "IATA airport/city code"
+      - name: leg3DepartureDate
+        type: date
+        description: "Leg 3 departure date (YYYY-MM-DD)"
+    outputs:
+      - name: catalogProductOfferings
+        type: offering[]
+        description: "List of flight offerings grouped by O&D"
+        elementFields:
+          - name: offeringId
+            type: string
+          - name: productId
+            type: string
+          - name: productIds
+            type: string
+          - name: departure
+            type: string
+          - name: arrival
+            type: string
+          - name: offeringIdentifierValue
+            type: string
+          - name: carrier
+            type: string
+          - name: flightNumber
+            type: string
+          - name: departureDate
+            type: date
+          - name: departureTime
+            type: string
+          - name: arrivalDate
+            type: date
+          - name: arrivalTime
+            type: string
+          - name: cabin
+            type: string
+          - name: classOfService
+            type: string
+          - name: totalPrice
+            type: float
+          - name: currency
+            type: string
+          - name: leg
+            type: integer
       - name: catalogProductOfferingsId
         type: string
         description: "Identifier.value for the entire CatalogProductOfferings container"
@@ -485,6 +768,80 @@ nodes:
         type: string
         description: "Return leg class of service code"
         optional: true
+      # Multi-city leg 2 inputs
+      - name: leg2Carrier
+        type: string
+        description: "Leg 2 carrier IATA code for multi-city"
+        optional: true
+      - name: leg2FlightNumber
+        type: string
+        description: "Leg 2 flight number for multi-city"
+        optional: true
+      - name: leg2DepartureDate
+        type: date
+        description: "Leg 2 departure date for multi-city"
+        optional: true
+      - name: leg2DepartureTime
+        type: string
+        description: "Leg 2 departure time (HH:MM:SS) for multi-city"
+        optional: true
+      - name: leg2ArrivalDate
+        type: date
+        description: "Leg 2 arrival date for multi-city"
+        optional: true
+      - name: leg2ArrivalTime
+        type: string
+        description: "Leg 2 arrival time (HH:MM:SS) for multi-city"
+        optional: true
+      - name: leg2Origin
+        type: string
+        description: "Leg 2 departure airport IATA code for multi-city"
+        optional: true
+      - name: leg2Destination
+        type: string
+        description: "Leg 2 arrival airport IATA code for multi-city"
+        optional: true
+      - name: leg2ClassOfService
+        type: string
+        description: "Leg 2 class of service code for multi-city"
+        optional: true
+      # Multi-city leg 3 inputs
+      - name: leg3Carrier
+        type: string
+        description: "Leg 3 carrier IATA code for multi-city"
+        optional: true
+      - name: leg3FlightNumber
+        type: string
+        description: "Leg 3 flight number for multi-city"
+        optional: true
+      - name: leg3DepartureDate
+        type: date
+        description: "Leg 3 departure date for multi-city"
+        optional: true
+      - name: leg3DepartureTime
+        type: string
+        description: "Leg 3 departure time (HH:MM:SS) for multi-city"
+        optional: true
+      - name: leg3ArrivalDate
+        type: date
+        description: "Leg 3 arrival date for multi-city"
+        optional: true
+      - name: leg3ArrivalTime
+        type: string
+        description: "Leg 3 arrival time (HH:MM:SS) for multi-city"
+        optional: true
+      - name: leg3Origin
+        type: string
+        description: "Leg 3 departure airport IATA code for multi-city"
+        optional: true
+      - name: leg3Destination
+        type: string
+        description: "Leg 3 arrival airport IATA code for multi-city"
+        optional: true
+      - name: leg3ClassOfService
+        type: string
+        description: "Leg 3 class of service code for multi-city"
+        optional: true
     outputs:
       - name: offerIdentifierValue
         type: string
@@ -664,6 +1021,10 @@ nodes:
       - name: destination
         type: string
         description: "Arrival airport IATA code"
+      - name: classOfService
+        type: string
+        description: "Class of service code from the selected flight"
+        optional: true
       # Return leg inputs (for round-trip booking)
       - name: returnCarrier
         type: string
@@ -696,6 +1057,84 @@ nodes:
       - name: returnDestination
         type: string
         description: "Return leg arrival airport IATA code"
+        optional: true
+      - name: returnClassOfService
+        type: string
+        description: "Return leg class of service code"
+        optional: true
+      # Multi-city leg 2 inputs
+      - name: leg2Carrier
+        type: string
+        description: "Leg 2 carrier IATA code for multi-city"
+        optional: true
+      - name: leg2FlightNumber
+        type: string
+        description: "Leg 2 flight number for multi-city"
+        optional: true
+      - name: leg2DepartureDate
+        type: date
+        description: "Leg 2 departure date for multi-city"
+        optional: true
+      - name: leg2DepartureTime
+        type: string
+        description: "Leg 2 departure time (HH:MM:SS) for multi-city"
+        optional: true
+      - name: leg2ArrivalDate
+        type: date
+        description: "Leg 2 arrival date for multi-city"
+        optional: true
+      - name: leg2ArrivalTime
+        type: string
+        description: "Leg 2 arrival time (HH:MM:SS) for multi-city"
+        optional: true
+      - name: leg2Origin
+        type: string
+        description: "Leg 2 departure airport IATA code for multi-city"
+        optional: true
+      - name: leg2Destination
+        type: string
+        description: "Leg 2 arrival airport IATA code for multi-city"
+        optional: true
+      - name: leg2ClassOfService
+        type: string
+        description: "Leg 2 class of service code for multi-city"
+        optional: true
+      # Multi-city leg 3 inputs
+      - name: leg3Carrier
+        type: string
+        description: "Leg 3 carrier IATA code for multi-city"
+        optional: true
+      - name: leg3FlightNumber
+        type: string
+        description: "Leg 3 flight number for multi-city"
+        optional: true
+      - name: leg3DepartureDate
+        type: date
+        description: "Leg 3 departure date for multi-city"
+        optional: true
+      - name: leg3DepartureTime
+        type: string
+        description: "Leg 3 departure time (HH:MM:SS) for multi-city"
+        optional: true
+      - name: leg3ArrivalDate
+        type: date
+        description: "Leg 3 arrival date for multi-city"
+        optional: true
+      - name: leg3ArrivalTime
+        type: string
+        description: "Leg 3 arrival time (HH:MM:SS) for multi-city"
+        optional: true
+      - name: leg3Origin
+        type: string
+        description: "Leg 3 departure airport IATA code for multi-city"
+        optional: true
+      - name: leg3Destination
+        type: string
+        description: "Leg 3 arrival airport IATA code for multi-city"
+        optional: true
+      - name: leg3ClassOfService
+        type: string
+        description: "Leg 3 class of service code for multi-city"
         optional: true
     outputs:
       - name: offerIdentifierValue

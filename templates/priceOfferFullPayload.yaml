@@ -56,6 +56,40 @@ request:
               }
             ]
           }{{/returnCarrier}}
+          {{?leg2Carrier}},{
+            "sequence": 2,
+            "SpecificFlightCriteria": [
+              {
+                "carrier": "{{leg2Carrier}}",
+                "flightNumber": "{{leg2FlightNumber}}",
+                "departureDate": "{{leg2DepartureDate}}",
+                "departureTime": "{{leg2DepartureTime}}",
+                "arrivalDate": "{{leg2ArrivalDate}}",
+                "arrivalTime": "{{leg2ArrivalTime}}",
+                "from": "{{leg2Origin}}",
+                "to": "{{leg2Destination}}",
+                "classOfService": "{{leg2ClassOfService}}",
+                "segmentSequence": 2
+              }
+            ]
+          }{{/leg2Carrier}}
+          {{?leg3Carrier}},{
+            "sequence": 3,
+            "SpecificFlightCriteria": [
+              {
+                "carrier": "{{leg3Carrier}}",
+                "flightNumber": "{{leg3FlightNumber}}",
+                "departureDate": "{{leg3DepartureDate}}",
+                "departureTime": "{{leg3DepartureTime}}",
+                "arrivalDate": "{{leg3ArrivalDate}}",
+                "arrivalTime": "{{leg3ArrivalTime}}",
+                "from": "{{leg3Origin}}",
+                "to": "{{leg3Destination}}",
+                "classOfService": "{{leg3ClassOfService}}",
+                "segmentSequence": 3
+              }
+            ]
+          }{{/leg3Carrier}}
         ]
       }
     }

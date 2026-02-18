@@ -42,8 +42,8 @@ execution:
         departureTime: {fromSelection: outbound.departureTime}
         arrivalDate: {fromSelection: outbound.arrivalDate}
         arrivalTime: {fromSelection: outbound.arrivalTime}
-        origin: MEL
-        destination: SYD
+        origin: {fromSelection: outbound.departure}
+        destination: {fromSelection: outbound.arrival}
         classOfService: {fromSelection: outbound.classOfService}
         returnCarrier: {fromSelection: inbound.carrier}
         returnFlightNumber: {fromSelection: inbound.flightNumber}
@@ -51,8 +51,8 @@ execution:
         returnDepartureTime: {fromSelection: inbound.departureTime}
         returnArrivalDate: {fromSelection: inbound.arrivalDate}
         returnArrivalTime: {fromSelection: inbound.arrivalTime}
-        returnOrigin: SYD
-        returnDestination: MEL
+        returnOrigin: {fromSelection: inbound.departure}
+        returnDestination: {fromSelection: inbound.arrival}
         returnClassOfService: {fromSelection: inbound.classOfService}
 
     - node: createWorkbench
@@ -78,16 +78,16 @@ execution:
         departureTime: {fromSelection: outbound.departureTime}
         arrivalDate: {fromSelection: outbound.arrivalDate}
         arrivalTime: {fromSelection: outbound.arrivalTime}
-        origin: MEL
-        destination: SYD
+        origin: {fromSelection: outbound.departure}
+        destination: {fromSelection: outbound.arrival}
         returnCarrier: {fromSelection: inbound.carrier}
         returnFlightNumber: {fromSelection: inbound.flightNumber}
         returnDepartureDate: {fromSelection: inbound.departureDate}
         returnDepartureTime: {fromSelection: inbound.departureTime}
         returnArrivalDate: {fromSelection: inbound.arrivalDate}
         returnArrivalTime: {fromSelection: inbound.arrivalTime}
-        returnOrigin: SYD
-        returnDestination: MEL
+        returnOrigin: {fromSelection: inbound.departure}
+        returnDestination: {fromSelection: inbound.arrival}
 
     - node: addTraveler
       dependsOn: [createWorkbench]

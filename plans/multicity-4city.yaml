@@ -1,0 +1,149 @@
+# Multi-city 4-city booking template.
+# Journey-based search with three legs in a single search call.
+# Three named selections (leg1/leg2/leg3) pick different elements from the
+# same array. The LLM fills origins, destinations, dates, and traveler details.
+
+intent:
+  description: "Book a multi-city flight with three legs"
+
+execution:
+  steps:
+    - node: searchFlights3Leg
+      description: "Search for multi-city flights"
+      values:
+        origin: "[IATA airport code (ORD)]"
+        destination: "[IATA airport code (LAX)]"
+        departureDate: "{{today + 14 days}}"
+        leg2Origin: "[IATA airport code (LAX)]"
+        leg2Destination: "[IATA airport code (DEN)]"
+        leg2DepartureDate: "{{today + 21 days}}"
+        leg3Origin: "[IATA airport code (DEN)]"
+        leg3Destination: "[IATA airport code (JFK)]"
+        leg3DepartureDate: "{{today + 28 days}}"
+
+    - node: priceOfferFullPayload
+      description: "Price the selected leg 1, leg 2, and leg 3 flights"
+      dependsOn: [searchFlights3Leg]
+      selections:
+        leg1:
+          from: searchFlights3Leg.catalogProductOfferings
+          strategy: first
+        leg2:
+          from: searchFlights3Leg.catalogProductOfferings
+          strategy: index
+          index: 1
+        leg3:
+          from: searchFlights3Leg.catalogProductOfferings
+          strategy: index
+          index: 2
+      values:
+        carrier: {fromSelection: leg1.carrier}
+        flightNumber: {fromSelection: leg1.flightNumber}
+        departureDate: {fromSelection: leg1.departureDate}
+        departureTime: {fromSelection: leg1.departureTime}
+        arrivalDate: {fromSelection: leg1.arrivalDate}
+        arrivalTime: {fromSelection: leg1.arrivalTime}
+        origin: {fromSelection: leg1.departure}
+        destination: {fromSelection: leg1.arrival}
+        classOfService: {fromSelection: leg1.classOfService}
+        leg2Carrier: {fromSelection: leg2.carrier}
+        leg2FlightNumber: {fromSelection: leg2.flightNumber}
+        leg2DepartureDate: {fromSelection: leg2.departureDate}
+        leg2DepartureTime: {fromSelection: leg2.departureTime}
+        leg2ArrivalDate: {fromSelection: leg2.arrivalDate}
+        leg2ArrivalTime: {fromSelection: leg2.arrivalTime}
+        leg2Origin: {fromSelection: leg2.departure}
+        leg2Destination: {fromSelection: leg2.arrival}
+        leg2ClassOfService: {fromSelection: leg2.classOfService}
+        leg3Carrier: {fromSelection: leg3.carrier}
+        leg3FlightNumber: {fromSelection: leg3.flightNumber}
+        leg3DepartureDate: {fromSelection: leg3.departureDate}
+        leg3DepartureTime: {fromSelection: leg3.departureTime}
+        leg3ArrivalDate: {fromSelection: leg3.arrivalDate}
+        leg3ArrivalTime: {fromSelection: leg3.arrivalTime}
+        leg3Origin: {fromSelection: leg3.departure}
+        leg3Destination: {fromSelection: leg3.arrival}
+        leg3ClassOfService: {fromSelection: leg3.classOfService}
+
+    - node: createWorkbench
+      dependsOn: [priceOfferFullPayload]
+
+    - node: addOfferFullPayload
+      description: "Add multi-city offer to workbench"
+      dependsOn: [createWorkbench, searchFlights3Leg]
+      selections:
+        leg1:
+          from: searchFlights3Leg.catalogProductOfferings
+          strategy: first
+        leg2:
+          from: searchFlights3Leg.catalogProductOfferings
+          strategy: index
+          index: 1
+        leg3:
+          from: searchFlights3Leg.catalogProductOfferings
+          strategy: index
+          index: 2
+      values:
+        workbenchId: {from: createWorkbench.workbenchId}
+        carrier: {fromSelection: leg1.carrier}
+        flightNumber: {fromSelection: leg1.flightNumber}
+        departureDate: {fromSelection: leg1.departureDate}
+        departureTime: {fromSelection: leg1.departureTime}
+        arrivalDate: {fromSelection: leg1.arrivalDate}
+        arrivalTime: {fromSelection: leg1.arrivalTime}
+        origin: {fromSelection: leg1.departure}
+        destination: {fromSelection: leg1.arrival}
+        classOfService: {fromSelection: leg1.classOfService}
+        leg2Carrier: {fromSelection: leg2.carrier}
+        leg2FlightNumber: {fromSelection: leg2.flightNumber}
+        leg2DepartureDate: {fromSelection: leg2.departureDate}
+        leg2DepartureTime: {fromSelection: leg2.departureTime}
+        leg2ArrivalDate: {fromSelection: leg2.arrivalDate}
+        leg2ArrivalTime: {fromSelection: leg2.arrivalTime}
+        leg2Origin: {fromSelection: leg2.departure}
+        leg2Destination: {fromSelection: leg2.arrival}
+        leg2ClassOfService: {fromSelection: leg2.classOfService}
+        leg3Carrier: {fromSelection: leg3.carrier}
+        leg3FlightNumber: {fromSelection: leg3.flightNumber}
+        leg3DepartureDate: {fromSelection: leg3.departureDate}
+        leg3DepartureTime: {fromSelection: leg3.departureTime}
+        leg3ArrivalDate: {fromSelection: leg3.arrivalDate}
+        leg3ArrivalTime: {fromSelection: leg3.arrivalTime}
+        leg3Origin: {fromSelection: leg3.departure}
+        leg3Destination: {fromSelection: leg3.arrival}
+        leg3ClassOfService: {fromSelection: leg3.classOfService}
+
+    - node: addTraveler
+      dependsOn: [createWorkbench]
+      values:
+        workbenchId: {from: createWorkbench.workbenchId}
+        givenName: Test
+        surname: Traveler
+        birthDate: "1990-01-15"
+        gender: Male
+
+    - node: addFormOfPaymentCash
+      dependsOn: [createWorkbench]
+      values:
+        workbenchId: {from: createWorkbench.workbenchId}
+
+    - node: addPayment
+      dependsOn: [addOfferFullPayload, addTraveler, addFormOfPaymentCash, createWorkbench, priceOfferFullPayload]
+      values:
+        workbenchId: {from: createWorkbench.workbenchId}
+        amount: {from: priceOfferFullPayload.totalPrice}
+        currencyCode: {from: priceOfferFullPayload.currencyCode}
+        fopIdentifierValue: {from: addFormOfPaymentCash.fopIdentifierValue}
+        offerIdentifierValue: {from: addOfferFullPayload.offerIdentifierValue}
+        offerId: {from: priceOfferFullPayload.offerId}
+        offerAuthority: {from: addOfferFullPayload.offerAuthority}
+
+    - node: commitReservation
+      dependsOn: [addPayment, createWorkbench]
+      isGoal: true
+      values:
+        workbenchId: {from: createWorkbench.workbenchId}
+
+  cleanup:
+    - node: ignoreWorkbench
+      runOn: always
