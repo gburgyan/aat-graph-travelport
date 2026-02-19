@@ -4,19 +4,25 @@
 # same array. The LLM fills origins, destinations, dates, and traveler details.
 
 intent:
-  description: "Book a multi-city flight with two legs"
+  description: "Book a multi-city (including round-trip) flight with two legs"
 
 execution:
   steps:
     - node: searchFlights2Leg
       description: "Search for multi-city flights"
       values:
-        leg1Origin: "[IATA airport code (ORD)]"
-        leg1Destination: "[IATA airport code (LAX)]"
-        leg1DepartureDate: "{{today + 14 days}}"
-        leg2Origin: "[IATA airport code (LAX)]"
-        leg2Destination: "[IATA airport code (DEN)]"
-        leg2DepartureDate: "{{today + 21 days}}"
+        leg1Origin: {pool: [DEN, ORD, ATL, DFW, IAH, PHX, MSP]}
+        leg1Destination:
+          pool: [SFO, LAX, SEA, BOS, MIA, EWR, IAD]
+          constraint: "value != leg1Origin"
+        leg1DepartureDate:
+          pool: ["{{today + 7 days}}", "{{today + 8 days}}", "{{today + 9 days}}", "{{today + 10 days}}", "{{today + 14 days}}"]
+        leg2Origin: {fromResolved: leg1Destination}
+        leg2Destination:
+          pool: [SFO, LAX, SEA, BOS, MIA, EWR, IAD]
+          constraint: "value != leg2Origin"
+        leg2DepartureDate:
+          pool: ["{{today + 20 days}}", "{{today + 21 days}}", "{{today + 22 days}}", "{{today + 23 days}}", "{{today + 28 days}}"]
 
     - node: priceOfferFullPayload
       description: "Price the selected leg 1 and leg 2 flights"
@@ -88,10 +94,10 @@ execution:
       dependsOn: [createWorkbench]
       values:
         workbenchId: {from: createWorkbench.workbenchId}
-        givenName: Test
-        surname: Traveler
-        birthDate: "1990-01-15"
-        gender: Male
+        givenName: {pool: [James, Maria, Robert, Sarah, David, Emily, Michael, Ana, William, Sofia]}
+        surname: {pool: [Smith, Johnson, Garcia, Williams, Martinez, Brown, Lee, Wilson, Anderson, Taylor]}
+        birthDate: {pool: ["1985-03-15", "1990-07-22", "1978-11-08", "1995-01-30", "1982-06-17"]}
+        gender: {pool: [Male, Female]}
 
     - node: addFormOfPaymentCash
       dependsOn: [createWorkbench]

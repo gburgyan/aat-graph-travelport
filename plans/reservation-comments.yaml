@@ -10,4 +10,4 @@ execution:
       description: "Add a reservation comment"
       values:
         workbenchId: AUTOWIRE
-        commentName: RE
+        commentName: {pool: [RE, RI, RN]}

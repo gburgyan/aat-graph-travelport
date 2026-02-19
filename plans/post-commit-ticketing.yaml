@@ -21,8 +21,8 @@ execution:
       dependsOn: [addFormOfPaymentCash, createWorkbenchFromLocator]
       values:
         workbenchId: {from: createWorkbenchFromLocator.workbenchId}
-        amount: 100.00
-        currencyCode: USD
+        amount: {pool: [50.00, 100.00, 150.00, 250.00, 500.00]}
+        currencyCode: {pool: [USD, EUR, GBP, CAD, AUD]}
         fopIdentifierValue: {from: addFormOfPaymentCash.fopIdentifierValue}
         offerIdentifierValue: {from: createWorkbenchFromLocator.offerIdentifierValue}
         offerId: {from: createWorkbenchFromLocator.offerId}

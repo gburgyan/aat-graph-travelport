@@ -10,5 +10,5 @@ execution:
       description: "Add document overrides"
       values:
         workbenchId: AUTOWIRE
-        commissionAmount: 0
-        commissionCurrencyCode: USD
+        commissionAmount: {pool: [0, 5, 10, 15, 25]}
+        commissionCurrencyCode: {pool: [USD, EUR, GBP, CAD, AUD]}

@@ -24,9 +24,12 @@ execution:
       values:
         reservationIdentifier: {from: createWorkbenchFromLocator.workbenchId}
         offerIdentifierValue: {from: createWorkbenchFromLocator.offerIdentifierValue}
-        origin: DEN
-        destination: SFO
-        departureDate: "{{today + 14 days}}"
+        origin: {pool: [DEN, ORD, ATL, DFW, IAH, PHX, MSP]}
+        destination:
+          pool: [SFO, LAX, SEA, BOS, MIA, EWR, IAD]
+          constraint: "value != origin"
+        departureDate:
+          pool: ["{{today + 7 days}}", "{{today + 10 days}}", "{{today + 14 days}}", "{{today + 21 days}}", "{{today + 30 days}}"]
 
     - node: addExchangeOffer
       description: "Add the selected exchange offer to the workbench"

@@ -3,19 +3,22 @@
 # return flights based on the selected outbound offering.
 
 intent:
-  description: "Book a round-trip flight MEL→SYD→MEL using leg-based search"
+  description: "Book a round-trip flight using leg-based search"
 
 execution:
   steps:
     - node: searchFlights
-      description: "Search for outbound flights MEL→SYD"
+      description: "Search for outbound flights"
       values:
-        origin: MEL
-        destination: SYD
-        departureDate: "{{today + 14 days}}"
+        origin: {pool: [DEN, ORD, ATL, DFW, IAH, PHX, MSP]}
+        destination:
+          pool: [SFO, LAX, SEA, BOS, MIA, EWR, IAD]
+          constraint: "value != origin"
+        departureDate:
+          pool: ["{{today + 7 days}}", "{{today + 8 days}}", "{{today + 9 days}}", "{{today + 10 days}}", "{{today + 14 days}}"]
 
     - node: searchFlightsNextLeg
-      description: "Search for return flights SYD→MEL based on selected outbound"
+      description: "Search for return flights based on selected outbound"
       dependsOn: [searchFlights]
       selections:
         outbound:
@@ -43,8 +46,8 @@ execution:
         departureTime: {fromSelection: outbound.departureTime}
         arrivalDate: {fromSelection: outbound.arrivalDate}
         arrivalTime: {fromSelection: outbound.arrivalTime}
-        origin: MEL
-        destination: SYD
+        origin: {fromSelection: outbound.departure}
+        destination: {fromSelection: outbound.arrival}
         classOfService: {fromSelection: outbound.classOfService}
         returnCarrier: {fromSelection: inbound.carrier}
         returnFlightNumber: {fromSelection: inbound.flightNumber}
@@ -52,8 +55,8 @@ execution:
         returnDepartureTime: {fromSelection: inbound.departureTime}
         returnArrivalDate: {fromSelection: inbound.arrivalDate}
         returnArrivalTime: {fromSelection: inbound.arrivalTime}
-        returnOrigin: SYD
-        returnDestination: MEL
+        returnOrigin: {fromSelection: inbound.departure}
+        returnDestination: {fromSelection: inbound.arrival}
         returnClassOfService: {fromSelection: inbound.classOfService}
 
     - node: createWorkbench
@@ -77,25 +80,25 @@ execution:
         departureTime: {fromSelection: outbound.departureTime}
         arrivalDate: {fromSelection: outbound.arrivalDate}
         arrivalTime: {fromSelection: outbound.arrivalTime}
-        origin: MEL
-        destination: SYD
+        origin: {fromSelection: outbound.departure}
+        destination: {fromSelection: outbound.arrival}
         returnCarrier: {fromSelection: inbound.carrier}
         returnFlightNumber: {fromSelection: inbound.flightNumber}
         returnDepartureDate: {fromSelection: inbound.departureDate}
         returnDepartureTime: {fromSelection: inbound.departureTime}
         returnArrivalDate: {fromSelection: inbound.arrivalDate}
         returnArrivalTime: {fromSelection: inbound.arrivalTime}
-        returnOrigin: SYD
-        returnDestination: MEL
+        returnOrigin: {fromSelection: inbound.departure}
+        returnDestination: {fromSelection: inbound.arrival}
 
     - node: addTraveler
       dependsOn: [createWorkbench]
       values:
         workbenchId: {from: createWorkbench.workbenchId}
-        givenName: Test
-        surname: Traveler
-        birthDate: "1990-01-15"
-        gender: Male
+        givenName: {pool: [James, Maria, Robert, Sarah, David, Emily, Michael, Ana, William, Sofia]}
+        surname: {pool: [Smith, Johnson, Garcia, Williams, Martinez, Brown, Lee, Wilson, Anderson, Taylor]}
+        birthDate: {pool: ["1985-03-15", "1990-07-22", "1978-11-08", "1995-01-30", "1982-06-17"]}
+        gender: {pool: [Male, Female]}
 
     - node: addFormOfPaymentCash
       dependsOn: [createWorkbench]

@@ -1,27 +1,24 @@
 # Round-trip flight booking using journey-based search.
 # searchFlights returns offerings for BOTH legs when returnDate is provided.
 # Two named selections (outbound/inbound) pick different elements from the
-# same array based on departure airport.
+# same array: outbound at index 0, inbound at index 1.
 
 intent:
-  description: "Book a round-trip flight MEL→SYD→MEL on Qantas"
-  constraints:
-    hard:
-      - type: carrier
-        name: Qantas
-        description: "Carrier must be QF"
-        applies_to: [searchFlights]
+  description: "Book a round-trip flight using journey-based search"
 
 execution:
   steps:
     - node: searchFlights
-      description: "Search for round-trip flights MEL↔SYD on Qantas"
+      description: "Search for round-trip flights"
       values:
-        origin: MEL
-        destination: SYD
-        departureDate: "{{today + 14 days}}"
-        returnDate: "{{today + 21 days}}"
-        carrierPreference: QF
+        origin: {pool: [DEN, ORD, ATL, DFW, IAH, PHX, MSP]}
+        destination:
+          pool: [SFO, LAX, SEA, BOS, MIA, EWR, IAD]
+          constraint: "value != origin"
+        departureDate:
+          pool: ["{{today + 7 days}}", "{{today + 8 days}}", "{{today + 9 days}}", "{{today + 10 days}}", "{{today + 14 days}}"]
+        returnDate:
+          pool: ["{{today + 18 days}}", "{{today + 21 days}}", "{{today + 25 days}}", "{{today + 28 days}}", "{{today + 35 days}}"]
 
     - node: priceOfferFullPayload
       description: "Price the selected outbound and return flights"
@@ -29,12 +26,11 @@ execution:
       selections:
         outbound:
           from: searchFlights.catalogProductOfferings
-          strategy: match
-          filter: "departure == 'MEL'"
+          strategy: first
         inbound:
           from: searchFlights.catalogProductOfferings
-          strategy: match
-          filter: "departure == 'SYD'"
+          strategy: index
+          index: 1
       values:
         carrier: {fromSelection: outbound.carrier}
         flightNumber: {fromSelection: outbound.flightNumber}
@@ -64,12 +60,11 @@ execution:
       selections:
         outbound:
           from: searchFlights.catalogProductOfferings
-          strategy: match
-          filter: "departure == 'MEL'"
+          strategy: first
         inbound:
           from: searchFlights.catalogProductOfferings
-          strategy: match
-          filter: "departure == 'SYD'"
+          strategy: index
+          index: 1
       values:
         workbenchId: {from: createWorkbench.workbenchId}
         carrier: {fromSelection: outbound.carrier}
@@ -93,10 +88,10 @@ execution:
       dependsOn: [createWorkbench]
       values:
         workbenchId: {from: createWorkbench.workbenchId}
-        givenName: Test
-        surname: Traveler
-        birthDate: "1990-01-15"
-        gender: Male
+        givenName: {pool: [James, Maria, Robert, Sarah, David, Emily, Michael, Ana, William, Sofia]}
+        surname: {pool: [Smith, Johnson, Garcia, Williams, Martinez, Brown, Lee, Wilson, Anderson, Taylor]}
+        birthDate: {pool: ["1985-03-15", "1990-07-22", "1978-11-08", "1995-01-30", "1982-06-17"]}
+        gender: {pool: [Male, Female]}
 
     - node: addFormOfPaymentCash
       dependsOn: [createWorkbench]
