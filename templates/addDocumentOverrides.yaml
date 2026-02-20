@@ -20,14 +20,17 @@ request:
               }
             }
           }
-        ],
+        ]
+        {{?restriction}},
         "Restrictions": [
           {
             "Restriction": [
               "{{restriction}}"
             ]
           }
-        ],
+        ]
+        {{/restriction}}
+        {{?tourCode}},
         "TourCodes": [
           {
             "TourCode": {
@@ -35,14 +38,17 @@ request:
               "value": "{{tourCode}}"
             }
           }
-        ],
+        ]
+        {{/tourCode}}
+        {{?changeFeeCode}},
         "ChangeFeeCollectionMethod": {
           "code": "{{changeFeeCode}}",
           "value": "{{changeFeeMethod}}"
         }
+        {{/changeFeeCode}}
       }
     }
 
 response:
   extract:
-    documentOverridesId: "DocumentOverridesResponse.DocumentOverrides.id"
+    documentOverridesId: "DocumentOverridesResponse.DocumentOverrides.Identifier.value"
