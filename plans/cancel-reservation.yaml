@@ -9,5 +9,3 @@ execution:
     - node: cancelReservation
       description: "Cancel the reservation by PNR locator"
       isGoal: true
-      values:
-        locator: ABCDEF

@@ -10,4 +10,3 @@ execution:
       description: "Add an accounting remark"
       values:
         workbenchId: AUTOWIRE
-        accountingName: IN

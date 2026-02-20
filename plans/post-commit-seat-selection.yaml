@@ -10,8 +10,6 @@ execution:
   steps:
     - node: createWorkbenchFromLocator
       description: "Open workbench from the existing booking PNR"
-      values:
-        locator: ABCDEF
 
     - node: retrieveWorkbench
       description: "Retrieve workbench to get offer and product identifiers"

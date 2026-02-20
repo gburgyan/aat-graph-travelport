@@ -9,8 +9,6 @@ execution:
   steps:
     - node: createWorkbenchFromLocator
       description: "Open workbench from the impacted PNR"
-      values:
-        locator: ABCDEF
 
     - node: commitReservation
       description: "Commit with schedule change acceptance"

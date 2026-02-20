@@ -9,13 +9,6 @@ execution:
   steps:
     - node: searchFlights
       description: "Search for one-way flights"
-      values:
-        origin: {pool: [DEN, ORD, ATL, DFW, IAH, PHX, MSP]}
-        destination:
-          pool: [SFO, LAX, SEA, BOS, MIA, EWR, IAD]
-          constraint: "value != origin"
-        departureDate:
-          pool: ["{{today + 7 days}}", "{{today + 10 days}}", "{{today + 14 days}}", "{{today + 21 days}}", "{{today + 30 days}}"]
 
     - node: priceOfferFullPayload
       description: "Price the selected flight using full payload"
@@ -60,10 +53,6 @@ execution:
       dependsOn: [createWorkbench]
       values:
         workbenchId: {from: createWorkbench.workbenchId}
-        givenName: {pool: [James, Maria, Robert, Sarah, David, Emily, Michael, Ana, William, Sofia]}
-        surname: {pool: [Smith, Johnson, Garcia, Williams, Martinez, Brown, Lee, Wilson, Anderson, Taylor]}
-        birthDate: {pool: ["1985-03-15", "1990-07-22", "1978-11-08", "1995-01-30", "1982-06-17"]}
-        gender: {pool: [Male, Female]}
 
     - node: addFormOfPaymentCash
       dependsOn: [createWorkbench]

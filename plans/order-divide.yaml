@@ -9,8 +9,6 @@ execution:
   steps:
     - node: createWorkbenchFromLocator
       description: "Open workbench from the multi-traveler PNR"
-      values:
-        locator: ABCDEF
 
     - node: divideReservation
       description: "Divide the reservation to split the traveler"

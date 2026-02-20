@@ -199,6 +199,10 @@ nodes:
       - name: origin
         type: string
         description: "Departure airport/city code (3-letter IATA)"
+        configurable: true
+        optional: true
+        default:
+          pool: [DEN, ORD, ATL, DFW, IAH, PHX, MSP]
         constraints:
           minLength: 3
           maxLength: 3
@@ -207,6 +211,11 @@ nodes:
       - name: destination
         type: string
         description: "Arrival airport/city code (3-letter IATA)"
+        configurable: true
+        optional: true
+        default:
+          pool: [SFO, LAX, SEA, BOS, MIA, EWR, IAD]
+          constraint: "value != origin"
         constraints:
           minLength: 3
           maxLength: 3
@@ -215,6 +224,10 @@ nodes:
       - name: departureDate
         type: date
         description: "Departure date (YYYY-MM-DD)"
+        configurable: true
+        optional: true
+        default:
+          pool: ["{{today + 7 days}}", "{{today + 10 days}}", "{{today + 14 days}}", "{{today + 21 days}}", "{{today + 30 days}}"]
       - name: passengers
         type: integer
         description: "Number of adult passengers (1-9)"
@@ -326,6 +339,10 @@ nodes:
       - name: leg1Origin
         type: string
         description: "Leg 1 departure airport/city code (3-letter IATA)"
+        configurable: true
+        optional: true
+        default:
+          pool: [DEN, ORD, ATL, DFW, IAH, PHX, MSP]
         constraints:
           minLength: 3
           maxLength: 3
@@ -334,6 +351,11 @@ nodes:
       - name: leg1Destination
         type: string
         description: "Leg 1 arrival airport/city code (3-letter IATA)"
+        configurable: true
+        optional: true
+        default:
+          pool: [SFO, LAX, SEA, BOS, MIA, EWR, IAD]
+          constraint: "value != leg1Origin"
         constraints:
           minLength: 3
           maxLength: 3
@@ -342,6 +364,10 @@ nodes:
       - name: leg1DepartureDate
         type: date
         description: "Leg 1 departure date (YYYY-MM-DD)"
+        configurable: true
+        optional: true
+        default:
+          pool: ["{{today + 7 days}}", "{{today + 8 days}}", "{{today + 9 days}}", "{{today + 10 days}}", "{{today + 14 days}}"]
       - name: passengers
         type: integer
         description: "Number of adult passengers (1-9)"
@@ -392,6 +418,10 @@ nodes:
       - name: leg2Origin
         type: string
         description: "Leg 2 departure airport/city code (3-letter IATA)"
+        configurable: true
+        optional: true
+        default:
+          fromResolved: leg1Destination
         constraints:
           minLength: 3
           maxLength: 3
@@ -400,6 +430,11 @@ nodes:
       - name: leg2Destination
         type: string
         description: "Leg 2 arrival airport/city code (3-letter IATA)"
+        configurable: true
+        optional: true
+        default:
+          pool: [SFO, LAX, SEA, BOS, MIA, EWR, IAD]
+          constraint: "value != leg2Origin"
         constraints:
           minLength: 3
           maxLength: 3
@@ -408,6 +443,10 @@ nodes:
       - name: leg2DepartureDate
         type: date
         description: "Leg 2 departure date (YYYY-MM-DD)"
+        configurable: true
+        optional: true
+        default:
+          pool: ["{{today + 20 days}}", "{{today + 21 days}}", "{{today + 22 days}}", "{{today + 23 days}}", "{{today + 28 days}}"]
     outputs:
       - name: catalogProductOfferings
         type: offering[]
@@ -467,6 +506,10 @@ nodes:
       - name: leg1Origin
         type: string
         description: "Leg 1 departure airport/city code (3-letter IATA)"
+        configurable: true
+        optional: true
+        default:
+          pool: [DEN, ORD, ATL, DFW, IAH, PHX, MSP]
         constraints:
           minLength: 3
           maxLength: 3
@@ -475,6 +518,11 @@ nodes:
       - name: leg1Destination
         type: string
         description: "Leg 1 arrival airport/city code (3-letter IATA)"
+        configurable: true
+        optional: true
+        default:
+          pool: [SFO, LAX, SEA, BOS, MIA, EWR, IAD]
+          constraint: "value != leg1Origin"
         constraints:
           minLength: 3
           maxLength: 3
@@ -483,6 +531,10 @@ nodes:
       - name: leg1DepartureDate
         type: date
         description: "Leg 1 departure date (YYYY-MM-DD)"
+        configurable: true
+        optional: true
+        default:
+          pool: ["{{today + 7 days}}", "{{today + 8 days}}", "{{today + 9 days}}", "{{today + 10 days}}", "{{today + 14 days}}"]
       - name: passengers
         type: integer
         description: "Number of adult passengers (1-9)"
@@ -533,6 +585,10 @@ nodes:
       - name: leg2Origin
         type: string
         description: "Leg 2 departure airport/city code (3-letter IATA)"
+        configurable: true
+        optional: true
+        default:
+          fromResolved: leg1Destination
         constraints:
           minLength: 3
           maxLength: 3
@@ -541,6 +597,11 @@ nodes:
       - name: leg2Destination
         type: string
         description: "Leg 2 arrival airport/city code (3-letter IATA)"
+        configurable: true
+        optional: true
+        default:
+          pool: [SFO, LAX, SEA, BOS, MIA, EWR, IAD]
+          constraint: "value != leg2Origin"
         constraints:
           minLength: 3
           maxLength: 3
@@ -549,9 +610,17 @@ nodes:
       - name: leg2DepartureDate
         type: date
         description: "Leg 2 departure date (YYYY-MM-DD)"
+        configurable: true
+        optional: true
+        default:
+          pool: ["{{today + 20 days}}", "{{today + 21 days}}", "{{today + 22 days}}", "{{today + 23 days}}", "{{today + 28 days}}"]
       - name: leg3Origin
         type: string
         description: "Leg 3 departure airport/city code (3-letter IATA)"
+        configurable: true
+        optional: true
+        default:
+          fromResolved: leg2Destination
         constraints:
           minLength: 3
           maxLength: 3
@@ -560,6 +629,11 @@ nodes:
       - name: leg3Destination
         type: string
         description: "Leg 3 arrival airport/city code (3-letter IATA)"
+        configurable: true
+        optional: true
+        default:
+          pool: [SFO, LAX, SEA, BOS, MIA, EWR, IAD]
+          constraint: "value != leg3Origin"
         constraints:
           minLength: 3
           maxLength: 3
@@ -568,6 +642,10 @@ nodes:
       - name: leg3DepartureDate
         type: date
         description: "Leg 3 departure date (YYYY-MM-DD)"
+        configurable: true
+        optional: true
+        default:
+          pool: ["{{today + 34 days}}", "{{today + 35 days}}", "{{today + 36 days}}", "{{today + 37 days}}", "{{today + 42 days}}"]
     outputs:
       - name: catalogProductOfferings
         type: offering[]
@@ -627,6 +705,10 @@ nodes:
       - name: leg1Origin
         type: string
         description: "Leg 1 departure airport/city code (3-letter IATA)"
+        configurable: true
+        optional: true
+        default:
+          pool: [DEN, ORD, ATL, DFW, IAH, PHX, MSP]
         constraints:
           minLength: 3
           maxLength: 3
@@ -635,6 +717,11 @@ nodes:
       - name: leg1Destination
         type: string
         description: "Leg 1 arrival airport/city code (3-letter IATA)"
+        configurable: true
+        optional: true
+        default:
+          pool: [SFO, LAX, SEA, BOS, MIA, EWR, IAD]
+          constraint: "value != leg1Origin"
         constraints:
           minLength: 3
           maxLength: 3
@@ -643,6 +730,10 @@ nodes:
       - name: leg1DepartureDate
         type: date
         description: "Leg 1 departure date (YYYY-MM-DD)"
+        configurable: true
+        optional: true
+        default:
+          pool: ["{{today + 7 days}}", "{{today + 8 days}}", "{{today + 9 days}}", "{{today + 10 days}}", "{{today + 14 days}}"]
       - name: passengers
         type: integer
         description: "Number of adult passengers (1-9)"
@@ -693,6 +784,10 @@ nodes:
       - name: leg2Origin
         type: string
         description: "Leg 2 departure airport/city code (3-letter IATA)"
+        configurable: true
+        optional: true
+        default:
+          fromResolved: leg1Destination
         constraints:
           minLength: 3
           maxLength: 3
@@ -701,6 +796,11 @@ nodes:
       - name: leg2Destination
         type: string
         description: "Leg 2 arrival airport/city code (3-letter IATA)"
+        configurable: true
+        optional: true
+        default:
+          pool: [SFO, LAX, SEA, BOS, MIA, EWR, IAD]
+          constraint: "value != leg2Origin"
         constraints:
           minLength: 3
           maxLength: 3
@@ -709,9 +809,17 @@ nodes:
       - name: leg2DepartureDate
         type: date
         description: "Leg 2 departure date (YYYY-MM-DD)"
+        configurable: true
+        optional: true
+        default:
+          pool: ["{{today + 20 days}}", "{{today + 21 days}}", "{{today + 22 days}}", "{{today + 23 days}}", "{{today + 28 days}}"]
       - name: leg3Origin
         type: string
         description: "Leg 3 departure airport/city code (3-letter IATA)"
+        configurable: true
+        optional: true
+        default:
+          fromResolved: leg2Destination
         constraints:
           minLength: 3
           maxLength: 3
@@ -720,6 +828,11 @@ nodes:
       - name: leg3Destination
         type: string
         description: "Leg 3 arrival airport/city code (3-letter IATA)"
+        configurable: true
+        optional: true
+        default:
+          pool: [SFO, LAX, SEA, BOS, MIA, EWR, IAD]
+          constraint: "value != leg3Origin"
         constraints:
           minLength: 3
           maxLength: 3
@@ -728,9 +841,17 @@ nodes:
       - name: leg3DepartureDate
         type: date
         description: "Leg 3 departure date (YYYY-MM-DD)"
+        configurable: true
+        optional: true
+        default:
+          pool: ["{{today + 34 days}}", "{{today + 35 days}}", "{{today + 36 days}}", "{{today + 37 days}}", "{{today + 42 days}}"]
       - name: leg4Origin
         type: string
         description: "Leg 4 departure airport/city code (3-letter IATA)"
+        configurable: true
+        optional: true
+        default:
+          fromResolved: leg3Destination
         constraints:
           minLength: 3
           maxLength: 3
@@ -739,6 +860,11 @@ nodes:
       - name: leg4Destination
         type: string
         description: "Leg 4 arrival airport/city code (3-letter IATA)"
+        configurable: true
+        optional: true
+        default:
+          pool: [SFO, LAX, SEA, BOS, MIA, EWR, IAD]
+          constraint: "value != leg4Origin"
         constraints:
           minLength: 3
           maxLength: 3
@@ -747,6 +873,10 @@ nodes:
       - name: leg4DepartureDate
         type: date
         description: "Leg 4 departure date (YYYY-MM-DD)"
+        configurable: true
+        optional: true
+        default:
+          pool: ["{{today + 48 days}}", "{{today + 49 days}}", "{{today + 50 days}}", "{{today + 51 days}}", "{{today + 56 days}}"]
     outputs:
       - name: catalogProductOfferings
         type: offering[]
@@ -1148,7 +1278,7 @@ nodes:
       - name: locator
         type: string
         description: "PNR record locator (e.g., ABCDEF)"
-
+        default: ABCDEF
         constraints:
           minLength: 6
           maxLength: 6
@@ -1451,12 +1581,16 @@ nodes:
       - name: givenName
         type: string
         description: "Traveler first/given name"
+        default:
+          pool: [James, Maria, Robert, Sarah, David, Emily, Michael, Ana, William, Sofia]
         constraints:
           minLength: 1
           maxLength: 50
       - name: surname
         type: string
         description: "Traveler last/family name"
+        default:
+          pool: [Smith, Johnson, Garcia, Williams, Martinez, Brown, Lee, Wilson, Anderson, Taylor]
         constraints:
           minLength: 1
           maxLength: 50
@@ -1464,12 +1598,14 @@ nodes:
         type: enum[Male, Female, Unknown, Undisclosed]
         description: "Traveler gender"
         optional: true
-        default: Male
+        default:
+          pool: [Male, Female]
       - name: birthDate
         type: date
         description: "Traveler date of birth (YYYY-MM-DD)"
         optional: true
-        default: "1990-01-15"
+        default:
+          pool: ["1985-03-15", "1990-07-22", "1978-11-08", "1995-01-30", "1982-06-17"]
       - name: passengerTypeCode
         type: string
         description: "Passenger type code (ADT, CNN, INF)"
@@ -1534,9 +1670,11 @@ nodes:
       - name: email
         type: string
         description: "Contact email address"
+        default: "test@example.com"
       - name: phoneNumber
         type: string
         description: "Contact phone number"
+        default: "5551234567"
         constraints:
           minLength: 7
           maxLength: 15
@@ -1587,9 +1725,13 @@ nodes:
       - name: cardNumber
         type: string
         description: "Credit card number"
+        default:
+          pool: ["4111111111111111", "4222222222222222", "5500005555555559"]
       - name: cardExpiry
         type: string
         description: "Card expiration (MMYY format)"
+        default:
+          pool: ["1228", "0629", "1230"]
         constraints:
           minLength: 4
           maxLength: 4
@@ -1603,6 +1745,8 @@ nodes:
       - name: cardHolderName
         type: string
         description: "Name on the card"
+        default:
+          pool: [James Smith, Maria Garcia, Robert Johnson]
       - name: cvv
         type: string
         description: "Card security code"
@@ -1777,7 +1921,7 @@ nodes:
       - name: locator
         type: string
         description: "PNR record locator"
-
+        default: ABCDEF
         constraints:
           minLength: 6
           maxLength: 6
@@ -1954,6 +2098,7 @@ nodes:
       - name: locator
         type: string
         description: "PNR record locator"
+        default: ABCDEF
         constraints:
           minLength: 6
           maxLength: 6
@@ -2002,6 +2147,10 @@ nodes:
       - name: origin
         type: string
         description: "New departure airport/city code"
+        configurable: true
+        optional: true
+        default:
+          pool: [DEN, ORD, ATL, DFW, IAH, PHX, MSP]
         constraints:
           minLength: 3
           maxLength: 3
@@ -2010,6 +2159,11 @@ nodes:
       - name: destination
         type: string
         description: "New arrival airport/city code"
+        configurable: true
+        optional: true
+        default:
+          pool: [SFO, LAX, SEA, BOS, MIA, EWR, IAD]
+          constraint: "value != origin"
         constraints:
           minLength: 3
           maxLength: 3
@@ -2018,6 +2172,10 @@ nodes:
       - name: departureDate
         type: date
         description: "New departure date"
+        configurable: true
+        optional: true
+        default:
+          pool: ["{{today + 7 days}}", "{{today + 10 days}}", "{{today + 14 days}}", "{{today + 21 days}}", "{{today + 30 days}}"]
     outputs:
       - name: exchangeOfferings
         type: offering[]
@@ -2160,10 +2318,14 @@ nodes:
         type: float
         description: "Commission amount"
         optional: true
+        default:
+          pool: [0, 5, 10, 15, 25]
       - name: commissionCurrencyCode
         type: string
         description: "Commission currency code"
         optional: true
+        default:
+          pool: [USD, EUR, GBP, CAD, AUD]
       - name: restriction
         type: string
         description: "Restriction text (e.g., NON Exchange)"
@@ -2199,9 +2361,13 @@ nodes:
       - name: commentName
         type: string
         description: "Comment category code (RE=general, RI=itinerary, RN=notepad, RH=historical, RV=vendor)"
+        default:
+          pool: [RE, RI, RN, RH, RV]
       - name: commentValue
         type: string
         description: "Comment text"
+        default:
+          pool: ["Test remark", "API test comment", "Automated test note"]
     outputs:
       - name: reservationCommentId
         type: string
@@ -2237,9 +2403,13 @@ nodes:
       - name: accountingName
         type: string
         description: "Accounting field name code (IN=invoice, AN=accounting number, AC=account code)"
+        default:
+          pool: [IN, AN, AC]
       - name: accountingValue
         type: string
         description: "Accounting field value"
+        default:
+          pool: ["INV-001", "ACC-12345", "CODE-789"]
     outputs:
       - name: accountingId
         type: string
@@ -2278,10 +2448,14 @@ nodes:
       - name: ssrCode
         type: string
         description: "SSR code (e.g., WCHR, VGML, BLND)"
+        default:
+          pool: [WCHR, WCHS, WCHC, VGML, BLND]
       - name: text
         type: string
         description: "Free-text SSR description"
         optional: true
+        default:
+          pool: ["Wheelchair assistance needed", "Steps assistance required", "Wheelchair to cabin seat"]
     outputs:
       - name: specialServiceId
         type: string
@@ -2443,6 +2617,7 @@ nodes:
       - name: locator
         type: string
         description: "PNR record locator"
+        default: ABCDEF
         constraints:
           minLength: 6
           maxLength: 6
@@ -2464,6 +2639,7 @@ nodes:
       - name: locator
         type: string
         description: "PNR record locator to cancel"
+        default: ABCDEF
         constraints:
           minLength: 6
           maxLength: 6
@@ -2482,6 +2658,7 @@ nodes:
       - name: locator
         type: string
         description: "PNR record locator"
+        default: ABCDEF
         constraints:
           minLength: 6
           maxLength: 6
@@ -2599,12 +2776,16 @@ nodes:
       - name: corporateCode
         type: string
         description: "Corporate code for the travel agency"
+        default:
+          pool: [CORP001, TESTCO, AGENCY1]
       - name: email
         type: string
         description: "Travel agency email"
+        default: "agency@example.com"
       - name: phoneNumber
         type: string
         description: "Travel agency phone number"
+        default: "5559876543"
         constraints:
           minLength: 7
           maxLength: 15

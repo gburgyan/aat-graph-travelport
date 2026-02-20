@@ -9,8 +9,6 @@ execution:
   steps:
     - node: getTicketByLocator
       description: "Retrieve tickets for the PNR"
-      values:
-        locator: ABCDEF
 
     - node: voidTicket
       description: "Void the selected ticket"

@@ -9,8 +9,6 @@ execution:
   steps:
     - node: createWorkbenchFromLocator
       description: "Open workbench from the existing booking PNR"
-      values:
-        locator: ABCDEF
 
     - node: searchAncillaries
       description: "Search for available ancillary services"

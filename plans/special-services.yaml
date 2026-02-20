@@ -10,5 +10,3 @@ execution:
       description: "Add the special service request"
       values:
         workbenchId: AUTOWIRE
-        ssrCode: {pool: [WCHR, WCHS, WCHC]}
-        text: {pool: ["Wheelchair assistance needed", "Steps assistance required", "Wheelchair to cabin seat"]}

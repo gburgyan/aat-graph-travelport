@@ -9,8 +9,6 @@ execution:
   steps:
     - node: createWorkbenchFromLocator
       description: "Open workbench from the held booking PNR"
-      values:
-        locator: ABCDEF
 
     - node: addFormOfPaymentCash
       dependsOn: [createWorkbenchFromLocator]
