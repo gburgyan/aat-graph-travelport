@@ -1,0 +1,10 @@
+name: travelport
+description: Travelport JSON API integration testing
+tags: [travel, api, booking]
+
+graph: graph.yaml
+templates: templates/
+domain: domain.yaml
+plans: plans/
+archives: runs/
+environment: env.yaml
