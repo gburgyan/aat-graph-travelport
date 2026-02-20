@@ -26,11 +26,13 @@ workflows:
     template: plans/ancillary-booking.yaml
   - name: Seat Selection
     kind: addon
-    after: priceOfferFullPayload
+    after: [priceOfferFullPayload, priceOfferReference]
     description: "Search seat map and add seat offer"
     template: plans/seat-selection.yaml
     wire:
-      offerListIdentifier: priceOfferFullPayload.offerIdentifierValue
+      offerListIdentifier: $after.offerIdentifierValue
+      offerId: $after.offerId
+      productId: $after.productId
   - name: Traveler Modification
     kind: addon
     after: addTraveler
@@ -1069,9 +1071,15 @@ nodes:
         description: "Leg 4 Product identifiers"
         optional: true
     outputs:
+      - name: offerIdentifierValue
+        type: string
+        description: "OfferListResponse Identifier.value from price response"
       - name: offerId
         type: string
         description: "Offer id from the price response"
+      - name: productId
+        type: string
+        description: "First product id from the price response"
       - name: totalPrice
         type: float
         description: "Total price amount"
@@ -2508,13 +2516,7 @@ nodes:
       - name: travelerIdentifierValue
         type: string
         description: "Traveler Identifier.value to associate the ancillary with"
-    outputs:
-      - name: offerIdentifierValue
-        type: string
-        description: "Offer Identifier.value of the added ancillary"
-      - name: offerId
-        type: string
-        description: "Offer id of the added ancillary"
+    outputs: []
 
   addSeatOffer:
     description: "Add a seat offer to the workbench from seat map catalog offerings."
@@ -2537,13 +2539,7 @@ nodes:
       - name: seatAssignment
         type: string
         description: "Seat number (e.g., 12A)"
-    outputs:
-      - name: offerIdentifierValue
-        type: string
-        description: "Offer Identifier.value of the added seat"
-      - name: offerId
-        type: string
-        description: "Offer id of the added seat"
+    outputs: []
 
   # ============================================================
   # DELETE OPERATIONS

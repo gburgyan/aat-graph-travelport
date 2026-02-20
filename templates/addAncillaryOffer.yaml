@@ -34,6 +34,4 @@ request:
     }
 
 response:
-  extract:
-    offerIdentifierValue: "OfferListResponse.OfferID.0.Identifier.value"
-    offerId: "OfferListResponse.OfferID.0.id"
+  extract: {}

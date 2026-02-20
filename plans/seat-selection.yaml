@@ -12,6 +12,8 @@ execution:
       description: "Request seat availability for the flight segment"
       values:
         offerListIdentifier: AUTOWIRE
+        offerId: AUTOWIRE
+        productId: AUTOWIRE
 
     - node: addSeatOffer
       description: "Add the selected seat to the workbench"
