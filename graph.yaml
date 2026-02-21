@@ -74,12 +74,12 @@ workflows:
     kind: addon
     after: addTraveler
     description: "Search and add ancillary services (bags, meals, etc.)"
-    template: workflows/ancillary-booking.yaml
+    template: workflows/addons/ancillary-booking.yaml
   - name: Seat Selection
     kind: addon
     after: [priceOfferFullPayload, priceOfferReference]
     description: "Search seat map and add seat offer"
-    template: workflows/seat-selection.yaml
+    template: workflows/addons/seat-selection.yaml
     wire:
       offerListIdentifier: $after.offerIdentifierValue
       offerId: $after.offerId
@@ -88,7 +88,7 @@ workflows:
     kind: addon
     after: addTraveler
     description: "Two-step traveler update: discover updatable fields, then apply changes"
-    template: workflows/traveler-modification.yaml
+    template: workflows/addons/traveler-modification.yaml
     wire:
       travelerId: addTraveler.travelerIdentifierValue
   - name: Post-Commit Seat Selection
@@ -113,32 +113,32 @@ workflows:
     kind: addon
     after: addTraveler
     description: "Add special service requests (wheelchair, meal preference, etc.)"
-    template: workflows/special-services.yaml
+    template: workflows/addons/special-services.yaml
   - name: Reservation Comments
     kind: addon
     after: addTraveler
     description: "Add reservation comments/remarks"
-    template: workflows/reservation-comments.yaml
+    template: workflows/addons/reservation-comments.yaml
   - name: Accounting Remarks
     kind: addon
     after: addTraveler
     description: "Add accounting remarks to the reservation"
-    template: workflows/accounting-remarks.yaml
+    template: workflows/addons/accounting-remarks.yaml
   - name: Document Overrides
     kind: addon
     after: addTraveler
     description: "Add document overrides (commissions, restrictions, tour codes)"
-    template: workflows/document-overrides.yaml
+    template: workflows/addons/document-overrides.yaml
   - name: Primary Contact
     kind: addon
     after: addTraveler
     description: "Add a primary contact (email/phone) to the reservation"
-    template: workflows/primary-contact.yaml
+    template: workflows/addons/primary-contact.yaml
   - name: Travel Agency
     kind: addon
     after: addTraveler
     description: "Add travel agency details to the reservation"
-    template: workflows/travel-agency.yaml
+    template: workflows/addons/travel-agency.yaml
 
   # Post-commit addons — attach after commitReservation
   - name: Post-Commit Seat Selection Addon
@@ -146,7 +146,7 @@ workflows:
     after: commitReservation
     priority: 20
     description: "Add seat selection to an existing booking (post-commit)"
-    template: workflows/post-commit-seat-addon.yaml
+    template: workflows/addons/post-commit-seat-addon.yaml
     wire:
       locator: commitReservation.locator
   - name: Post-Commit Ancillary Addon
@@ -154,7 +154,7 @@ workflows:
     after: commitReservation
     priority: 20
     description: "Add ancillary services to an existing booking (post-commit)"
-    template: workflows/post-commit-ancillary-addon.yaml
+    template: workflows/addons/post-commit-ancillary-addon.yaml
     wire:
       locator: commitReservation.locator
   - name: Cancel Booking
@@ -162,7 +162,7 @@ workflows:
     after: commitReservation
     priority: 90
     description: "Cancel the reservation after booking (lifecycle test)"
-    template: workflows/cancel-addon.yaml
+    template: workflows/addons/cancel-addon.yaml
     wire:
       locator: commitReservation.locator
   - name: Void Ticket
@@ -170,7 +170,7 @@ workflows:
     after: commitReservation
     priority: 80
     description: "Void tickets after booking (requires ticketed booking)"
-    template: workflows/ticket-void-addon.yaml
+    template: workflows/addons/ticket-void-addon.yaml
     wire:
       locator: commitReservation.locator
   - name: Post-Commit Ticketing Addon
@@ -178,7 +178,7 @@ workflows:
     after: commitReservation
     priority: 30
     description: "Issue tickets for a held booking (post-commit)"
-    template: workflows/post-commit-ticketing-addon.yaml
+    template: workflows/addons/post-commit-ticketing-addon.yaml
     wire:
       locator: commitReservation.locator
   - name: Retrieve Booking
@@ -186,7 +186,7 @@ workflows:
     after: commitReservation
     priority: 10
     description: "Retrieve and verify the reservation after booking"
-    template: workflows/retrieve-reservation-addon.yaml
+    template: workflows/addons/retrieve-reservation-addon.yaml
     wire:
       identifier: commitReservation.locator
   - name: Fare Rules Check
@@ -194,7 +194,7 @@ workflows:
     after: commitReservation
     priority: 10
     description: "Check fare rules on the committed reservation"
-    template: workflows/fare-rules-addon.yaml
+    template: workflows/addons/fare-rules-addon.yaml
     wire:
       locator: commitReservation.locator
 
