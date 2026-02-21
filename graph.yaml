@@ -1122,7 +1122,6 @@ nodes:
       - name: classOfService
         type: string
         description: "Class of service code from the selected flight"
-        optional: true
       - name: passengers
         type: integer
         description: "Number of adult passengers"
@@ -1453,7 +1452,6 @@ nodes:
       - name: classOfService
         type: string
         description: "Class of service code from the selected flight"
-        optional: true
       # Return leg inputs (for round-trip booking)
       - name: returnCarrier
         type: string
@@ -1695,7 +1693,6 @@ nodes:
       - name: travelerIdentifierValue
         type: string
         description: "Traveler Identifier.value to associate the contact with"
-        optional: true
     outputs:
       - name: primaryContactId
         type: string
@@ -1759,6 +1756,8 @@ nodes:
         type: string
         description: "Card security code"
         optional: true
+        default:
+          pool: ["123", "456", "789"]
     outputs:
       - name: fopIdentifierValue
         type: string
