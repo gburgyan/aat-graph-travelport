@@ -5,6 +5,6 @@ tags: [travel, api, booking]
 graph: graph.yaml
 templates: templates/
 domain: domain.yaml
-plans: plans/
+workflows: workflows/
 archives: runs/
 environment: env.yaml

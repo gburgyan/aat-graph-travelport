@@ -9,26 +9,26 @@ description: |
 workflows:
   - name: Full-Payload Booking
     description: "[BROKEN - unreliable for connecting flights] Recommended flow sending complete trip details (carrier, flight, class) instead of references"
-    template: plans/oneway-fullpayload.yaml
+    template: workflows/oneway-fullpayload.yaml
   - name: 1-Leg Reference Booking
     description: "Default one-way booking using reference identifiers. Use this for any single-leg flight."
-    template: plans/oneway-reference.yaml
+    template: workflows/oneway-reference.yaml
   - name: Post-Commit Ticketing
     description: "Separate ticketing after a held booking"
-    template: plans/post-commit-ticketing.yaml
+    template: workflows/post-commit-ticketing.yaml
   - name: Exchange
     description: "Full exchange workflow: eligibility check, search, offer, FOP, document overrides, reissue"
-    template: plans/exchange.yaml
+    template: workflows/exchange.yaml
   - name: Ancillary Booking
     kind: addon
     after: addTraveler
     description: "Search and add ancillary services (bags, meals, etc.)"
-    template: plans/ancillary-booking.yaml
+    template: workflows/ancillary-booking.yaml
   - name: Seat Selection
     kind: addon
     after: [priceOfferFullPayload, priceOfferReference]
     description: "Search seat map and add seat offer"
-    template: plans/seat-selection.yaml
+    template: workflows/seat-selection.yaml
     wire:
       offerListIdentifier: $after.offerIdentifierValue
       offerId: $after.offerId
@@ -37,78 +37,78 @@ workflows:
     kind: addon
     after: addTraveler
     description: "Two-step traveler update: discover updatable fields, then apply changes"
-    template: plans/traveler-modification.yaml
+    template: workflows/traveler-modification.yaml
     wire:
       travelerId: addTraveler.travelerIdentifierValue
   - name: Round-Trip Full-Payload Booking
     description: "[BROKEN - unreliable for connecting flights] Journey-based round-trip: search both legs in one call, price and book with return leg details"
-    template: plans/roundtrip-journey.yaml
+    template: workflows/roundtrip-journey.yaml
   - name: 3-City Multi-City Booking
     description: "[BROKEN - unreliable for connecting flights] Multi-city booking A->B->C: journey-based search with two legs"
-    template: plans/multicity-3city.yaml
+    template: workflows/multicity-3city.yaml
   - name: 4-City Multi-City Booking
     description: "[BROKEN - unreliable for connecting flights] Multi-city booking A->B->C->D: journey-based search with three legs"
-    template: plans/multicity-4city.yaml
+    template: workflows/multicity-4city.yaml
   - name: 2-Leg Reference Booking
     description: "Default 2-leg booking (round-trip, open jaw, or multi-city A->B->C) using leg-based search with BuildNext and reference pricing. Use this for any round-trip or 2-leg itinerary."
-    template: plans/multicity-3city-legbased.yaml
+    template: workflows/multicity-3city-legbased.yaml
   - name: 3-Leg Reference Booking
     description: "Default 3-leg multi-city booking (A->B->C->D) using leg-based search with BuildNext and reference pricing"
-    template: plans/multicity-4city-legbased.yaml
+    template: workflows/multicity-4city-legbased.yaml
   - name: 4-Leg Reference Booking
     description: "Default 4-leg multi-city booking (A->B->C->D->E) using leg-based search with BuildNext and reference pricing"
-    template: plans/multicity-5city-legbased.yaml
+    template: workflows/multicity-5city-legbased.yaml
   - name: Round-Trip Leg-Based Booking
     description: "[BROKEN - unreliable for connecting flights] Leg-based round-trip: search outbound, next-leg search for return, then price and book"
-    template: plans/roundtrip-legbased.yaml
+    template: workflows/roundtrip-legbased.yaml
   - name: Post-Commit Seat Selection
     description: "Select and assign seats on an existing booking using the post-commit seat map"
-    template: plans/post-commit-seat-selection.yaml
+    template: workflows/post-commit-seat-selection.yaml
   - name: Post-Commit Ancillary
     description: "Add ancillary services (bags, meals, etc.) to an existing booking"
-    template: plans/post-commit-ancillary.yaml
+    template: workflows/post-commit-ancillary.yaml
   - name: Involuntary Schedule Change
     description: "Accept an involuntary schedule change on an impacted PNR"
-    template: plans/involuntary-schedule-change.yaml
+    template: workflows/involuntary-schedule-change.yaml
   - name: Ticket Void
     description: "Void a ticket on an existing booking"
-    template: plans/ticket-void.yaml
+    template: workflows/ticket-void.yaml
   - name: Cancel Reservation
     description: "Cancel an entire PNR reservation"
-    template: plans/cancel-reservation.yaml
+    template: workflows/cancel-reservation.yaml
   - name: Order Divide
     description: "Split a traveler out of a multi-traveler PNR into a separate reservation"
-    template: plans/order-divide.yaml
+    template: workflows/order-divide.yaml
   - name: Special Services
     kind: addon
     after: addTraveler
     description: "Add special service requests (wheelchair, meal preference, etc.)"
-    template: plans/special-services.yaml
+    template: workflows/special-services.yaml
   - name: Reservation Comments
     kind: addon
     after: addTraveler
     description: "Add reservation comments/remarks"
-    template: plans/reservation-comments.yaml
+    template: workflows/reservation-comments.yaml
   - name: Accounting Remarks
     kind: addon
     after: addTraveler
     description: "Add accounting remarks to the reservation"
-    template: plans/accounting-remarks.yaml
+    template: workflows/accounting-remarks.yaml
   - name: Document Overrides
     kind: addon
     after: addTraveler
     description: "Add document overrides (commissions, restrictions, tour codes)"
-    template: plans/document-overrides.yaml
+    template: workflows/document-overrides.yaml
   - name: Primary Contact
     kind: addon
     after: addTraveler
     description: "Add a primary contact (email/phone) to the reservation"
-    template: plans/primary-contact.yaml
+    template: workflows/primary-contact.yaml
   - name: Travel Agency
     kind: addon
     after: addTraveler
     description: "Add travel agency details to the reservation"
-    template: plans/travel-agency.yaml
+    template: workflows/travel-agency.yaml
 
   # Post-commit addons — attach after commitReservation
   - name: Post-Commit Seat Selection Addon
@@ -116,7 +116,7 @@ workflows:
     after: commitReservation
     priority: 20
     description: "Add seat selection to an existing booking (post-commit)"
-    template: plans/post-commit-seat-addon.yaml
+    template: workflows/post-commit-seat-addon.yaml
     wire:
       locator: commitReservation.locator
   - name: Post-Commit Ancillary Addon
@@ -124,7 +124,7 @@ workflows:
     after: commitReservation
     priority: 20
     description: "Add ancillary services to an existing booking (post-commit)"
-    template: plans/post-commit-ancillary-addon.yaml
+    template: workflows/post-commit-ancillary-addon.yaml
     wire:
       locator: commitReservation.locator
   - name: Cancel Booking
@@ -132,7 +132,7 @@ workflows:
     after: commitReservation
     priority: 90
     description: "Cancel the reservation after booking (lifecycle test)"
-    template: plans/cancel-addon.yaml
+    template: workflows/cancel-addon.yaml
     wire:
       locator: commitReservation.locator
   - name: Void Ticket
@@ -140,7 +140,7 @@ workflows:
     after: commitReservation
     priority: 80
     description: "Void tickets after booking (requires ticketed booking)"
-    template: plans/ticket-void-addon.yaml
+    template: workflows/ticket-void-addon.yaml
     wire:
       locator: commitReservation.locator
   - name: Post-Commit Ticketing Addon
@@ -148,7 +148,7 @@ workflows:
     after: commitReservation
     priority: 30
     description: "Issue tickets for a held booking (post-commit)"
-    template: plans/post-commit-ticketing-addon.yaml
+    template: workflows/post-commit-ticketing-addon.yaml
     wire:
       locator: commitReservation.locator
   - name: Retrieve Booking
@@ -156,7 +156,7 @@ workflows:
     after: commitReservation
     priority: 10
     description: "Retrieve and verify the reservation after booking"
-    template: plans/retrieve-reservation-addon.yaml
+    template: workflows/retrieve-reservation-addon.yaml
     wire:
       identifier: commitReservation.locator
   - name: Fare Rules Check
@@ -164,7 +164,7 @@ workflows:
     after: commitReservation
     priority: 10
     description: "Check fare rules on the committed reservation"
-    template: plans/fare-rules-addon.yaml
+    template: workflows/fare-rules-addon.yaml
     wire:
       locator: commitReservation.locator
 
