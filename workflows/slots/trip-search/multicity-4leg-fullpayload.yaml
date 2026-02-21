@@ -1,18 +1,14 @@
-# Multi-city 4-city booking template.
-# Journey-based search with three legs in a single search call.
-# Three named selections (leg1/leg2/leg3) pick different elements from the
-# same array. The LLM fills origins, destinations, dates, and traveler details.
-
-intent:
-  description: "Book a multi-city flight with three legs"
+# Multi-city 4-leg trip-search slot: journey-based search + full-payload pricing + addOffer.
+# searchFlights3Leg returns offerings for all three legs in a single call.
+# Three named selections (leg1/leg2/leg3) pick different elements from the same array.
 
 execution:
   steps:
     - node: searchFlights3Leg
-      description: "Search for multi-city flights"
+      description: "Search for multi-city flights (journey-based: all legs in one call)"
 
     - node: priceOfferFullPayload
-      description: "Price the selected leg 1, leg 2, and leg 3 flights"
+      description: "Price the selected leg 1, leg 2, and leg 3 flights using full payload"
       dependsOn: [searchFlights3Leg]
       selections:
         leg1:
@@ -55,12 +51,9 @@ execution:
         leg3Destination: {fromSelection: leg3.arrival}
         leg3ClassOfService: {fromSelection: leg3.classOfService}
 
-    - node: createWorkbench
-      dependsOn: [priceOfferFullPayload]
-
     - node: addOfferFullPayload
-      description: "Add multi-city offer to workbench"
-      dependsOn: [createWorkbench, searchFlights3Leg]
+      description: "Add multi-city offer to workbench using full payload"
+      dependsOn: [priceOfferFullPayload, createWorkbench, searchFlights3Leg]
       selections:
         leg1:
           from: searchFlights3Leg.catalogProductOfferings
@@ -102,34 +95,3 @@ execution:
         leg3Origin: {fromSelection: leg3.departure}
         leg3Destination: {fromSelection: leg3.arrival}
         leg3ClassOfService: {fromSelection: leg3.classOfService}
-
-    - node: addTraveler
-      dependsOn: [createWorkbench]
-      values:
-        workbenchId: {from: createWorkbench.workbenchId}
-
-    - node: addFormOfPaymentCash
-      dependsOn: [createWorkbench]
-      values:
-        workbenchId: {from: createWorkbench.workbenchId}
-
-    - node: addPayment
-      dependsOn: [addOfferFullPayload, addTraveler, addFormOfPaymentCash, createWorkbench, priceOfferFullPayload]
-      values:
-        workbenchId: {from: createWorkbench.workbenchId}
-        amount: {from: priceOfferFullPayload.totalPrice}
-        currencyCode: {from: priceOfferFullPayload.currencyCode}
-        fopIdentifierValue: {from: addFormOfPaymentCash.fopIdentifierValue}
-        offerIdentifierValue: {from: addOfferFullPayload.offerIdentifierValue}
-        offerId: {from: priceOfferFullPayload.offerId}
-        offerAuthority: {from: addOfferFullPayload.offerAuthority}
-
-    - node: commitReservation
-      dependsOn: [addPayment, createWorkbench]
-      isGoal: true
-      values:
-        workbenchId: {from: createWorkbench.workbenchId}
-
-  cleanup:
-    - node: ignoreWorkbench
-      runOn: always

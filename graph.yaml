@@ -7,12 +7,63 @@ description: |
   modification workflows.
 
 workflows:
-  - name: Full-Payload Booking
-    description: "[BROKEN - unreliable for connecting flights] Recommended flow sending complete trip details (carrier, flight, class) instead of references"
-    template: workflows/oneway-fullpayload.yaml
-  - name: 1-Leg Reference Booking
-    description: "Default one-way booking using reference identifiers. Use this for any single-leg flight."
-    template: workflows/oneway-reference.yaml
+  # === Slot-based Booking workflow ===
+  - name: Booking
+    description: "Book a flight. Choose trip type and payment method."
+    template: workflows/booking-base.yaml
+    slots:
+      - name: trip-search
+        description: "How to search for and price flights"
+        options: [One-Way, Round-Trip, Multi-City 3-Leg, Multi-City 4-Leg, One-Way Full-Payload, Round-Trip Full-Payload, Multi-City 3-Leg Full-Payload, Multi-City 4-Leg Full-Payload]
+        default: One-Way
+      - name: payment
+        description: "Form of payment"
+        options: [Cash]
+        default: Cash
+
+  # --- Trip-search slot options ---
+  - name: One-Way
+    kind: slot
+    description: "One-way flight: single search + reference pricing"
+    template: workflows/slots/trip-search/oneway.yaml
+  - name: Round-Trip
+    kind: slot
+    description: "Round-trip or 2-leg itinerary: leg-based search with BuildNext + reference pricing"
+    template: workflows/slots/trip-search/roundtrip.yaml
+  - name: Multi-City 3-Leg
+    kind: slot
+    description: "3-leg multi-city itinerary: leg-based search with 2x BuildNext + reference pricing"
+    template: workflows/slots/trip-search/multicity-3leg.yaml
+  - name: Multi-City 4-Leg
+    kind: slot
+    description: "4-leg multi-city itinerary: leg-based search with 3x BuildNext + reference pricing"
+    template: workflows/slots/trip-search/multicity-4leg.yaml
+
+  # --- Trip-search full-payload slot options ---
+  - name: One-Way Full-Payload
+    kind: slot
+    description: "One-way flight: single search + full-payload pricing (sends flight details)"
+    template: workflows/slots/trip-search/oneway-fullpayload.yaml
+  - name: Round-Trip Full-Payload
+    kind: slot
+    description: "Round-trip: journey-based search + full-payload pricing (sends flight details)"
+    template: workflows/slots/trip-search/roundtrip-fullpayload.yaml
+  - name: Multi-City 3-Leg Full-Payload
+    kind: slot
+    description: "3-leg multi-city: journey-based search + full-payload pricing (sends flight details)"
+    template: workflows/slots/trip-search/multicity-3leg-fullpayload.yaml
+  - name: Multi-City 4-Leg Full-Payload
+    kind: slot
+    description: "4-leg multi-city: journey-based search + full-payload pricing (sends flight details)"
+    template: workflows/slots/trip-search/multicity-4leg-fullpayload.yaml
+
+  # --- Payment slot options ---
+  - name: Cash
+    kind: slot
+    description: "Cash form of payment"
+    template: workflows/slots/payment/cash.yaml
+
+  # === Standalone (non-booking) workflows ===
   - name: Post-Commit Ticketing
     description: "Separate ticketing after a held booking"
     template: workflows/post-commit-ticketing.yaml
@@ -40,27 +91,6 @@ workflows:
     template: workflows/traveler-modification.yaml
     wire:
       travelerId: addTraveler.travelerIdentifierValue
-  - name: Round-Trip Full-Payload Booking
-    description: "[BROKEN - unreliable for connecting flights] Journey-based round-trip: search both legs in one call, price and book with return leg details"
-    template: workflows/roundtrip-journey.yaml
-  - name: 3-City Multi-City Booking
-    description: "[BROKEN - unreliable for connecting flights] Multi-city booking A->B->C: journey-based search with two legs"
-    template: workflows/multicity-3city.yaml
-  - name: 4-City Multi-City Booking
-    description: "[BROKEN - unreliable for connecting flights] Multi-city booking A->B->C->D: journey-based search with three legs"
-    template: workflows/multicity-4city.yaml
-  - name: 2-Leg Reference Booking
-    description: "Default 2-leg booking (round-trip, open jaw, or multi-city A->B->C) using leg-based search with BuildNext and reference pricing. Use this for any round-trip or 2-leg itinerary."
-    template: workflows/multicity-3city-legbased.yaml
-  - name: 3-Leg Reference Booking
-    description: "Default 3-leg multi-city booking (A->B->C->D) using leg-based search with BuildNext and reference pricing"
-    template: workflows/multicity-4city-legbased.yaml
-  - name: 4-Leg Reference Booking
-    description: "Default 4-leg multi-city booking (A->B->C->D->E) using leg-based search with BuildNext and reference pricing"
-    template: workflows/multicity-5city-legbased.yaml
-  - name: Round-Trip Leg-Based Booking
-    description: "[BROKEN - unreliable for connecting flights] Leg-based round-trip: search outbound, next-leg search for return, then price and book"
-    template: workflows/roundtrip-legbased.yaml
   - name: Post-Commit Seat Selection
     description: "Select and assign seats on an existing booking using the post-commit seat map"
     template: workflows/post-commit-seat-selection.yaml

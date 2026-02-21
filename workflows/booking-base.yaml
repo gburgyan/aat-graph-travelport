@@ -1,0 +1,42 @@
+# Booking base template with slot markers.
+# Slots: trip-search (search + price + addOffer), payment (form of payment).
+# createWorkbench runs independently in parallel with search.
+
+intent:
+  description: "Book a flight"
+
+execution:
+  steps:
+    - node: createWorkbench
+      description: "Create a reservation workbench (booking session)"
+
+    - slot: trip-search
+
+    - node: addTraveler
+      dependsOn: [trip-search]
+      values:
+        workbenchId: {from: createWorkbench.workbenchId}
+
+    - slot: payment
+      dependsOn: [trip-search]
+
+    - node: addPayment
+      dependsOn: [trip-search, payment, addTraveler]
+      values:
+        workbenchId: {from: createWorkbench.workbenchId}
+        amount: AUTOWIRE
+        currencyCode: AUTOWIRE
+        fopIdentifierValue: AUTOWIRE
+        offerIdentifierValue: AUTOWIRE
+        offerId: AUTOWIRE
+        offerAuthority: AUTOWIRE
+
+    - node: commitReservation
+      dependsOn: [addPayment]
+      isGoal: true
+      values:
+        workbenchId: {from: createWorkbench.workbenchId}
+
+  cleanup:
+    - node: ignoreWorkbench
+      runOn: always

@@ -1,11 +1,4 @@
-# Multi-city 3-city leg-based booking template.
-# Leg-based search: initial search sends both legs with SearchRepresentation=Leg,
-# API returns only leg 1 offerings. BuildNext with leg 1 selection returns
-# [selected_leg1, leg2_options...]. Reference pricing uses IDs only — no flight
-# details needed, which correctly handles connecting flights.
-
-intent:
-  description: "Book a 2-leg flight (round-trip, open jaw, or multi-city) using reference-based flow"
+# Round-trip (2-leg) trip-search slot: leg-based search with BuildNext + reference pricing.
 
 execution:
   steps:
@@ -45,12 +38,9 @@ execution:
         leg2OfferingId: {fromSelection: leg2.offeringId}
         leg2ProductIds: {fromSelection: leg2.productIds}
 
-    - node: createWorkbench
-      dependsOn: [priceOfferReference]
-
     - node: addOfferReference
-      description: "Add multi-city offer to workbench using reference identifiers"
-      dependsOn: [createWorkbench, searchFlights2Leg, searchNextLeg2]
+      description: "Add multi-leg offer to workbench using reference identifiers"
+      dependsOn: [priceOfferReference, createWorkbench, searchFlights2Leg, searchNextLeg2]
       selections:
         leg1:
           from: searchFlights2Leg.catalogProductOfferings
@@ -66,34 +56,3 @@ execution:
         productIds: {fromSelection: leg1.productIds}
         leg2OfferingId: {fromSelection: leg2.offeringId}
         leg2ProductIds: {fromSelection: leg2.productIds}
-
-    - node: addTraveler
-      dependsOn: [createWorkbench]
-      values:
-        workbenchId: {from: createWorkbench.workbenchId}
-
-    - node: addFormOfPaymentCash
-      dependsOn: [createWorkbench]
-      values:
-        workbenchId: {from: createWorkbench.workbenchId}
-
-    - node: addPayment
-      dependsOn: [addOfferReference, addTraveler, addFormOfPaymentCash, createWorkbench, priceOfferReference]
-      values:
-        workbenchId: {from: createWorkbench.workbenchId}
-        amount: {from: priceOfferReference.totalPrice}
-        currencyCode: {from: priceOfferReference.currencyCode}
-        fopIdentifierValue: {from: addFormOfPaymentCash.fopIdentifierValue}
-        offerIdentifierValue: {from: addOfferReference.offerIdentifierValue}
-        offerId: {from: priceOfferReference.offerId}
-        offerAuthority: {from: addOfferReference.offerAuthority}
-
-    - node: commitReservation
-      dependsOn: [addPayment, createWorkbench]
-      isGoal: true
-      values:
-        workbenchId: {from: createWorkbench.workbenchId}
-
-  cleanup:
-    - node: ignoreWorkbench
-      runOn: always

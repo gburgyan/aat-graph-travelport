@@ -1,0 +1,44 @@
+# One-way trip-search slot: single search + full-payload pricing + addOffer.
+# Sends complete flight details (carrier, flight number, times, class) instead of references.
+
+execution:
+  steps:
+    - node: searchFlights
+      description: "Search for one-way flights"
+
+    - node: priceOfferFullPayload
+      description: "Price the selected flight using full payload (carrier, flight, class details)"
+      dependsOn: [searchFlights]
+      selections:
+        offering:
+          from: searchFlights.catalogProductOfferings
+          strategy: first
+      values:
+        carrier: {fromSelection: offering.carrier}
+        flightNumber: {fromSelection: offering.flightNumber}
+        departureDate: {fromSelection: offering.departureDate}
+        departureTime: {fromSelection: offering.departureTime}
+        arrivalDate: {fromSelection: offering.arrivalDate}
+        arrivalTime: {fromSelection: offering.arrivalTime}
+        origin: {fromSelection: offering.departure}
+        destination: {fromSelection: offering.arrival}
+        classOfService: {fromSelection: offering.classOfService}
+
+    - node: addOfferFullPayload
+      description: "Add the priced offer to the workbench using full payload"
+      dependsOn: [priceOfferFullPayload, createWorkbench, searchFlights]
+      selections:
+        offering:
+          from: searchFlights.catalogProductOfferings
+          strategy: first
+      values:
+        workbenchId: {from: createWorkbench.workbenchId}
+        carrier: {fromSelection: offering.carrier}
+        flightNumber: {fromSelection: offering.flightNumber}
+        departureDate: {fromSelection: offering.departureDate}
+        departureTime: {fromSelection: offering.departureTime}
+        arrivalDate: {fromSelection: offering.arrivalDate}
+        arrivalTime: {fromSelection: offering.arrivalTime}
+        origin: {fromSelection: offering.departure}
+        destination: {fromSelection: offering.arrival}
+        classOfService: {fromSelection: offering.classOfService}

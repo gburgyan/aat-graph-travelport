@@ -1,15 +1,11 @@
-# Round-trip flight booking using journey-based search.
+# Round-trip trip-search slot: journey-based search + full-payload pricing + addOffer.
 # searchFlights returns offerings for BOTH legs when returnDate is provided.
-# Two named selections (outbound/inbound) pick different elements from the
-# same array: outbound at index 0, inbound at index 1.
-
-intent:
-  description: "Book a round-trip flight using journey-based search"
+# Two named selections (outbound/inbound) pick different elements from the same array.
 
 execution:
   steps:
     - node: searchFlights
-      description: "Search for round-trip flights"
+      description: "Search for round-trip flights (journey-based: both legs in one call)"
       values:
         departureDate:
           pool: ["{{today + 7 days}}", "{{today + 8 days}}", "{{today + 9 days}}", "{{today + 10 days}}", "{{today + 14 days}}"]
@@ -17,7 +13,7 @@ execution:
           pool: ["{{today + 18 days}}", "{{today + 21 days}}", "{{today + 25 days}}", "{{today + 28 days}}", "{{today + 35 days}}"]
 
     - node: priceOfferFullPayload
-      description: "Price the selected outbound and return flights"
+      description: "Price the selected outbound and return flights using full payload"
       dependsOn: [searchFlights]
       selections:
         outbound:
@@ -47,12 +43,9 @@ execution:
         returnDestination: {fromSelection: inbound.arrival}
         returnClassOfService: {fromSelection: inbound.classOfService}
 
-    - node: createWorkbench
-      dependsOn: [priceOfferFullPayload]
-
     - node: addOfferFullPayload
-      description: "Add round-trip offer to workbench"
-      dependsOn: [createWorkbench, searchFlights]
+      description: "Add round-trip offer to workbench using full payload"
+      dependsOn: [priceOfferFullPayload, createWorkbench, searchFlights]
       selections:
         outbound:
           from: searchFlights.catalogProductOfferings
@@ -71,6 +64,7 @@ execution:
         arrivalTime: {fromSelection: outbound.arrivalTime}
         origin: {fromSelection: outbound.departure}
         destination: {fromSelection: outbound.arrival}
+        classOfService: {fromSelection: outbound.classOfService}
         returnCarrier: {fromSelection: inbound.carrier}
         returnFlightNumber: {fromSelection: inbound.flightNumber}
         returnDepartureDate: {fromSelection: inbound.departureDate}
@@ -79,34 +73,4 @@ execution:
         returnArrivalTime: {fromSelection: inbound.arrivalTime}
         returnOrigin: {fromSelection: inbound.departure}
         returnDestination: {fromSelection: inbound.arrival}
-
-    - node: addTraveler
-      dependsOn: [createWorkbench]
-      values:
-        workbenchId: {from: createWorkbench.workbenchId}
-
-    - node: addFormOfPaymentCash
-      dependsOn: [createWorkbench]
-      values:
-        workbenchId: {from: createWorkbench.workbenchId}
-
-    - node: addPayment
-      dependsOn: [addOfferFullPayload, addTraveler, addFormOfPaymentCash, createWorkbench, priceOfferFullPayload]
-      values:
-        workbenchId: {from: createWorkbench.workbenchId}
-        amount: {from: priceOfferFullPayload.totalPrice}
-        currencyCode: {from: priceOfferFullPayload.currencyCode}
-        fopIdentifierValue: {from: addFormOfPaymentCash.fopIdentifierValue}
-        offerIdentifierValue: {from: addOfferFullPayload.offerIdentifierValue}
-        offerId: {from: priceOfferFullPayload.offerId}
-        offerAuthority: {from: addOfferFullPayload.offerAuthority}
-
-    - node: commitReservation
-      dependsOn: [addPayment, createWorkbench]
-      isGoal: true
-      values:
-        workbenchId: {from: createWorkbench.workbenchId}
-
-  cleanup:
-    - node: ignoreWorkbench
-      runOn: always
+        returnClassOfService: {fromSelection: inbound.classOfService}

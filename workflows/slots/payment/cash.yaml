@@ -1,0 +1,8 @@
+# Cash payment slot: add cash form of payment.
+
+execution:
+  steps:
+    - node: addFormOfPaymentCash
+      description: "Add cash form of payment"
+      values:
+        workbenchId: {from: createWorkbench.workbenchId}

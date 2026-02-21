@@ -1,14 +1,4 @@
-# Multi-city 5-city (4-leg) leg-based booking template.
-# Leg-based search: initial search sends all four legs with SearchRepresentation=Leg,
-# API returns only leg 1 offerings. First BuildNext with leg 1 selection returns
-# [selected_leg1, leg2_options...]. Second BuildNext with leg 2 selection returns
-# [selected_leg1, selected_leg2, leg3_options...]. Third BuildNext with leg 3 selection
-# returns [selected_leg1, selected_leg2, selected_leg3, leg4_options...].
-# Reference pricing uses IDs only — no flight details needed, which correctly handles
-# connecting flights.
-
-intent:
-  description: "Book a 4-leg multi-city flight using reference-based flow"
+# Multi-city 4-leg trip-search slot: leg-based search with 3x BuildNext + reference pricing.
 
 execution:
   steps:
@@ -59,7 +49,7 @@ execution:
         productId: {fromSelection: leg3.productId}
 
     - node: priceOfferReference
-      description: "Price the selected leg 1, leg 2, leg 3, and leg 4 flights using reference identifiers"
+      description: "Price the selected leg 1, leg 2, leg 3, and leg 4 flights"
       dependsOn: [searchFlights4Leg, searchNextLeg2, searchNextLeg3, searchNextLeg4]
       selections:
         leg1:
@@ -88,12 +78,9 @@ execution:
         leg4OfferingId: {fromSelection: leg4.offeringId}
         leg4ProductIds: {fromSelection: leg4.productIds}
 
-    - node: createWorkbench
-      dependsOn: [priceOfferReference]
-
     - node: addOfferReference
       description: "Add multi-city offer to workbench using reference identifiers"
-      dependsOn: [createWorkbench, searchFlights4Leg, searchNextLeg2, searchNextLeg3, searchNextLeg4]
+      dependsOn: [priceOfferReference, createWorkbench, searchFlights4Leg, searchNextLeg2, searchNextLeg3, searchNextLeg4]
       selections:
         leg1:
           from: searchFlights4Leg.catalogProductOfferings
@@ -121,34 +108,3 @@ execution:
         leg3ProductIds: {fromSelection: leg3.productIds}
         leg4OfferingId: {fromSelection: leg4.offeringId}
         leg4ProductIds: {fromSelection: leg4.productIds}
-
-    - node: addTraveler
-      dependsOn: [createWorkbench]
-      values:
-        workbenchId: {from: createWorkbench.workbenchId}
-
-    - node: addFormOfPaymentCash
-      dependsOn: [createWorkbench]
-      values:
-        workbenchId: {from: createWorkbench.workbenchId}
-
-    - node: addPayment
-      dependsOn: [addOfferReference, addTraveler, addFormOfPaymentCash, createWorkbench, priceOfferReference]
-      values:
-        workbenchId: {from: createWorkbench.workbenchId}
-        amount: {from: priceOfferReference.totalPrice}
-        currencyCode: {from: priceOfferReference.currencyCode}
-        fopIdentifierValue: {from: addFormOfPaymentCash.fopIdentifierValue}
-        offerIdentifierValue: {from: addOfferReference.offerIdentifierValue}
-        offerId: {from: priceOfferReference.offerId}
-        offerAuthority: {from: addOfferReference.offerAuthority}
-
-    - node: commitReservation
-      dependsOn: [addPayment, createWorkbench]
-      isGoal: true
-      values:
-        workbenchId: {from: createWorkbench.workbenchId}
-
-  cleanup:
-    - node: ignoreWorkbench
-      runOn: always

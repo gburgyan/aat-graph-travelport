@@ -1,0 +1,31 @@
+# One-way trip-search slot: single search + reference pricing + addOffer.
+
+execution:
+  steps:
+    - node: searchFlights
+      description: "Search for one-way flights"
+
+    - node: priceOfferReference
+      description: "Price the selected flight using reference identifiers"
+      dependsOn: [searchFlights]
+      selections:
+        offering:
+          from: searchFlights.catalogProductOfferings
+          strategy: first
+      values:
+        catalogProductOfferingsId: {from: searchFlights.catalogProductOfferingsId}
+        offeringId: {fromSelection: offering.offeringId}
+        productIds: {fromSelection: offering.productIds}
+
+    - node: addOfferReference
+      description: "Add the priced offer to the workbench"
+      dependsOn: [priceOfferReference, createWorkbench]
+      selections:
+        offering:
+          from: searchFlights.catalogProductOfferings
+          strategy: first
+      values:
+        workbenchId: {from: createWorkbench.workbenchId}
+        catalogProductOfferingsId: {from: searchFlights.catalogProductOfferingsId}
+        offeringId: {fromSelection: offering.offeringId}
+        productIds: {fromSelection: offering.productIds}
