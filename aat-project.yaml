@@ -8,4 +8,5 @@ domain: domain.yaml
 workflows: workflows/
 plans: plans/
 archives: runs/
+traces: traces/
 environment: env.yaml
