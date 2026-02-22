@@ -1,0 +1,11 @@
+kind: recipe
+metadata:
+    created: 2026-02-22T10:19:48.428181-06:00
+    prompt: book a two leg trip
+    graphVersion: 1.0.0
+selection:
+    workflow: Booking
+    description: Book a flight using a 2-leg (round-trip) itinerary search and reference pricing, then create the reservation with cash form of payment.
+    choices:
+        payment: Cash
+        trip-search: Round-Trip

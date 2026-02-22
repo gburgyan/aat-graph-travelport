@@ -1,0 +1,17 @@
+kind: recipe
+metadata:
+    created: 2026-02-22T10:58:48.30873-06:00
+    prompt: book a two leg trip with a credit card, add document overrides and seats, retrieve the reservation, check fare rules, then cancel
+    graphVersion: 1.0.0
+selection:
+    workflow: Booking
+    description: Book a round-trip (2-leg) itinerary using credit card payment, add document overrides and seat selection during booking, then retrieve the committed reservation, check fare rules, and finally cancel the booking.
+    choices:
+        payment: Card
+        trip-search: Round-Trip
+    addons:
+        - Document Overrides
+        - Seat Selection
+        - Retrieve Booking
+        - Fare Rules Check
+        - Cancel Booking

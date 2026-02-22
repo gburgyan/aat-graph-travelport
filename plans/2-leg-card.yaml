@@ -1,0 +1,11 @@
+kind: recipe
+metadata:
+    created: 2026-02-22T10:56:45.766979-06:00
+    prompt: book a two leg trip with a credit card
+    graphVersion: 1.0.0
+selection:
+    workflow: Booking
+    description: Book a 2-leg (round-trip) itinerary using credit card form of payment, including search, pricing, traveler details, and commit.
+    choices:
+        payment: Card
+        trip-search: Round-Trip
