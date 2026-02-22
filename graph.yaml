@@ -1732,7 +1732,7 @@ nodes:
   # FORM OF PAYMENT
   # ============================================================
   addFormOfPaymentCash:
-    description: "Add cash as the form of payment."
+    description: "Add cash as the form of payment (use this as default unless otherwise specified)."
     adapter: addFormOfPaymentCash
     tags: [payment]
     requires: [workbenchCreated]
