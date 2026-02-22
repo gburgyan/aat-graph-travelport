@@ -24,7 +24,7 @@ execution:
       dependsOn: [trip-search, payment, addTraveler]
       values:
         workbenchId: {from: createWorkbench.workbenchId}
-        amount: AUTOWIRE
+        totalPrice: AUTOWIRE
         currencyCode: AUTOWIRE
         fopIdentifierValue: AUTOWIRE
         offerIdentifierValue: AUTOWIRE

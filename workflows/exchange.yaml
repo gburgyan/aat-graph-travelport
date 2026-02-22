@@ -42,7 +42,7 @@ execution:
       dependsOn: [addExchangeOffer, addFormOfPaymentForfeit, createWorkbenchFromLocator]
       values:
         workbenchId: {from: createWorkbenchFromLocator.workbenchId}
-        amount: {from: addExchangeOffer.totalPrice}
+        totalPrice: {from: addExchangeOffer.totalPrice}
         currencyCode: {from: addExchangeOffer.currencyCode}
         fopIdentifierValue: {from: addFormOfPaymentForfeit.fopIdentifierValue}
         offerIdentifierValue: {from: addExchangeOffer.offerIdentifierValue}

@@ -14,7 +14,7 @@ request:
         "code": "{{currencyCode}}",
         "minorUnit": 2,
         "currencySource": "Charged",
-        "value": {{amount}}
+        "value": {{totalPrice}}
       },
       "FormOfPaymentIdentifier": {
         "id": "formOfPayment_1",

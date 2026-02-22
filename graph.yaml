@@ -1806,9 +1806,9 @@ nodes:
       - name: workbenchId
         type: string
         description: "Reservation workbench Identifier.value"
-      - name: amount
+      - name: totalPrice
         type: float
-        description: "Payment amount"
+        description: "Total price amount"
       - name: currencyCode
         type: string
         description: "Currency code (e.g., USD, GBP)"
