@@ -1,0 +1,8 @@
+# Credit card payment slot: add credit card form of payment.
+
+execution:
+  steps:
+    - node: addFormOfPaymentCard
+      description: "Add credit card form of payment"
+      values:
+        workbenchId: {from: createWorkbench.workbenchId}

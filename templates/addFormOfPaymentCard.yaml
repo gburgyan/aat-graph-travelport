@@ -9,9 +9,13 @@ request:
   body: |
     {
       "@type": "FormOfPaymentPaymentCard",
+      "id": "formOfPayment_1",
+      "FormOfPaymentRef": "formOfPayment_1",
       "PaymentCard": {
         "@type": "PaymentCardDetail",
+        "id": "paymentCard_4",
         "expireDate": "{{cardExpiry}}",
+        "CardType": "Credit",
         "CardCode": "{{cardCode}}",
         "CardHolderName": "{{cardHolderName}}",
         "CardNumber": {

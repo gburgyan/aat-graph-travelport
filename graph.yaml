@@ -18,7 +18,7 @@ workflows:
         default: One-Way
       - name: payment
         description: "Form of payment"
-        options: [Cash]
+        options: [Cash, Card]
         default: Cash
 
   # --- Trip-search slot options ---
@@ -62,6 +62,10 @@ workflows:
     kind: slot
     description: "Cash form of payment"
     template: workflows/slots/payment/cash.yaml
+  - name: Card
+    kind: slot
+    description: "Credit card form of payment"
+    template: workflows/slots/payment/card.yaml
 
   # === Standalone (non-booking) workflows ===
   - name: Post-Commit Ticketing
