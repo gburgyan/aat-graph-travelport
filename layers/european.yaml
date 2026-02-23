@@ -1,0 +1,28 @@
+name: european
+description: European airport codes for intercontinental routes
+inputs:
+  # 1-leg search
+  searchFlights.origin: [CDG, LHR, FRA, AMS, FCO, MAD, BCN]
+  searchFlights.destination: [CDG, LHR, FRA, AMS, FCO, MAD, BCN]
+
+  # 2-leg search (leg2Origin is wired via fromResolved)
+  searchFlights2Leg.leg1Origin: [CDG, LHR, FRA, AMS, FCO, MAD, BCN]
+  searchFlights2Leg.leg1Destination: [CDG, LHR, FRA, AMS, FCO, MAD, BCN]
+  searchFlights2Leg.leg2Destination: [CDG, LHR, FRA, AMS, FCO, MAD, BCN]
+
+  # 3-leg search (leg2Origin, leg3Origin wired via fromResolved)
+  searchFlights3Leg.leg1Origin: [CDG, LHR, FRA, AMS, FCO, MAD, BCN]
+  searchFlights3Leg.leg1Destination: [CDG, LHR, FRA, AMS, FCO, MAD, BCN]
+  searchFlights3Leg.leg2Destination: [CDG, LHR, FRA, AMS, FCO, MAD, BCN]
+  searchFlights3Leg.leg3Destination: [CDG, LHR, FRA, AMS, FCO, MAD, BCN]
+
+  # 4-leg search (leg2Origin, leg3Origin, leg4Origin wired via fromResolved)
+  searchFlights4Leg.leg1Origin: [CDG, LHR, FRA, AMS, FCO, MAD, BCN]
+  searchFlights4Leg.leg1Destination: [CDG, LHR, FRA, AMS, FCO, MAD, BCN]
+  searchFlights4Leg.leg2Destination: [CDG, LHR, FRA, AMS, FCO, MAD, BCN]
+  searchFlights4Leg.leg3Destination: [CDG, LHR, FRA, AMS, FCO, MAD, BCN]
+  searchFlights4Leg.leg4Destination: [CDG, LHR, FRA, AMS, FCO, MAD, BCN]
+
+  # Exchange search
+  searchExchange.origin: [CDG, LHR, FRA, AMS, FCO, MAD, BCN]
+  searchExchange.destination: [CDG, LHR, FRA, AMS, FCO, MAD, BCN]

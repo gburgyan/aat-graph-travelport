@@ -1,0 +1,28 @@
+name: international
+description: International multi-region routes — US, Europe, Middle East, Southeast Asia, Australia (by leg)
+inputs:
+  # 1-leg search (US → Europe)
+  searchFlights.origin: [JFK, LAX, ORD, ATL, DFW, SFO, MIA]
+  searchFlights.destination: [CDG, LHR, FRA, AMS, FCO]
+
+  # 2-leg search: US → Europe → Middle East
+  searchFlights2Leg.leg1Origin: [JFK, LAX, ORD, ATL, DFW, SFO, MIA]
+  searchFlights2Leg.leg1Destination: [CDG, LHR, FRA, AMS, FCO]
+  searchFlights2Leg.leg2Destination: [DXB, DOH, AUH]
+
+  # 3-leg search: US → Europe → Middle East → Southeast Asia
+  searchFlights3Leg.leg1Origin: [JFK, LAX, ORD, ATL, DFW, SFO, MIA]
+  searchFlights3Leg.leg1Destination: [CDG, LHR, FRA, AMS, FCO]
+  searchFlights3Leg.leg2Destination: [DXB, DOH, AUH]
+  searchFlights3Leg.leg3Destination: [SIN, BKK, KUL, MNL]
+
+  # 4-leg search: US → Europe → Middle East → Southeast Asia → Australia
+  searchFlights4Leg.leg1Origin: [JFK, LAX, ORD, ATL, DFW, SFO, MIA]
+  searchFlights4Leg.leg1Destination: [CDG, LHR, FRA, AMS, FCO]
+  searchFlights4Leg.leg2Destination: [DXB, DOH, AUH]
+  searchFlights4Leg.leg3Destination: [SIN, BKK, KUL, MNL]
+  searchFlights4Leg.leg4Destination: [SYD, MEL, BNE]
+
+  # Exchange search (US → Europe)
+  searchExchange.origin: [JFK, LAX, ORD, ATL, DFW, SFO, MIA]
+  searchExchange.destination: [CDG, LHR, FRA, AMS, FCO]

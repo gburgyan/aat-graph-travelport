@@ -6,6 +6,7 @@ graph: graph.yaml
 templates: templates/
 domain: domain.yaml
 workflows: workflows/
+layers: layers/
 plans: plans/
 archives: runs/
 traces: traces/

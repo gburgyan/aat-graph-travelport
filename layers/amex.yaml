@@ -1,0 +1,8 @@
+name: amex
+description: American Express test card numbers and CVVs
+inputs:
+  addFormOfPaymentCard.cardNumber:
+    pool: ["371449635398431", "378282246310005", "340000000000009"]
+  addFormOfPaymentCard.cardCode: AX
+  addFormOfPaymentCard.cvv:
+    pool: ["1234", "5678", "9012"]

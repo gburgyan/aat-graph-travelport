@@ -1,0 +1,7 @@
+name: near-term
+description: Near-term travel dates (2-5 days out)
+inputs:
+  departureDate:
+    pool: ["{{today + 2 days}}", "{{today + 3 days}}", "{{today + 5 days}}"]
+  returnDate:
+    pool: ["{{today + 9 days}}", "{{today + 10 days}}", "{{today + 12 days}}"]
