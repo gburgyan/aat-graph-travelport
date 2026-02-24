@@ -1,5 +1,7 @@
 # Travelport+ Air v11 — AAT Graph & Templates
 
+> **Disclaimer:** This project is **not affiliated with, endorsed by, or produced by Travelport**. It is solely the work of George Burgyan, built entirely from publicly available Travelport API documentation. No proprietary or confidential Travelport materials were used in its creation.
+
 This directory contains a comprehensive AAT graph definition and adapter templates for the **Travelport+ JSON Air v11 API**. It models the full air booking lifecycle including search, pricing, reservation management, ticketing, exchanges, and ancillary services.
 
 ## Files
