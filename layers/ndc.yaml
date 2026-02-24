@@ -1,0 +1,4 @@
+name: ndc
+description: NDC content source for flight searches.
+inputs:
+  contentSource: NDC
