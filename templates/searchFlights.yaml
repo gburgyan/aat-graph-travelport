@@ -20,17 +20,24 @@ request:
           "@type": "CustomResponseModifiersAir",
           "SearchRepresentation": "{{searchRepresentation}}"
         },
-        {{/searchRepresentation}}{{?carrierPreference}}"SearchModifiersAir": {
-          "@type": "SearchModifiersAir",
+        {{/searchRepresentation}}{{?cabinPreference|carrierPreference}}"SearchModifiersAir": {
+          "@type": "SearchModifiersAir"{{?cabinPreference}},
+          "CabinPreference": [
+            {
+              "@type": "CabinPreference",
+              "preferenceType": "Permitted",
+              "cabins": {{cabinPreference}}
+            }
+          ]{{/cabinPreference}}{{?carrierPreference}},
           "CarrierPreference": [
             {
               "@type": "CarrierPreference",
               "preferenceType": "Permitted",
               "carriers": ["{{carrierPreference}}"]
             }
-          ]
+          ]{{/carrierPreference}}
         },
-        {{/carrierPreference}}"PassengerCriteria": [
+        {{/cabinPreference|carrierPreference}}"PassengerCriteria": [
           {
             "@type": "PassengerCriteria",
             "number": {{passengers}},
