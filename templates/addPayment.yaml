@@ -9,7 +9,7 @@ request:
   body: |
     {
       "@type": "Payment",
-      "id": "payment_1",
+      "id": "{{paymentId}}",
       "Amount": {
         "code": "{{currencyCode}}",
         "minorUnit": 2,
@@ -17,8 +17,8 @@ request:
         "value": {{totalPrice}}
       },
       "FormOfPaymentIdentifier": {
-        "id": "formOfPayment_1",
-        "FormOfPaymentRef": "formOfPayment_1",
+        "id": "{{formOfPaymentId}}",
+        "FormOfPaymentRef": "{{formOfPaymentId}}",
         "Identifier": {
           "authority": "Travelport",
           "value": "{{fopIdentifierValue}}"

@@ -9,8 +9,8 @@ request:
   body: |
     {
       "@type": "FormOfPaymentCash",
-      "id": "formOfPayment_1",
-      "FormOfPaymentRef": "formOfPayment_1"
+      "id": "{{formOfPaymentId}}",
+      "FormOfPaymentRef": "{{formOfPaymentId}}"
     }
 
 response:

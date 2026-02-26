@@ -34,9 +34,6 @@ request:
 
 response:
   extract:
-    workbenchId: "ExchangeOfferListResponse.Identifier.value"
-    offerIdentifierValue: "ExchangeOfferListResponse.Offer.0.Identifier.value"
-    offerId: "ExchangeOfferListResponse.Offer.0.id"
-    offerAuthority: "ExchangeOfferListResponse.Offer.0.Identifier.authority"
-    totalPrice: "ExchangeOfferListResponse.Offer.0.Price.TotalPrice.value"
-    currencyCode: "ExchangeOfferListResponse.Offer.0.Price.TotalPrice.code"
+    offerIdentifierValue: "OfferListResponse.Offer.0.Identifier.value"
+    offerId: "OfferListResponse.Offer.0.id"
+    offerAuthority: "OfferListResponse.Offer.0.Identifier.authority"

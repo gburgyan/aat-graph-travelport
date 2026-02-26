@@ -1389,6 +1389,10 @@ nodes:
         type: string
         description: "FormOfPayment id from the existing reservation (e.g. formOfPayment_1)"
         optional: true
+      - name: fopIdentifierValue
+        type: string
+        description: "FormOfPayment Identifier.value from the existing reservation"
+        optional: true
     cleanup: ignoreWorkbench
 
   ignoreWorkbench:
@@ -1811,6 +1815,10 @@ nodes:
       - name: workbenchId
         type: string
         description: "Reservation workbench Identifier.value"
+      - name: formOfPaymentId
+        type: string
+        description: "FormOfPayment id (e.g. formOfPayment_1). Must be unique on the workbench."
+        default: "formOfPayment_1"
     outputs:
       - name: fopIdentifierValue
         type: string
@@ -1904,6 +1912,14 @@ nodes:
         description: "Offer Identifier.authority"
         optional: true
         default: Travelport
+      - name: paymentId
+        type: string
+        description: "Payment id (e.g. payment_1). Must be unique on the workbench."
+        default: "payment_1"
+      - name: formOfPaymentId
+        type: string
+        description: "FormOfPayment id to reference (e.g. formOfPayment_1). Must match the FOP added earlier."
+        default: "formOfPayment_1"
     outputs:
       - name: paymentIdentifierValue
         type: string
@@ -2324,13 +2340,19 @@ nodes:
         elementFields:
           - name: offeringId
             type: string
-          - name: offeringIdentifierValue
-            type: string
           - name: totalPrice
+            type: float
+          - name: currencyCode
             type: string
       - name: catalogOfferingsIdentifierValue
         type: string
         description: "CatalogOfferings Identifier.value for downstream addExchangeOffer"
+      - name: firstOfferTotalPrice
+        type: float
+        description: "Total price of the first exchange offering"
+      - name: firstOfferCurrencyCode
+        type: string
+        description: "Currency code of the first exchange offering"
 
   exchangePriceQuote:
     description: "Exchange Price Quote - search for exchange pricing using specific flight criteria."
@@ -2445,13 +2467,19 @@ nodes:
         elementFields:
           - name: offeringId
             type: string
-          - name: offeringIdentifierValue
-            type: string
           - name: totalPrice
+            type: float
+          - name: currencyCode
             type: string
       - name: catalogOfferingsIdentifierValue
         type: string
         description: "CatalogOfferings Identifier.value for downstream addExchangeOffer"
+      - name: firstOfferTotalPrice
+        type: float
+        description: "Total price of the first exchange offering"
+      - name: firstOfferCurrencyCode
+        type: string
+        description: "Currency code of the first exchange offering"
 
   addExchangeOffer:
     description: "Add an exchange offer to the workbench (build from catalog offerings). This replaces the original offer with the new exchange offer."
@@ -2473,9 +2501,6 @@ nodes:
         type: string
         description: "Selected CatalogOffering Identifier.value from exchange search"
     outputs:
-      - name: workbenchId
-        type: string
-        description: "Updated workbench Identifier.value"
       - name: offerIdentifierValue
         type: string
         description: "Exchange offer Identifier.value"
@@ -2485,12 +2510,6 @@ nodes:
       - name: offerAuthority
         type: string
         description: "Exchange offer Identifier.authority"
-      - name: totalPrice
-        type: float
-        description: "Total price of the exchange offer"
-      - name: currencyCode
-        type: string
-        description: "Currency code"
     cleanup: ignoreWorkbench
 
   commitExchangeTicket:

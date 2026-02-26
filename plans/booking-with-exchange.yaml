@@ -6,6 +6,8 @@ metadata:
 selection:
     workflow: Booking
     description: Book a one-way flight with cash payment, issue tickets post-commit, then exchange the tickets for new flights.
+    layers:
+        - premium
     choices:
         payment: Cash
         trip-search: One-Way

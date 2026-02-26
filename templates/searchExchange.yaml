@@ -52,6 +52,8 @@ response:
       path: "CatalogOfferingsAirChangeResponse.CatalogOfferings.CatalogOffering"
       fields:
         offeringId: "id"
-        offeringIdentifierValue: "Identifier.value"
-        totalPrice: "Price.TotalPrice.value"
+        totalPrice: "Price.TotalPrice"
+        currencyCode: "Price.CurrencyCode.value"
     catalogOfferingsIdentifierValue: "CatalogOfferingsAirChangeResponse.CatalogOfferings.Identifier.value"
+    firstOfferTotalPrice: "CatalogOfferingsAirChangeResponse.CatalogOfferings.CatalogOffering.0.AdditionalCollectionPrice.TotalPrice"
+    firstOfferCurrencyCode: "CatalogOfferingsAirChangeResponse.CatalogOfferings.CatalogOffering.0.Price.CurrencyCode.value"

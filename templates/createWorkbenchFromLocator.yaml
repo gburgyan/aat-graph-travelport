@@ -18,3 +18,6 @@ response:
     formOfPaymentId:
       path: "ReservationResponse.Reservation.FormOfPayment.0.id"
       optional: true
+    fopIdentifierValue:
+      path: "ReservationResponse.Reservation.FormOfPayment.0.Identifier.value"
+      optional: true

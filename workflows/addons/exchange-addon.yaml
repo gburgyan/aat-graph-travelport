@@ -39,24 +39,20 @@ execution:
       values:
         workbenchId: {from: createWorkbenchFromLocator.workbenchId}
         catalogOfferingsIdentifierValue: {from: searchExchange.catalogOfferingsIdentifierValue}
-        catalogOfferingIdentifierValue: {fromSelection: exchangeOffering.offeringIdentifierValue}
-
-    - node: addFormOfPaymentForfeit
-      dependsOn: [createWorkbenchFromLocator]
-      values:
-        workbenchId: {from: createWorkbenchFromLocator.workbenchId}
-        formOfPaymentId: {from: createWorkbenchFromLocator.formOfPaymentId}
+        catalogOfferingIdentifierValue: {fromSelection: exchangeOffering.offeringId}
 
     - node: addPayment
-      dependsOn: [addExchangeOffer, addFormOfPaymentForfeit]
+      dependsOn: [addExchangeOffer]
       values:
         workbenchId: {from: createWorkbenchFromLocator.workbenchId}
-        totalPrice: {from: addExchangeOffer.totalPrice}
-        currencyCode: {from: addExchangeOffer.currencyCode}
-        fopIdentifierValue: {from: addFormOfPaymentForfeit.fopIdentifierValue}
+        totalPrice: {from: searchExchange.firstOfferTotalPrice}
+        currencyCode: {from: searchExchange.firstOfferCurrencyCode}
+        fopIdentifierValue: {from: createWorkbenchFromLocator.fopIdentifierValue}
         offerIdentifierValue: {from: addExchangeOffer.offerIdentifierValue}
         offerId: {from: addExchangeOffer.offerId}
         offerAuthority: {from: addExchangeOffer.offerAuthority}
+        paymentId: "payment_2"
+        formOfPaymentId: {from: createWorkbenchFromLocator.formOfPaymentId}
 
     - node: addDocumentOverrides
       description: "Add document overrides for exchange ticketing"
