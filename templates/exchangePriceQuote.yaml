@@ -1,0 +1,68 @@
+adapter: exchangePriceQuote
+protocol: http
+
+request:
+  method: POST
+  path: /11/pricequote/catalogofferingsairchange/productspecificsearch
+  headers:
+    Content-Type: application/json
+    Accept: application/json
+  body: |
+    {
+      "CatalogOfferingsQueryProductSpecificSearch": {
+        "@type": "CatalogOfferingsQueryProductSpecificSearch",
+        "detailViewInd": true,
+        "returnBrandedFaresInd": true,
+        "lowFareFinderInd": false,
+        "BuildFromProductsRequestAirChange": {
+          "ProductCriteriaAir": [
+            {
+              "@type": "ProductCriteriaAir",
+              "sequence": 1,
+              "SpecificFlightCriteria": [
+                {
+                  "@type": "SpecificFlightCriteria",
+                  "carrier": "{{carrier}}",
+                  "flightNumber": "{{flightNumber}}",
+                  "departureDate": "{{departureDate}}",
+                  "from": "{{from}}",
+                  "to": "{{to}}",
+                  "segmentSequence": 1
+                  {{?departureTime}},"departureTime": "{{departureTime}}"{{/departureTime}}
+                  {{?arrivalDate}},"arrivalDate": "{{arrivalDate}}"{{/arrivalDate}}
+                  {{?arrivalTime}},"arrivalTime": "{{arrivalTime}}"{{/arrivalTime}}
+                  {{?cabin}},"cabin": "{{cabin}}"{{/cabin}}
+                  {{?classOfService}},"classOfService": "{{classOfService}}"{{/classOfService}}
+                }
+              ]
+            }
+          ],
+          "PricingModifiersAirChange": {}
+        },
+        "PassengerCriteria": [
+          {
+            "@type": "PassengerCriteriaAirChange",
+            "number": 1,
+            "passengerTypeCode": "{{passengerTypeCode}}"
+          }
+        ],
+        "PaymentCriteria": {
+          "@type": "PaymentCriteria",
+          "DocumentNumber": [
+            {
+              "value": "{{ticketNumber}}"
+            }
+          ]
+        }
+      }
+    }
+
+response:
+  extract:
+    exchangeOfferings:
+      path: "CatalogOfferingsAirChangeResponse.CatalogOfferings.CatalogOffering"
+      fields:
+        offeringId: "id"
+        offeringIdentifierValue: "Identifier.value"
+        totalPrice: "Price.TotalPrice.value"
+    catalogOfferingsIdentifierValue: "CatalogOfferingsAirChangeResponse.CatalogOfferings.Identifier.value"

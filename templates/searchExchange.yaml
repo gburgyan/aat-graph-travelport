@@ -13,6 +13,7 @@ request:
         "CatalogOfferingsAirChangeRequest": {
           "@type": "CatalogOfferingsAirChangeRequestReservation",
           "returnBrandedFaresInd": true,
+          "detailViewInd": true,
           "BuildFromReservationWorkbench": {
             "ReservationIdentifier": {
               "Identifier": {
@@ -21,10 +22,13 @@ request:
               }
             },
             "OfferIdentifier": {
-              "Identifier": {
-                "value": "{{offerIdentifierValue}}"
+              "id": "{{offerId}}"
+            },
+            "ProductIdentifier": [
+              {
+                "id": "{{productId}}"
               }
-            }
+            ]
           },
           "SearchCriteriaFlight": [
             {
@@ -37,13 +41,7 @@ request:
               }
             }
           ],
-          "PassengerCriteria": [
-            {
-              "@type": "PassengerCriteriaAirChange",
-              "number": 1,
-              "passengerTypeCode": "ADT"
-            }
-          ]
+          "PricingModifiersAirChange": {}
         }
       }
     }

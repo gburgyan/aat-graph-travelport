@@ -13,5 +13,5 @@ request:
 
 response:
   extract:
-    reservationIdentifierValue: "ReservationResponse.Reservation.Identifier.value"
-    locator: "ReservationResponse.Reservation.Locator.value"
+    reservationIdentifierValue: "ReservationResponse.Reservation.Receipt.0.Identifier.value"
+    locator: "ReservationResponse.Reservation.Receipt.0.Confirmation.Locator.value"

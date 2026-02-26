@@ -1,0 +1,10 @@
+# Broad exchange search slot: search by origin/destination/date.
+
+execution:
+  steps:
+    - node: searchExchange
+      description: "Search for exchange flights by route and date"
+      values:
+        reservationIdentifier: {from: createWorkbenchFromLocator.workbenchId}
+        offerId: {from: createWorkbenchFromLocator.offerId}
+        productId: {from: createWorkbenchFromLocator.productId}

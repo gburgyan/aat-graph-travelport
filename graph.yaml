@@ -67,13 +67,28 @@ workflows:
     description: "Credit card form of payment"
     template: workflows/slots/payment/card.yaml
 
+  # --- Exchange-search slot options ---
+  - name: Broad Search
+    kind: slot
+    description: "Broad exchange search by origin/destination/date"
+    template: workflows/slots/exchange-search/broad.yaml
+  - name: EPQ
+    kind: slot
+    description: "Exchange Price Quote with specific flight criteria"
+    template: workflows/slots/exchange-search/epq.yaml
+
   # === Standalone (non-booking) workflows ===
   - name: Post-Commit Ticketing
     description: "Separate ticketing after a held booking"
     template: workflows/post-commit-ticketing.yaml
   - name: Exchange
-    description: "Full exchange workflow: eligibility check, search, offer, FOP, document overrides, reissue"
-    template: workflows/exchange.yaml
+    description: "Full exchange workflow: eligibility, search/EPQ, offer, FOP, doc overrides, reissue"
+    template: workflows/exchange-base.yaml
+    slots:
+      - name: exchange-search
+        description: "How to search for exchange flights"
+        options: [Broad Search, EPQ]
+        default: Broad Search
   - name: Ancillary Booking
     kind: addon
     after: addTraveler
@@ -183,6 +198,14 @@ workflows:
     priority: 30
     description: "Issue tickets for a held booking (post-commit)"
     template: workflows/addons/post-commit-ticketing-addon.yaml
+    wire:
+      locator: commitReservation.locator
+  - name: Exchange Addon
+    kind: addon
+    after: commitReservation
+    priority: 50
+    description: "Exchange tickets on an existing booking (post-commit, requires ticketing)"
+    template: workflows/addons/exchange-addon.yaml
     wire:
       locator: commitReservation.locator
   - name: Retrieve Booking
@@ -1336,7 +1359,6 @@ nodes:
     oas:
       operationId: CreateReservationWorkbenchFromLocator
     tags: [workbench]
-    satisfies: [workbenchCreated]
     inputs:
       - name: locator
         type: string
@@ -1360,6 +1382,13 @@ nodes:
       - name: offerAuthority
         type: string
         description: "Offer Identifier.authority from the existing reservation"
+      - name: productId
+        type: string
+        description: "Product id from the existing reservation offer"
+      - name: formOfPaymentId
+        type: string
+        description: "FormOfPayment id from the existing reservation (e.g. formOfPayment_1)"
+        optional: true
     cleanup: ignoreWorkbench
 
   ignoreWorkbench:
@@ -2249,9 +2278,12 @@ nodes:
       - name: reservationIdentifier
         type: string
         description: "Reservation Identifier.value (from workbench)"
-      - name: offerIdentifierValue
+      - name: offerId
         type: string
-        description: "Original offer Identifier.value to exchange"
+        description: "Offer id from workbench"
+      - name: productId
+        type: string
+        description: "Product id from workbench offer"
 
       - name: origin
         type: string
@@ -2285,6 +2317,127 @@ nodes:
         optional: true
         default:
           pool: ["{{today + 7 days}}", "{{today + 10 days}}", "{{today + 14 days}}", "{{today + 21 days}}", "{{today + 30 days}}"]
+    outputs:
+      - name: exchangeOfferings
+        type: offering[]
+        description: "Available exchange flight offerings"
+        elementFields:
+          - name: offeringId
+            type: string
+          - name: offeringIdentifierValue
+            type: string
+          - name: totalPrice
+            type: string
+      - name: catalogOfferingsIdentifierValue
+        type: string
+        description: "CatalogOfferings Identifier.value for downstream addExchangeOffer"
+
+  exchangePriceQuote:
+    description: "Exchange Price Quote - search for exchange pricing using specific flight criteria."
+    adapter: exchangePriceQuote
+    oas:
+      operationId: ProductSpecificSearch
+    tags: [exchange, search]
+    inputs:
+      - name: carrier
+        type: string
+        description: "Marketing carrier code"
+        configurable: true
+        optional: true
+        default:
+          pool: [AA, UA, DL, BA, QF, LH]
+        constraints:
+          minLength: 2
+          maxLength: 2
+          pattern: "^[A-Z0-9]{2}$"
+          description: "IATA airline code"
+      - name: flightNumber
+        type: string
+        description: "Flight number"
+        configurable: true
+        optional: true
+        default:
+          pool: ["100", "200", "409", "1234"]
+      - name: departureDate
+        type: date
+        description: "Departure date"
+        configurable: true
+        optional: true
+        default:
+          pool: ["{{today + 7 days}}", "{{today + 14 days}}", "{{today + 21 days}}"]
+      - name: departureTime
+        type: string
+        description: "Departure time (HH:mm:ss)"
+        configurable: true
+        optional: true
+        default: "07:00:00"
+      - name: arrivalDate
+        type: date
+        description: "Arrival date"
+        configurable: true
+        optional: true
+        default:
+          pool: ["{{today + 7 days}}", "{{today + 14 days}}", "{{today + 21 days}}"]
+      - name: arrivalTime
+        type: string
+        description: "Arrival time (HH:mm:ss)"
+        configurable: true
+        optional: true
+        default: "10:00:00"
+      - name: from
+        type: string
+        description: "Departure airport/city code"
+        configurable: true
+        optional: true
+        default:
+          pool: [DEN, ORD, ATL, DFW, SYD, LHR]
+        constraints:
+          minLength: 3
+          maxLength: 3
+          pattern: "^[A-Z]{3}$"
+          description: "IATA airport/city code"
+      - name: to
+        type: string
+        description: "Arrival airport/city code"
+        configurable: true
+        optional: true
+        default:
+          pool: [SFO, LAX, SEA, MEL, FRA, CDG]
+          constraint: "value != from"
+        constraints:
+          minLength: 3
+          maxLength: 3
+          pattern: "^[A-Z]{3}$"
+          description: "IATA airport/city code"
+      - name: cabin
+        type: string
+        description: "Cabin preference"
+        configurable: true
+        optional: true
+        default: Economy
+        constraints:
+          enum: [Economy, PremiumEconomy, Business, First]
+      - name: classOfService
+        type: string
+        description: "Booking class of service"
+        configurable: true
+        optional: true
+        default:
+          pool: [Y, M, B, H, K, Q]
+        constraints:
+          minLength: 1
+          maxLength: 2
+      - name: ticketNumber
+        type: string
+        description: "Document/ticket number for payment criteria"
+      - name: passengerTypeCode
+        type: string
+        description: "Passenger type code"
+        configurable: true
+        optional: true
+        default: ADT
+        constraints:
+          enum: [ADT, CHD, INF, C10]
     outputs:
       - name: exchangeOfferings
         type: offering[]
@@ -2360,10 +2513,6 @@ nodes:
         type: string
         description: "PNR record locator"
         display: "PNR"
-      - name: reservationStatus
-        type: string
-        description: "Reservation status after exchange"
-        display: "Status"
 
   # ============================================================
   # EXCHANGE FORM OF PAYMENT
@@ -2379,6 +2528,9 @@ nodes:
       - name: workbenchId
         type: string
         description: "Reservation workbench Identifier.value"
+      - name: formOfPaymentId
+        type: string
+        description: "FormOfPayment id to forfeit (e.g. formOfPayment_1)"
     outputs:
       - name: fopIdentifierValue
         type: string

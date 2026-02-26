@@ -1,0 +1,63 @@
+# Exchange workflow template (slot-based).
+# Full exchange flow: check eligibility, open workbench, search/EPQ for new flights,
+# add exchange offer, add FOP (forfeit), pay, add document overrides, and commit.
+# Slot: exchange-search (broad search vs EPQ)
+
+intent:
+  description: "Exchange tickets on an existing reservation for new flights"
+
+execution:
+  steps:
+    - node: getExchangeEligibility
+      description: "Check if tickets on the reservation are eligible for exchange"
+
+    - node: createWorkbenchFromLocator
+      description: "Open workbench from the existing reservation"
+      dependsOn: [getExchangeEligibility]
+
+    - slot: exchange-search
+      dependsOn: [createWorkbenchFromLocator]
+
+    - node: addExchangeOffer
+      description: "Add the selected exchange offer to the workbench"
+      dependsOn: [exchange-search, createWorkbenchFromLocator]
+      selections:
+        exchangeOffering:
+          from: exchange-search.exchangeOfferings
+          strategy: first
+      values:
+        workbenchId: {from: createWorkbenchFromLocator.workbenchId}
+        catalogOfferingsIdentifierValue: {from: exchange-search.catalogOfferingsIdentifierValue}
+        catalogOfferingIdentifierValue: {fromSelection: exchangeOffering.offeringIdentifierValue}
+
+    - node: addFormOfPaymentForfeit
+      dependsOn: [createWorkbenchFromLocator]
+      values:
+        workbenchId: {from: createWorkbenchFromLocator.workbenchId}
+
+    - node: addPayment
+      dependsOn: [addExchangeOffer, addFormOfPaymentForfeit, createWorkbenchFromLocator]
+      values:
+        workbenchId: {from: createWorkbenchFromLocator.workbenchId}
+        totalPrice: {from: addExchangeOffer.totalPrice}
+        currencyCode: {from: addExchangeOffer.currencyCode}
+        fopIdentifierValue: {from: addFormOfPaymentForfeit.fopIdentifierValue}
+        offerIdentifierValue: {from: addExchangeOffer.offerIdentifierValue}
+        offerId: {from: addExchangeOffer.offerId}
+        offerAuthority: {from: addExchangeOffer.offerAuthority}
+
+    - node: addDocumentOverrides
+      description: "Add document overrides for exchange ticketing"
+      dependsOn: [addExchangeOffer, createWorkbenchFromLocator]
+      values:
+        workbenchId: {from: createWorkbenchFromLocator.workbenchId}
+
+    - node: commitExchangeTicket
+      dependsOn: [addPayment, addDocumentOverrides, createWorkbenchFromLocator]
+      isGoal: true
+      values:
+        workbenchId: {from: createWorkbenchFromLocator.workbenchId}
+
+  cleanup:
+    - node: ignoreWorkbench
+      runOn: always

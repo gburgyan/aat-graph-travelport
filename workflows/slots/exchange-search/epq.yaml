@@ -1,0 +1,6 @@
+# EPQ (Exchange Price Quote) slot: search with specific flight criteria.
+
+execution:
+  steps:
+    - node: exchangePriceQuote
+      description: "Search for exchange pricing with specific flight details"

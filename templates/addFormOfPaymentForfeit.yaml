@@ -10,7 +10,9 @@ request:
   body: |
     {
       "FormOfPaymentForfeit": {
-        "forfeitInd": true
+        "forfeitInd": true,
+        "id": "{{formOfPaymentId}}",
+        "FormOfPaymentRef": "{{formOfPaymentId}}"
       }
     }
 

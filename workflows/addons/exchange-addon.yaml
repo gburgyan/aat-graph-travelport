@@ -1,25 +1,33 @@
-# Exchange workflow template.
-# Full exchange flow: check eligibility, open workbench, search for new flights,
-# add exchange offer, add FOP (forfeit), pay, add document overrides, and commit.
+# Exchange addon.
+# Attaches after commitReservation to exchange tickets on the booking.
+# Requires the booking to have been ticketed.
 
 intent:
-  description: "Exchange tickets on an existing reservation for new flights"
+  description: "Exchange tickets on an existing booking (post-commit addon)"
 
 execution:
   steps:
     - node: getExchangeEligibility
       description: "Check if tickets on the reservation are eligible for exchange"
+      values:
+        locator: AUTOWIRE
 
     - node: createWorkbenchFromLocator
       description: "Open workbench from the existing reservation"
       dependsOn: [getExchangeEligibility]
+      values:
+        locator: AUTOWIRE
 
     - node: searchExchange
-      description: "Search for new flights to exchange into"
+      description: "Search for exchange flights"
       dependsOn: [createWorkbenchFromLocator]
       values:
         reservationIdentifier: {from: createWorkbenchFromLocator.workbenchId}
-        offerIdentifierValue: {from: createWorkbenchFromLocator.offerIdentifierValue}
+        offerId: {from: createWorkbenchFromLocator.offerId}
+        productId: {from: createWorkbenchFromLocator.productId}
+        origin: {fromInput: searchFlights.origin}
+        destination: {fromInput: searchFlights.destination}
+        departureDate: {fromInput: searchFlights.departureDate}
 
     - node: addExchangeOffer
       description: "Add the selected exchange offer to the workbench"
@@ -37,9 +45,10 @@ execution:
       dependsOn: [createWorkbenchFromLocator]
       values:
         workbenchId: {from: createWorkbenchFromLocator.workbenchId}
+        formOfPaymentId: {from: createWorkbenchFromLocator.formOfPaymentId}
 
     - node: addPayment
-      dependsOn: [addExchangeOffer, addFormOfPaymentForfeit, createWorkbenchFromLocator]
+      dependsOn: [addExchangeOffer, addFormOfPaymentForfeit]
       values:
         workbenchId: {from: createWorkbenchFromLocator.workbenchId}
         totalPrice: {from: addExchangeOffer.totalPrice}
@@ -56,8 +65,7 @@ execution:
         workbenchId: {from: createWorkbenchFromLocator.workbenchId}
 
     - node: commitExchangeTicket
-      dependsOn: [addPayment, addDocumentOverrides, createWorkbenchFromLocator]
-      isGoal: true
+      dependsOn: [addPayment, addDocumentOverrides]
       values:
         workbenchId: {from: createWorkbenchFromLocator.workbenchId}
 

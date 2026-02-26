@@ -12,8 +12,8 @@ request:
       "OfferQueryBuildFromCatalogOfferings": {
         "fareRuleType": "TextLong",
         "lowFareFinderInd": "false",
-        "returnBrandedFaresInd": "false",
-        "reCheckInventoryInd": "false",
+        "returnBrandedFaresInd": "true",
+        "reCheckInventoryInd": true,
         "BuildFromCatalogOfferingsRequest": {
           "@type": "BuildFromCatalogOfferingsRequestAir",
           "CatalogOfferingsIdentifier": {
