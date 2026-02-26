@@ -5,6 +5,7 @@ tags: [travel, api, booking]
 graph: graph.yaml
 templates: templates/
 domain: domain.yaml
+oas: travelport-api-oas-11.31.0.json
 workflows: workflows/
 layers: layers/
 plans: plans/
