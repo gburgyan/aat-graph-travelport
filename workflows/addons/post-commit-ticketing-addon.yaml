@@ -33,6 +33,3 @@ execution:
       values:
         workbenchId: {from: createWorkbenchFromLocator.workbenchId}
 
-  cleanup:
-    - node: ignoreWorkbench
-      runOn: always

@@ -18,6 +18,3 @@ execution:
         workbenchId: {from: createWorkbenchFromLocator.workbenchId}
         scheduleChangeAcceptedInd: true
 
-  cleanup:
-    - node: ignoreWorkbench
-      runOn: always

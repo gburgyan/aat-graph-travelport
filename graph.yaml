@@ -242,7 +242,7 @@ notes: |
   - `Identifier.value`: Globally unique GUID that persists across API calls
   Design notes:
   - Reference vs full-payload flows differ only in how pricing/offer data is sent
-  - Workbench cleanup (ignoreWorkbench) is set on nodes that create workbenches
+  - ignoreWorkbench can discard an uncommitted workbench if needed
   - Exchange flow is GDS-only; no NDC exchange operations exist
   - Form of Payment has many subtypes; graph covers Cash, Card, Forfeit, Waiver, Invoice
   - Templates default to GDS content; NDC may require different request structures
@@ -1351,7 +1351,6 @@ nodes:
       - name: workbenchId
         type: string
         description: "Reservation workbench Identifier.value (used in all subsequent workbench operations)"
-    cleanup: ignoreWorkbench
 
   createWorkbenchFromLocator:
     description: "Create a workbench from an existing reservation (by PNR locator). Used for post-commit operations like ticketing."
@@ -1393,7 +1392,6 @@ nodes:
         type: string
         description: "FormOfPayment Identifier.value from the existing reservation"
         optional: true
-    cleanup: ignoreWorkbench
 
   ignoreWorkbench:
     description: "Discard the workbench and any uncommitted changes. Cleanup operation."
@@ -2510,7 +2508,6 @@ nodes:
       - name: offerAuthority
         type: string
         description: "Exchange offer Identifier.authority"
-    cleanup: ignoreWorkbench
 
   commitExchangeTicket:
     description: "Commit the exchange and issue new tickets (payLaterInd=false)."
@@ -3006,7 +3003,6 @@ nodes:
       - name: offerAuthority
         type: string
         description: "Offer Identifier.authority from the existing reservation"
-    cleanup: ignoreWorkbench
 
   # ============================================================
   # TRAVELER MODIFICATION

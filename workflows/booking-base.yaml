@@ -37,6 +37,3 @@ execution:
       values:
         workbenchId: {from: createWorkbench.workbenchId}
 
-  cleanup:
-    - node: ignoreWorkbench
-      runOn: always

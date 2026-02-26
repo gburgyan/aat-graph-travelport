@@ -18,6 +18,3 @@ execution:
         reservationIdentifierValue: {from: createWorkbenchFromLocator.workbenchId}
         travelerIdentifierValue: AUTOWIRE
 
-  cleanup:
-    - node: ignoreWorkbench
-      runOn: always

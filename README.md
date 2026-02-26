@@ -140,4 +140,4 @@ The graph edges use `Identifier.value` for cross-node data flow since it persist
 - **Form of Payment**: Only Cash and PaymentCard are templated. Travelport supports 11+ FOP subtypes (BSP, Agency, Voucher, etc.).
 - **Exchange flow**: The exchange search template is partially modeled. A full exchange workflow would also need exchange pricing and exchange commit steps.
 - **NDC content**: Templates default to GDS content. NDC flows may require different request structures for some operations.
-- **Workbench cleanup**: Nodes that create workbenches have `cleanup: ignoreWorkbench` to ensure workbenches are discarded if the test fails mid-flow.
+- **Workbench cleanup**: The `ignoreWorkbench` node can discard an uncommitted workbench if needed.
