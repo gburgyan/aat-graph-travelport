@@ -15671,7 +15671,6 @@
           },
           "decimalPlace": {
             "minimum": 0,
-            "exclusiveMinimum": false,
             "pattern": "([0-4])",
             "type": "integer",
             "description": "Currency code decimal place",
@@ -15723,7 +15722,6 @@
           },
           "page": {
             "minimum": 0,
-            "exclusiveMinimum": false,
             "type": "integer",
             "description": "The current page number of the full result set",
             "format": "int32",
@@ -15731,7 +15729,6 @@
           },
           "pageSize": {
             "minimum": 0,
-            "exclusiveMinimum": false,
             "type": "integer",
             "description": "The total number of items on this page",
             "format": "int32",
@@ -15739,7 +15736,6 @@
           },
           "totalPages": {
             "minimum": 0,
-            "exclusiveMinimum": false,
             "type": "integer",
             "description": "The total number of pages in this result set",
             "format": "int32",
@@ -15747,7 +15743,6 @@
           },
           "totalItems": {
             "minimum": 0,
-            "exclusiveMinimum": false,
             "type": "integer",
             "description": "The total number of pages in this result set",
             "format": "int32",
@@ -16041,7 +16036,6 @@
           },
           "Desirability": {
             "minimum": 0,
-            "exclusiveMinimum": false,
             "type": "number",
             "description": "The desirability of the offering expressed as a percentage. The higher the percentage the more desirable the offering.",
             "format": "float",
@@ -16049,7 +16043,6 @@
           },
           "MatchedAttributes": {
             "minimum": 0,
-            "exclusiveMinimum": false,
             "type": "integer",
             "description": "The number of matched attributes according to the request modifiers",
             "format": "int32",
@@ -16783,7 +16776,6 @@
             "properties": {
               "maxNumberOfOffersToReturn": {
                 "minimum": 0,
-                "exclusiveMinimum": false,
                 "type": "integer",
                 "description": "This attribute is deprecated and not validated if sent",
                 "format": "int32",
@@ -16791,7 +16783,6 @@
               },
               "offersPerPage": {
                 "minimum": 0,
-                "exclusiveMinimum": false,
                 "type": "integer",
                 "description": "Number of offers per page",
                 "format": "int32",
@@ -16808,7 +16799,6 @@
               },
               "maxNumberOfUpsellsToReturn": {
                 "minimum": 0,
-                "exclusiveMinimum": false,
                 "type": "integer",
                 "description": "The maximum number of upsells to return",
                 "format": "int32",
@@ -16816,7 +16806,6 @@
               },
               "numberOfDownsellsToReturn": {
                 "minimum": 0,
-                "exclusiveMinimum": false,
                 "type": "integer",
                 "description": "The number of downsells to return",
                 "format": "int32",
@@ -16936,7 +16925,6 @@
           },
           "number": {
             "minimum": 0,
-            "exclusiveMinimum": false,
             "type": "integer",
             "description": "The amount of passengers using this passenger type code",
             "format": "int32",
@@ -16998,9 +16986,7 @@
           },
           "priority": {
             "maximum": 300,
-            "exclusiveMaximum": false,
             "minimum": 0,
-            "exclusiveMinimum": false,
             "type": "integer",
             "description": "Numeric Priority Code",
             "format": "int32",
@@ -18891,7 +18877,6 @@
           },
           "maxNumberOfUpsellsToReturn": {
             "minimum": 0,
-            "exclusiveMinimum": false,
             "type": "integer",
             "description": "Number of upsells to return.",
             "format": "int32",
@@ -19024,7 +19009,6 @@
           },
           "catalogOfferingsPerPage": {
             "minimum": 0,
-            "exclusiveMinimum": false,
             "type": "integer",
             "description": "Catalog Offerings per page value",
             "format": "int32",
@@ -19440,7 +19424,6 @@
             "properties": {
               "sequence": {
                 "minimum": 0,
-                "exclusiveMinimum": false,
                 "type": "integer",
                 "description": "NonnegativeInteger",
                 "format": "int32",
@@ -19654,7 +19637,6 @@
           },
           "sequence": {
             "minimum": 0,
-            "exclusiveMinimum": false,
             "type": "integer",
             "description": "Product criteria air sequence",
             "format": "int32",
@@ -20572,7 +20554,6 @@
           },
           "Quantity": {
             "minimum": 0,
-            "exclusiveMinimum": false,
             "type": "integer",
             "description": "The quantity of ancillaries to be included in the Offer",
             "format": "int32",
@@ -23164,7 +23145,6 @@
           },
           "decimalPlace": {
             "minimum": 0,
-            "exclusiveMinimum": false,
             "pattern": "([0-4])",
             "type": "integer",
             "description": "ISO 4217 standard has a different number of decimals",
@@ -23396,7 +23376,6 @@
           },
           "minorUnit": {
             "minimum": 0,
-            "exclusiveMinimum": false,
             "pattern": "([0-4])",
             "type": "integer",
             "description": "Minor units are a mechanism for expressing the relationship between a major currency unit and its corresponding minor currency unit.",
@@ -24861,7 +24840,6 @@
           },
           "decimalPlace": {
             "minimum": 0,
-            "exclusiveMinimum": false,
             "pattern": "([0-4])",
             "type": "integer",
             "description": "Permitted number of decimals",
@@ -25093,9 +25071,7 @@
               },
               "Priority": {
                 "maximum": 300,
-                "exclusiveMaximum": false,
                 "minimum": 0,
-                "exclusiveMinimum": false,
                 "type": "integer",
                 "description": "The priority ranking within the group",
                 "format": "int32",
@@ -25242,9 +25218,7 @@
               },
               "priority": {
                 "maximum": 300,
-                "exclusiveMaximum": false,
                 "minimum": 0,
-                "exclusiveMinimum": false,
                 "type": "integer",
                 "description": "Priority",
                 "format": "int32",
@@ -26067,7 +26041,6 @@
           },
           "decimalPlace": {
             "minimum": 0,
-            "exclusiveMinimum": false,
             "pattern": "([0-4])",
             "type": "integer",
             "description": "ISO 4217 decimal standard",
@@ -27883,7 +27856,6 @@
             "properties": {
               "Quantity": {
                 "minimum": 0,
-                "exclusiveMinimum": false,
                 "type": "integer",
                 "description": "The quantity of the product",
                 "format": "int32",
@@ -28274,7 +28246,6 @@
           },
           "autoDeleteDateSequence": {
             "minimum": 0,
-            "exclusiveMinimum": false,
             "type": "integer",
             "description": "The sequence of the autoDeleteDate (retention segment) within the Reservation",
             "format": "int32"
@@ -28632,7 +28603,6 @@
           },
           "sequence": {
             "minimum": 0,
-            "exclusiveMinimum": false,
             "type": "integer",
             "description": "The sequence of the RuleRecord line",
             "format": "int32"
@@ -28668,7 +28638,6 @@
           },
           "sequence": {
             "minimum": 0,
-            "exclusiveMinimum": false,
             "type": "integer",
             "description": "The sequence of the RuleText line",
             "format": "int32"
@@ -28714,7 +28683,6 @@
             "properties": {
               "distance": {
                 "minimum": 0,
-                "exclusiveMinimum": false,
                 "type": "integer",
                 "description": "The flight travelled distance",
                 "format": "int32",
@@ -29501,7 +29469,6 @@
           },
           "decimalPlace": {
             "minimum": 0,
-            "exclusiveMinimum": false,
             "pattern": "([0-4])",
             "type": "integer",
             "description": "Number of decimal places",
@@ -29592,7 +29559,6 @@
           },
           "decimalPlace": {
             "minimum": 0,
-            "exclusiveMinimum": false,
             "pattern": "([0-4])",
             "type": "integer",
             "description": "Assigned Type: c-1100:CurrencyMinorUnit",
@@ -30015,7 +29981,6 @@
         "properties": {
           "value": {
             "minimum": 0,
-            "exclusiveMinimum": false,
             "type": "integer",
             "format": "int32",
             "example": 1
@@ -30048,7 +30013,6 @@
         "properties": {
           "value": {
             "minimum": 0,
-            "exclusiveMinimum": false,
             "type": "integer",
             "format": "int32",
             "example": 1
@@ -30689,7 +30653,6 @@
           },
           "decimalPlace": {
             "minimum": 0,
-            "exclusiveMinimum": false,
             "pattern": "([0-4])",
             "type": "integer",
             "description": "Decimal place for the currency unit",
@@ -30750,7 +30713,6 @@
         "properties": {
           "value": {
             "minimum": 0,
-            "exclusiveMinimum": false,
             "type": "number",
             "format": "float",
             "example": 45.54
@@ -31283,7 +31245,6 @@
             "properties": {
               "Percent": {
                 "minimum": 0,
-                "exclusiveMinimum": false,
                 "type": "number",
                 "description": "Percent amount of commission",
                 "format": "float",
@@ -31318,7 +31279,6 @@
             "properties": {
               "Percent": {
                 "minimum": 0,
-                "exclusiveMinimum": false,
                 "type": "number",
                 "description": "Percent amount of commission",
                 "format": "float",
@@ -32027,7 +31987,6 @@
             "properties": {
               "Percent": {
                 "minimum": 0,
-                "exclusiveMinimum": false,
                 "type": "number",
                 "description": "Percent amount of commission",
                 "format": "float",
@@ -32062,7 +32021,6 @@
             "properties": {
               "Percent": {
                 "minimum": 0,
-                "exclusiveMinimum": false,
                 "type": "number",
                 "description": "Percent amount of commission",
                 "format": "float",
@@ -33063,7 +33021,6 @@
             "$ref": "#/components/schemas/OneWayRoundTripEnum"
           },
           "routingNumber": {
-            "exclusiveMinimum": false,
             "type": "integer",
             "description": "00000 - 09999;  00000 = MPM; 88888 = Specified Routing",
             "format": "int32",
@@ -33562,7 +33519,6 @@
               },
               "PaymentTravelSegmentIndicatorATPCO": {
                 "minimum": 0,
-                "exclusiveMinimum": false,
                 "type": "integer",
                 "description": "The ATPCO paymentgeographic indicator. Example = 1st segment over the water between area 2 and 3",
                 "format": "int32",
@@ -33915,7 +33871,6 @@
               },
               "minimum": {
                 "minimum": 0,
-                "exclusiveMinimum": false,
                 "type": "integer",
                 "description": "The minimum permitted for a stopover",
                 "format": "int32",
@@ -33923,7 +33878,6 @@
               },
               "maximum": {
                 "minimum": 0,
-                "exclusiveMinimum": false,
                 "type": "integer",
                 "description": "The maximum permitted for a stopover",
                 "format": "int32",
@@ -33931,7 +33885,6 @@
               },
               "outbound": {
                 "minimum": 0,
-                "exclusiveMinimum": false,
                 "type": "integer",
                 "description": "Stopover outbound",
                 "format": "int32",
@@ -33939,7 +33892,6 @@
               },
               "inbound": {
                 "minimum": 0,
-                "exclusiveMinimum": false,
                 "type": "integer",
                 "description": "Stopover inbound",
                 "format": "int32",
@@ -34148,7 +34100,6 @@
               },
               "ReservationTravelSegmentIndicatorATPCO": {
                 "minimum": 0,
-                "exclusiveMinimum": false,
                 "type": "integer",
                 "description": "The ATPCO travel segment geographic indicator. Example= 1st segment over the water",
                 "format": "int32",
@@ -38079,7 +38030,6 @@
           },
           "age": {
             "minimum": 0,
-            "exclusiveMinimum": false,
             "type": "integer",
             "description": "The age of the guest",
             "format": "int32",
@@ -38265,7 +38215,6 @@
           },
           "quantity": {
             "minimum": 0,
-            "exclusiveMinimum": false,
             "type": "integer",
             "description": "quantity of amenity",
             "format": "int32"
@@ -38478,7 +38427,6 @@
             "properties": {
               "Percent": {
                 "minimum": 0,
-                "exclusiveMinimum": false,
                 "type": "number",
                 "description": "The percentage of the price that must be paid for by deposit",
                 "format": "float",
@@ -38548,7 +38496,6 @@
               },
               "Percent": {
                 "minimum": 0,
-                "exclusiveMinimum": false,
                 "type": "number",
                 "description": "A percentage charged as a Penalty",
                 "format": "float"
@@ -38602,7 +38549,6 @@
           },
           "count": {
             "minimum": 0,
-            "exclusiveMinimum": false,
             "type": "integer",
             "description": "The number of age qualifying",
             "format": "int32"
@@ -38710,14 +38656,12 @@
           },
           "minOccupancy": {
             "minimum": 0,
-            "exclusiveMinimum": false,
             "type": "integer",
             "description": "The minimum occupancy",
             "format": "int32"
           },
           "maxOccupancy": {
             "minimum": 0,
-            "exclusiveMinimum": false,
             "type": "integer",
             "description": "The maximum number of room occupants.",
             "format": "int32"
@@ -38763,7 +38707,6 @@
           },
           "priority": {
             "minimum": 0,
-            "exclusiveMinimum": false,
             "type": "integer",
             "description": "rate candidate priority",
             "format": "int32"
@@ -39307,14 +39250,12 @@
               },
               "freeQuantityIncludedInPrice": {
                 "minimum": 0,
-                "exclusiveMinimum": false,
                 "type": "integer",
                 "description": "The mount of this ancillary that is included with the vehicle rental",
                 "format": "int32"
               },
               "maxBookableQuantity": {
                 "minimum": 0,
-                "exclusiveMinimum": false,
                 "type": "integer",
                 "description": "The maximum amount of this ancillary that may be booked with the vehicle rental",
                 "format": "int32"
@@ -39668,14 +39609,12 @@
           },
           "Quantity": {
             "minimum": 0,
-            "exclusiveMinimum": false,
             "type": "integer",
             "description": "The quantity used in the calculation of the vehicle charge e.g 2 x $500 per week",
             "format": "int32"
           },
           "MaxQuantity": {
             "minimum": 0,
-            "exclusiveMinimum": false,
             "type": "integer",
             "description": "The maximum quantity allowed for a charge e.g Baby seat charged at $10 per day for a maximum of 10 days",
             "format": "int32"
@@ -39685,7 +39624,6 @@
           },
           "Percent": {
             "minimum": 0,
-            "exclusiveMinimum": false,
             "type": "number",
             "description": "Used when the charge is based on a percentage of a TotalAmount",
             "format": "float"
