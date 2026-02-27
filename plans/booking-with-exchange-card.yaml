@@ -1,0 +1,16 @@
+kind: recipe
+metadata:
+    created: 2026-02-26T00:00:00-06:00
+    prompt: book a one-way flight, ticket it, then exchange the tickets
+    graphVersion: 1.0.0
+selection:
+    workflow: Booking
+    description: Book a one-way flight with cash payment, issue tickets post-commit, then exchange the tickets for new flights.
+    layers:
+        - premium
+    choices:
+        payment: Card
+        trip-search: One-Way
+    addons:
+        - Post-Commit Ticketing Addon
+        - Exchange Addon
