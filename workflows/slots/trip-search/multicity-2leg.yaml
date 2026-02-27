@@ -1,14 +1,11 @@
-# Round-trip trip-search slot: leg-based search with BuildNext + reference pricing.
-# Return leg goes back to origin: leg2Origin defaults to leg1Destination (graph default),
-# and leg2Destination is wired to leg1Origin via fromResolved.
+# Multi-city 2-leg trip-search slot: leg-based search with BuildNext + reference pricing.
 
 execution:
   steps:
     - node: searchFlights2Leg
-      description: "Search for round-trip flights (leg-based: returns only leg 1 offerings)"
+      description: "Search for multi-city flights (leg-based: returns only leg 1 offerings)"
       values:
         searchRepresentation: Leg
-        leg2Destination: {fromResolved: leg1Origin}
 
     - node: searchFlightsNextLeg
       id: searchNextLeg2

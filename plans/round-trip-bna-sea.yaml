@@ -1,0 +1,17 @@
+kind: recipe
+metadata:
+    created: 2026-02-22T10:35:58.887303-06:00
+    prompt: book a round trip flight from nashville to seattle
+    graphVersion: 1.0.0
+selection:
+    workflow: Booking
+    description: Book a round-trip flight from Nashville (BNA) to Seattle (SEA) using leg-based search with BuildNext and reference pricing, then create the reservation with default cash payment.
+    choices:
+        payment: Cash
+        trip-search: Round-Trip
+overrides:
+    values:
+        searchFlights2Leg.leg1Destination: SEA
+        searchFlights2Leg.leg1Origin: BNA
+        searchFlights2Leg.leg2Destination: BNA
+        searchFlights2Leg.leg2Origin: SEA

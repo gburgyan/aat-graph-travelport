@@ -65,4 +65,7 @@ response:
         offeringId: "id"
         offeringIdentifierValue: "Identifier.value"
         totalPrice: "Price.TotalPrice.value"
+        currencyCode: "Price.CurrencyCode.value"
     catalogOfferingsIdentifierValue: "CatalogOfferingsAirChangeResponse.CatalogOfferings.Identifier.value"
+    firstOfferTotalPrice: "CatalogOfferingsAirChangeResponse.CatalogOfferings.CatalogOffering.0.AdditionalCollectionPrice.TotalPrice"
+    firstOfferCurrencyCode: "CatalogOfferingsAirChangeResponse.CatalogOfferings.CatalogOffering.0.Price.CurrencyCode.value"

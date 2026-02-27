@@ -1,4 +1,4 @@
 name: ndc
-description: NDC content source for flight searches.
+description: Use NDC (New Distribution Capability) content source instead of GDS for flight searches
 inputs:
   contentSource: NDC

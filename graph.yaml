@@ -14,7 +14,7 @@ workflows:
     slots:
       - name: trip-search
         description: "How to search for and price flights"
-        options: [One-Way, Round-Trip, Multi-City 3-Leg, Multi-City 4-Leg, One-Way Full-Payload, Round-Trip Full-Payload, Multi-City 3-Leg Full-Payload, Multi-City 4-Leg Full-Payload]
+        options: [One-Way, Round-Trip, Multi-City 2-Leg, Multi-City 3-Leg, Multi-City 4-Leg, One-Way Full-Payload, Round-Trip Full-Payload, Multi-City 3-Leg Full-Payload, Multi-City 4-Leg Full-Payload]
         default: One-Way
       - name: payment
         description: "Form of payment"
@@ -28,8 +28,12 @@ workflows:
     template: workflows/slots/trip-search/oneway.yaml
   - name: Round-Trip
     kind: slot
-    description: "Round-trip or 2-leg itinerary: leg-based search with BuildNext + reference pricing"
+    description: "Round-trip flight: leg-based search with BuildNext + reference pricing. Return leg goes back to origin."
     template: workflows/slots/trip-search/roundtrip.yaml
+  - name: Multi-City 2-Leg
+    kind: slot
+    description: "2-leg multi-city itinerary: leg-based search with BuildNext + reference pricing"
+    template: workflows/slots/trip-search/multicity-2leg.yaml
   - name: Multi-City 3-Leg
     kind: slot
     description: "3-leg multi-city itinerary: leg-based search with 2x BuildNext + reference pricing"
@@ -2464,6 +2468,8 @@ nodes:
         description: "Available exchange flight offerings"
         elementFields:
           - name: offeringId
+            type: string
+          - name: offeringIdentifierValue
             type: string
           - name: totalPrice
             type: float

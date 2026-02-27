@@ -8,4 +8,4 @@ selection:
     description: Book a 2-leg (round-trip) itinerary using credit card form of payment, including search, pricing, traveler details, and commit.
     choices:
         payment: Card
-        trip-search: Multi-City 2-Leg
+        trip-search: Round-Trip
