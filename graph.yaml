@@ -21,6 +21,16 @@ workflows:
         options: [Cash, Card]
         default: Cash
 
+  # === Slot-based Held Booking workflow (no payment/ticketing) ===
+  - name: Held Booking
+    description: "Book a held flight (no payment). Creates a PNR without ticketing. Use Post-Commit Ticketing to ticket later."
+    template: workflows/held-booking-base.yaml
+    slots:
+      - name: trip-search
+        description: "How to search for and price flights"
+        options: [One-Way, Round-Trip, Multi-City 2-Leg, Multi-City 3-Leg, Multi-City 4-Leg, One-Way Full-Payload, Round-Trip Full-Payload, Multi-City 3-Leg Full-Payload, Multi-City 4-Leg Full-Payload]
+        default: One-Way
+
   # --- Trip-search slot options ---
   - name: One-Way
     kind: slot

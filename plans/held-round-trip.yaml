@@ -1,0 +1,10 @@
+kind: recipe
+metadata:
+    created: 2026-02-27T12:00:00.000000-06:00
+    prompt: book a held round-trip flight
+    graphVersion: 1.0.0
+selection:
+    workflow: Held Booking
+    description: Book a held round-trip flight without payment or ticketing. Creates a PNR that can be ticketed later.
+    choices:
+        trip-search: Round-Trip

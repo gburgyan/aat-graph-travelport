@@ -1,0 +1,24 @@
+# Held booking base template — creates a PNR without payment/ticketing.
+# Slots: trip-search (search + price + addOffer).
+# createWorkbench runs independently in parallel with search.
+
+intent:
+  description: "Book a held flight (no payment, no ticketing)"
+
+execution:
+  steps:
+    - node: createWorkbench
+      description: "Create a reservation workbench (booking session)"
+
+    - slot: trip-search
+
+    - node: addTraveler
+      dependsOn: [trip-search]
+      values:
+        workbenchId: {from: createWorkbench.workbenchId}
+
+    - node: commitReservation
+      dependsOn: [addTraveler]
+      isGoal: true
+      values:
+        workbenchId: {from: createWorkbench.workbenchId}
