@@ -143,6 +143,10 @@ response:
           for _, fl in ipairs(refList.Flight) do
             if fl.id then flights[fl.id] = fl end
           end
+        elseif rlType == "ReferenceListBrand" and refList.Brand then
+          for _, br in ipairs(refList.Brand) do
+            if br.id then brands[br.id] = br end
+          end
         end
       end
     end
@@ -260,11 +264,22 @@ response:
                 end
               end
 
-              -- Brand
+              -- Brand: resolve via reference list if available
               if pbo.Brand then
-                entry.brand = pbo.Brand.name
+                local brandRef = pbo.Brand.BrandRef
+                if brandRef and brands[brandRef] then
+                  entry.brand = brands[brandRef].name
+                elseif pbo.Brand.name then
+                  entry.brand = pbo.Brand.name
+                else
+                  entry.brand = brandRef
+                end
               elseif pbo.BrandRef then
-                entry.brand = pbo.BrandRef
+                if brands[pbo.BrandRef] then
+                  entry.brand = brands[pbo.BrandRef].name
+                else
+                  entry.brand = pbo.BrandRef
+                end
               end
 
               -- Price

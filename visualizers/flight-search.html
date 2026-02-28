@@ -485,6 +485,40 @@
           });
         }
 
+        // Inline mode fallback: extract segments from product FlightSegment data
+        if (segments.length === 0) {
+          var fbPbos = opt['ProductBrandOffering'] || [];
+          if (fbPbos.length > 0) {
+            var fbProds = fbPbos[0]['Product'] || [];
+            if (fbProds.length > 0) {
+              var fbProd = fbProds[0]['productRef'] ? productsById[fbProds[0]['productRef']] : fbProds[0];
+              if (fbProd && fbProd['FlightSegment']) {
+                var fbSegs = fbProd['FlightSegment'];
+                for (var fbi = 0; fbi < fbSegs.length; fbi++) {
+                  var fbFl = fbSegs[fbi]['Flight'];
+                  if (!fbFl) continue;
+                  if (fbFl['FlightRef'] && flightsById[fbFl['FlightRef']]) fbFl = flightsById[fbFl['FlightRef']];
+                  if (!fbFl.carrier) continue;
+                  segments.push({
+                    carrier: fbFl.carrier,
+                    flightNumber: fbFl.carrier + (fbFl.number || ''),
+                    origin: fbFl.Departure ? fbFl.Departure.location : '',
+                    destination: fbFl.Arrival ? fbFl.Arrival.location : '',
+                    departureDate: fbFl.Departure ? fbFl.Departure.date : '',
+                    departureTime: fbFl.Departure ? formatTime(fbFl.Departure.time) : '',
+                    arrivalTime: fbFl.Arrival ? formatTime(fbFl.Arrival.time) : '',
+                    arrivalDate: fbFl.Arrival ? fbFl.Arrival.date : '',
+                    duration: formatDuration(fbFl.duration || ''),
+                    equipment: fbFl.equipment || '',
+                    departureTerminal: (fbFl.Departure && fbFl.Departure.terminal) || '',
+                    arrivalTerminal: (fbFl.Arrival && fbFl.Arrival.terminal) || ''
+                  });
+                }
+              }
+            }
+          }
+        }
+
         if (headerSegments.length === 0 && segments.length > 0) {
           headerSegments = segments;
           primaryCarrier = segments[0].carrier;
@@ -500,14 +534,14 @@
 
           var productList = pbo['Product'] || [];
           var productIds = [];
-          for (var pli = 0; pli < productList.length; pli++) {
-            if (productList[pli]['productRef']) productIds.push(productList[pli]['productRef']);
-          }
-
           var cabin = '', fareBasis = '', classOfService = '', fareType = '';
-          for (var pidi = 0; pidi < productIds.length; pidi++) {
-            var prod = productsById[productIds[pidi]];
-            if (!prod) continue;
+          for (var pli = 0; pli < productList.length; pli++) {
+            var pEntry = productList[pli];
+            var pRef = pEntry['productRef'] || pEntry['id'] || '';
+            if (pRef) productIds.push(pRef);
+            // Reference mode: resolve via lookup; inline mode: use entry directly
+            var prod = pEntry['productRef'] ? productsById[pEntry['productRef']] : null;
+            if (!prod) prod = pEntry;
             if (!totalDuration && prod.totalDuration) totalDuration = prod.totalDuration;
             var pfs = prod.PassengerFlight || [];
             for (var pfi = 0; pfi < pfs.length; pfi++) {
