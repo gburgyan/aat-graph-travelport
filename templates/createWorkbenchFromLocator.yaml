@@ -21,3 +21,5 @@ response:
     fopIdentifierValue:
       path: "ReservationResponse.Reservation.FormOfPayment.0.Identifier.value"
       optional: true
+    travelerRefId: "ReservationResponse.Reservation.Traveler.0.id"
+    passengerTypeCode: "ReservationResponse.Reservation.Traveler.0.passengerTypeCode"

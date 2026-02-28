@@ -1406,6 +1406,12 @@ nodes:
         type: string
         description: "FormOfPayment Identifier.value from the existing reservation"
         optional: true
+      - name: travelerRefId
+        type: string
+        description: "First traveler id from the reservation (e.g. travelerRefId_1)"
+      - name: passengerTypeCode
+        type: string
+        description: "Passenger type code of the first traveler (e.g. ADT)"
 
   ignoreWorkbench:
     description: "Discard the workbench and any uncommitted changes. Cleanup operation."
@@ -2042,7 +2048,7 @@ nodes:
     description: "Commit reservation workbench with ticket issuance. Used post-commit when ticketing separately."
     adapter: commitTicket
     oas:
-      operationId: Create
+      operationId: CommitReservation
     tags: [ticketing, commit]
     requires: [paymentApplied]
     inputs:
@@ -2312,6 +2318,13 @@ nodes:
       - name: productId
         type: string
         description: "Product id from workbench offer"
+      - name: travelerRefId
+        type: string
+        description: "Traveler id from workbench (e.g. travelerRefId_1)"
+      - name: passengerTypeCode
+        type: string
+        description: "Passenger type code (ADT, CNN, INF, etc.)"
+        default: ADT
 
       - name: origin
         type: string

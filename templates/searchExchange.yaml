@@ -31,6 +31,16 @@ request:
             }
           ]
         },
+        "PassengerCriteria": [
+          {
+            "@type": "PassengerCriteriaAirChange",
+            "number": 1,
+            "passengerTypeCode": "{{passengerTypeCode}}",
+            "TravelerIdentifierRef": {
+              "id": "{{travelerRefId}}"
+            }
+          }
+        ],
         "SearchCriteriaFlight": [
           {
             "@type": "SearchCriteriaFlight",

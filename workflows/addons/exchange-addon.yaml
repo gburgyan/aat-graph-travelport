@@ -25,6 +25,8 @@ execution:
         reservationIdentifier: {from: createWorkbenchFromLocator.workbenchId}
         offerId: {from: createWorkbenchFromLocator.offerId}
         productId: {from: createWorkbenchFromLocator.productId}
+        travelerRefId: {from: createWorkbenchFromLocator.travelerRefId}
+        passengerTypeCode: {from: createWorkbenchFromLocator.passengerTypeCode}
         origin: {fromInput: searchFlights.origin}
         destination: {fromInput: searchFlights.destination}
         departureDate: {fromInput: searchFlights.departureDate}
