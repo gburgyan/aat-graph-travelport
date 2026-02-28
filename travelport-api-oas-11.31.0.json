@@ -6065,6 +6065,16 @@
           }
         },
         "responses": {
+          "200": {
+            "description": "Created - 201",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OfferResponseWrapper"
+                }
+              }
+            }
+          },
           "201": {
             "description": "Created - 201",
             "content": {

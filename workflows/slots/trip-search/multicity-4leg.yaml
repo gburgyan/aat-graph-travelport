@@ -70,13 +70,13 @@ execution:
       values:
         catalogProductOfferingsId: {from: searchNextLeg4.catalogProductOfferingsId}
         offeringId: {fromSelection: leg1.offeringId}
-        productIds: {fromSelection: leg1.productIds}
+        productId: {fromSelection: leg1.productId}
         leg2OfferingId: {fromSelection: leg2.offeringId}
-        leg2ProductIds: {fromSelection: leg2.productIds}
+        leg2ProductId: {fromSelection: leg2.productId}
         leg3OfferingId: {fromSelection: leg3.offeringId}
-        leg3ProductIds: {fromSelection: leg3.productIds}
+        leg3ProductId: {fromSelection: leg3.productId}
         leg4OfferingId: {fromSelection: leg4.offeringId}
-        leg4ProductIds: {fromSelection: leg4.productIds}
+        leg4ProductId: {fromSelection: leg4.productId}
 
     - node: addOfferReference
       description: "Add multi-city offer to workbench using reference identifiers"
@@ -101,10 +101,10 @@ execution:
         workbenchId: {from: createWorkbench.workbenchId}
         catalogProductOfferingsId: {from: searchNextLeg4.catalogProductOfferingsId}
         offeringId: {fromSelection: leg1.offeringId}
-        productIds: {fromSelection: leg1.productIds}
+        productId: {fromSelection: leg1.productId}
         leg2OfferingId: {fromSelection: leg2.offeringId}
-        leg2ProductIds: {fromSelection: leg2.productIds}
+        leg2ProductId: {fromSelection: leg2.productId}
         leg3OfferingId: {fromSelection: leg3.offeringId}
-        leg3ProductIds: {fromSelection: leg3.productIds}
+        leg3ProductId: {fromSelection: leg3.productId}
         leg4OfferingId: {fromSelection: leg4.offeringId}
-        leg4ProductIds: {fromSelection: leg4.productIds}
+        leg4ProductId: {fromSelection: leg4.productId}

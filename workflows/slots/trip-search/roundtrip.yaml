@@ -37,9 +37,9 @@ execution:
       values:
         catalogProductOfferingsId: {from: searchNextLeg2.catalogProductOfferingsId}
         offeringId: {fromSelection: leg1.offeringId}
-        productIds: {fromSelection: leg1.productIds}
+        productId: {fromSelection: leg1.productId}
         leg2OfferingId: {fromSelection: leg2.offeringId}
-        leg2ProductIds: {fromSelection: leg2.productIds}
+        leg2ProductId: {fromSelection: leg2.productId}
 
     - node: addOfferReference
       description: "Add multi-leg offer to workbench using reference identifiers"
@@ -56,6 +56,6 @@ execution:
         workbenchId: {from: createWorkbench.workbenchId}
         catalogProductOfferingsId: {from: searchNextLeg2.catalogProductOfferingsId}
         offeringId: {fromSelection: leg1.offeringId}
-        productIds: {fromSelection: leg1.productIds}
+        productId: {fromSelection: leg1.productId}
         leg2OfferingId: {fromSelection: leg2.offeringId}
-        leg2ProductIds: {fromSelection: leg2.productIds}
+        leg2ProductId: {fromSelection: leg2.productId}

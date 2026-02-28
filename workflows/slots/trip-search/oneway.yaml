@@ -15,7 +15,7 @@ execution:
       values:
         catalogProductOfferingsId: {from: searchFlights.catalogProductOfferingsId}
         offeringId: {fromSelection: offering.offeringId}
-        productIds: {fromSelection: offering.productIds}
+        productId: {fromSelection: offering.productId}
 
     - node: addOfferReference
       description: "Add the priced offer to the workbench"
@@ -28,4 +28,4 @@ execution:
         workbenchId: {from: createWorkbench.workbenchId}
         catalogProductOfferingsId: {from: searchFlights.catalogProductOfferingsId}
         offeringId: {fromSelection: offering.offeringId}
-        productIds: {fromSelection: offering.productIds}
+        productId: {fromSelection: offering.productId}

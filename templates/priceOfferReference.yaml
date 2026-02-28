@@ -24,9 +24,7 @@ request:
               }
             },
             "ProductIdentifier": [
-              {{#productIds}}
-              {"Identifier": {"value": "{{.}}"}}
-              {{/productIds}}
+              {"Identifier": {"value": "{{productId}}"}}
             ]
           }
           {{?returnOfferingId}},{
@@ -36,9 +34,7 @@ request:
               }
             },
             "ProductIdentifier": [
-              {{#returnProductIds}}
-              {"Identifier": {"value": "{{.}}"}}
-              {{/returnProductIds}}
+              {"Identifier": {"value": "{{returnProductId}}"}}
             ]
           }{{/returnOfferingId}}
           {{?leg2OfferingId}},{
@@ -48,9 +44,7 @@ request:
               }
             },
             "ProductIdentifier": [
-              {{#leg2ProductIds}}
-              {"Identifier": {"value": "{{.}}"}}
-              {{/leg2ProductIds}}
+              {"Identifier": {"value": "{{leg2ProductId}}"}}
             ]
           }{{/leg2OfferingId}}
           {{?leg3OfferingId}},{
@@ -60,9 +54,7 @@ request:
               }
             },
             "ProductIdentifier": [
-              {{#leg3ProductIds}}
-              {"Identifier": {"value": "{{.}}"}}
-              {{/leg3ProductIds}}
+              {"Identifier": {"value": "{{leg3ProductId}}"}}
             ]
           }{{/leg3OfferingId}}
           {{?leg4OfferingId}},{
@@ -72,9 +64,7 @@ request:
               }
             },
             "ProductIdentifier": [
-              {{#leg4ProductIds}}
-              {"Identifier": {"value": "{{.}}"}}
-              {{/leg4ProductIds}}
+              {"Identifier": {"value": "{{leg4ProductId}}"}}
             ]
           }{{/leg4OfferingId}}
         ]

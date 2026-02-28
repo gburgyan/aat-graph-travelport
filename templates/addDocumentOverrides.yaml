@@ -10,6 +10,7 @@ request:
   body: |
     {
       "DocumentOverrides": {
+        "@type": "DocumentOverrides",
         "Commissions": [
           {
             "Commission": {

@@ -46,6 +46,7 @@ request:
         ],
         "SearchCriteriaFlight": [
           {{?origin}}{
+            "@type": "SearchCriteriaFlight",
             "departureDate": "{{departureDate}}",
             "From": {
               "value": "{{origin}}"
@@ -54,6 +55,7 @@ request:
               "value": "{{destination}}"
             }
           }{{/origin}}{{?leg1Origin}}{
+            "@type": "SearchCriteriaFlight",
             "departureDate": "{{leg1DepartureDate}}",
             "From": {
               "value": "{{leg1Origin}}"
@@ -63,6 +65,7 @@ request:
             }
           }{{/leg1Origin}}
           {{?returnDate}},{
+            "@type": "SearchCriteriaFlight",
             "departureDate": "{{returnDate}}",
             "From": {
               "value": "{{destination}}"
@@ -72,6 +75,7 @@ request:
             }
           }{{/returnDate}}
           {{?leg2Origin}},{
+            "@type": "SearchCriteriaFlight",
             "departureDate": "{{leg2DepartureDate}}",
             "From": {
               "value": "{{leg2Origin}}"
@@ -81,6 +85,7 @@ request:
             }
           }{{/leg2Origin}}
           {{?leg3Origin}},{
+            "@type": "SearchCriteriaFlight",
             "departureDate": "{{leg3DepartureDate}}",
             "From": {
               "value": "{{leg3Origin}}"
@@ -90,6 +95,7 @@ request:
             }
           }{{/leg3Origin}}
           {{?leg4Origin}},{
+            "@type": "SearchCriteriaFlight",
             "departureDate": "{{leg4DepartureDate}}",
             "From": {
               "value": "{{leg4Origin}}"
@@ -108,137 +114,176 @@ response:
       path: "CatalogProductOfferingsResponse.CatalogProductOfferings.CatalogProductOffering"
       fields:
         offeringId: "id"
-        productId: "ProductBrandOptions.0.ProductBrandOffering.0.Product.0.productRef"
-        productIds: "ProductBrandOptions.#.ProductBrandOffering.#.Product.#.productRef|@flatten|@flatten"
         departure: "Departure"
         arrival: "Arrival"
         offeringIdentifierValue: "Identifier.value"
-        # Full-payload flight details (from inline ProductAir objects)
-        carrier: "ProductBrandOptions.0.ProductBrandOffering.0.Product.0.FlightSegment.0.Flight.carrier"
-        flightNumber: "ProductBrandOptions.0.ProductBrandOffering.0.Product.0.FlightSegment.0.Flight.number"
-        departureDate: "ProductBrandOptions.0.ProductBrandOffering.0.Product.0.FlightSegment.0.Flight.Departure.date"
-        departureTime: "ProductBrandOptions.0.ProductBrandOffering.0.Product.0.FlightSegment.0.Flight.Departure.time"
-        arrivalDate: "ProductBrandOptions.0.ProductBrandOffering.0.Product.0.FlightSegment.0.Flight.Arrival.date"
-        arrivalTime: "ProductBrandOptions.0.ProductBrandOffering.0.Product.0.FlightSegment.0.Flight.Arrival.time"
-        cabin: "ProductBrandOptions.0.ProductBrandOffering.0.Product.0.PassengerFlight.0.FlightProduct.0.cabin"
-        classOfService: "ProductBrandOptions.0.ProductBrandOffering.0.Product.0.PassengerFlight.0.FlightProduct.0.classOfService"
-        totalPrice: "ProductBrandOptions.0.ProductBrandOffering.0.BestCombinablePrice.TotalPrice"
-        currency: "ProductBrandOptions.0.ProductBrandOffering.0.BestCombinablePrice.CurrencyCode.value"
     catalogProductOfferingsId: "CatalogProductOfferingsResponse.CatalogProductOfferings.Identifier.value"
     transactionId: "CatalogProductOfferingsResponse.transactionId"
   transform: |
-    -- Resolve GDS ReferenceList cross-references.
-    -- In GDS mode, CatalogProductOfferings contain only reference strings
-    -- (productRef, FlightRef, BrandRef). Actual flight details live in
-    -- ReferenceList arrays at the top level of the response. This script
-    -- builds lookup tables and enriches each offering with carrier,
-    -- flightNumber, departure/arrival times, cabin, and classOfService.
-    -- Fields already populated (from full-payload inline mode) are preserved.
+    -- Flatten search offerings so each entry is one (offering, product) pair.
+    -- Each CatalogProductOffering contains multiple ProductBrandOfferings
+    -- (different fares/brands for the same itinerary). We expand them so each
+    -- array entry has exactly one productId, brand, price, and flight details.
+    -- This makes individual products selectable via strategy: first/index.
 
-    -- ReferenceList is a sibling of CatalogProductOfferings, not nested inside it.
+    -- Build lookup tables from ReferenceList (GDS mode).
     local refLists = json_path("CatalogProductOfferingsResponse.ReferenceList")
-    if not refLists then return outputs end
-
-    -- Build lookup tables from reference lists.
     local products = {}  -- product id -> ProductAir object
     local flights = {}   -- flight id -> FlightDetail object
+    local brands = {}    -- brand id -> Brand object
 
-    for _, refList in ipairs(refLists) do
-      local rlType = refList["@type"]
-      if rlType == "ReferenceListProduct" and refList.Product then
-        for _, prod in ipairs(refList.Product) do
-          if prod.id then
-            products[prod.id] = prod
+    if refLists then
+      for _, refList in ipairs(refLists) do
+        local rlType = refList["@type"]
+        if rlType == "ReferenceListProduct" and refList.Product then
+          for _, prod in ipairs(refList.Product) do
+            if prod.id then products[prod.id] = prod end
           end
-        end
-      elseif rlType == "ReferenceListFlight" and refList.Flight then
-        for _, fl in ipairs(refList.Flight) do
-          if fl.id then
-            flights[fl.id] = fl
+        elseif rlType == "ReferenceListFlight" and refList.Flight then
+          for _, fl in ipairs(refList.Flight) do
+            if fl.id then flights[fl.id] = fl end
           end
         end
       end
     end
 
     -- Helper: resolve a Flight from a FlightSegment.
-    -- In GDS mode: FlightSegment.Flight = {FlightRef: "s1"} (reference)
-    -- In full-payload mode: FlightSegment.Flight = {carrier: "QF", ...} (inline)
     local function resolveFlight(seg)
       if not seg or not seg.Flight then return nil end
       local fl = seg.Flight
-      -- Inline flight (has carrier directly)
-      if type(fl) == "table" and fl.carrier then
-        return fl
-      end
-      -- Reference: {FlightRef: "s1"}
+      if type(fl) == "table" and fl.carrier then return fl end
       if type(fl) == "table" and fl.FlightRef and flights[fl.FlightRef] then
         return flights[fl.FlightRef]
       end
       return nil
     end
 
-    if outputs.catalogProductOfferings then
-      for _, offering in ipairs(outputs.catalogProductOfferings) do
-        local pid = offering.productId
-        if pid and products[pid] then
-          local prod = products[pid]
+    -- Helper: resolve product details and enrich an entry.
+    local function resolveProduct(entry, pid)
+      local prod = products[pid]
+      if not prod then
+        -- In full-payload mode products are inline; nothing to resolve.
+        return
+      end
 
-          -- Resolve flight details via Product -> FlightSegment -> Flight(Ref)
-          -- Iterate all segments: first segment provides departure, last provides arrival.
-          -- This correctly handles connecting flights (e.g., CLE->ATL->SEA).
-          if prod.FlightSegment and prod.FlightSegment[1] then
-            local segCount = #prod.FlightSegment
-            local allFlightNumbers = {}
-            local firstFlight = nil
-            local lastFlight = nil
+      if prod.FlightSegment and prod.FlightSegment[1] then
+        local segCount = #prod.FlightSegment
+        local allFlightNumbers = {}
+        local firstFlight = nil
+        local lastFlight = nil
 
-            for idx = 1, segCount do
-              local flight = resolveFlight(prod.FlightSegment[idx])
-              if flight then
-                if idx == 1 then firstFlight = flight end
-                lastFlight = flight
-                if flight.carrier and flight.number then
-                  table.insert(allFlightNumbers, flight.carrier .. " " .. flight.number)
-                end
-              end
-            end
-
-            if firstFlight then
-              if not offering.carrier then offering.carrier = firstFlight.carrier end
-            end
-            if #allFlightNumbers > 0 then
-              if not offering.flightNumber then
-                offering.flightNumber = table.concat(allFlightNumbers, ", ")
-              end
-            end
-            if firstFlight and firstFlight.Departure then
-              if not offering.departureDate then offering.departureDate = firstFlight.Departure.date end
-              if not offering.departureTime then offering.departureTime = firstFlight.Departure.time end
-            end
-            if lastFlight and lastFlight.Arrival then
-              if not offering.arrivalDate then offering.arrivalDate = lastFlight.Arrival.date end
-              if not offering.arrivalTime then offering.arrivalTime = lastFlight.Arrival.time end
-            end
-
-            offering.stops = segCount - 1
-
-            if prod.totalDuration then
-              offering.totalDuration = prod.totalDuration
+        for idx = 1, segCount do
+          local flight = resolveFlight(prod.FlightSegment[idx])
+          if flight then
+            if idx == 1 then firstFlight = flight end
+            lastFlight = flight
+            if flight.carrier and flight.number then
+              table.insert(allFlightNumbers, flight.carrier .. " " .. flight.number)
             end
           end
+        end
 
-          -- Resolve cabin/classOfService from Product -> PassengerFlight -> FlightProduct
-          if prod.PassengerFlight and prod.PassengerFlight[1] then
-            local pf = prod.PassengerFlight[1]
-            if pf.FlightProduct and pf.FlightProduct[1] then
-              local fp = pf.FlightProduct[1]
-              if not offering.cabin then offering.cabin = fp.cabin end
-              if not offering.classOfService then offering.classOfService = fp.classOfService end
+        if firstFlight then entry.carrier = firstFlight.carrier end
+        if #allFlightNumbers > 0 then
+          entry.flightNumber = table.concat(allFlightNumbers, ", ")
+        end
+        if firstFlight and firstFlight.Departure then
+          entry.departureDate = firstFlight.Departure.date
+          entry.departureTime = firstFlight.Departure.time
+        end
+        if lastFlight and lastFlight.Arrival then
+          entry.arrivalDate = lastFlight.Arrival.date
+          entry.arrivalTime = lastFlight.Arrival.time
+        end
+        entry.stops = segCount - 1
+        if prod.totalDuration then entry.totalDuration = prod.totalDuration end
+      end
+
+      if prod.PassengerFlight and prod.PassengerFlight[1] then
+        local pf = prod.PassengerFlight[1]
+        if pf.FlightProduct and pf.FlightProduct[1] then
+          local fp = pf.FlightProduct[1]
+          entry.cabin = fp.cabin
+          entry.classOfService = fp.classOfService
+        end
+      end
+    end
+
+    -- Access raw offerings to iterate ProductBrandOfferings.
+    local rawOfferings = json_path("CatalogProductOfferingsResponse.CatalogProductOfferings.CatalogProductOffering")
+    if not rawOfferings then return outputs end
+
+    local expanded = {}
+    for _, offering in ipairs(rawOfferings) do
+      local common = {
+        offeringId = offering.id,
+        departure = offering.Departure,
+        arrival = offering.Arrival,
+        offeringIdentifierValue = offering.Identifier and offering.Identifier.value or nil,
+      }
+
+      local brandOptions = offering.ProductBrandOptions
+      if brandOptions then
+        for _, option in ipairs(brandOptions) do
+          local pboList = option.ProductBrandOffering
+          if pboList then
+            for _, pbo in ipairs(pboList) do
+              local entry = {}
+              for k, v in pairs(common) do entry[k] = v end
+
+              -- Product: take first product ref
+              if pbo.Product and pbo.Product[1] then
+                entry.productId = pbo.Product[1].productRef or pbo.Product[1].id
+                -- Inline full-payload flight details
+                local inlineProd = pbo.Product[1]
+                if inlineProd.FlightSegment and inlineProd.FlightSegment[1] then
+                  local seg = inlineProd.FlightSegment[1]
+                  if seg.Flight and seg.Flight.carrier then
+                    entry.carrier = seg.Flight.carrier
+                    entry.flightNumber = seg.Flight.number
+                    if seg.Flight.Departure then
+                      entry.departureDate = seg.Flight.Departure.date
+                      entry.departureTime = seg.Flight.Departure.time
+                    end
+                    if seg.Flight.Arrival then
+                      entry.arrivalDate = seg.Flight.Arrival.date
+                      entry.arrivalTime = seg.Flight.Arrival.time
+                    end
+                  end
+                end
+                if inlineProd.PassengerFlight and inlineProd.PassengerFlight[1] then
+                  local pf = inlineProd.PassengerFlight[1]
+                  if pf.FlightProduct and pf.FlightProduct[1] then
+                    entry.cabin = pf.FlightProduct[1].cabin
+                    entry.classOfService = pf.FlightProduct[1].classOfService
+                  end
+                end
+              end
+
+              -- Brand
+              if pbo.Brand then
+                entry.brand = pbo.Brand.name
+              elseif pbo.BrandRef then
+                entry.brand = pbo.BrandRef
+              end
+
+              -- Price
+              if pbo.BestCombinablePrice then
+                entry.totalPrice = pbo.BestCombinablePrice.TotalPrice
+                entry.currency = pbo.BestCombinablePrice.CurrencyCode and pbo.BestCombinablePrice.CurrencyCode.value or nil
+              end
+
+              -- Resolve flight details from ReferenceList (GDS mode)
+              if entry.productId then
+                resolveProduct(entry, entry.productId)
+              end
+
+              table.insert(expanded, entry)
             end
           end
         end
       end
-
     end
 
+    outputs.catalogProductOfferings = expanded
     return outputs

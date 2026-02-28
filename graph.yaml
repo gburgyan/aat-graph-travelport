@@ -366,7 +366,7 @@ nodes:
             type: string
           - name: productId
             type: string
-          - name: productIds
+          - name: brand
             type: string
           - name: departure
             type: string
@@ -535,7 +535,7 @@ nodes:
             type: string
           - name: productId
             type: string
-          - name: productIds
+          - name: brand
             type: string
           - name: departure
             type: string
@@ -736,7 +736,7 @@ nodes:
             type: string
           - name: productId
             type: string
-          - name: productIds
+          - name: brand
             type: string
           - name: departure
             type: string
@@ -969,7 +969,7 @@ nodes:
             type: string
           - name: productId
             type: string
-          - name: productIds
+          - name: brand
             type: string
           - name: departure
             type: string
@@ -1035,7 +1035,7 @@ nodes:
             type: string
           - name: productId
             type: string
-          - name: productIds
+          - name: brand
             type: string
           - name: departure
             type: string
@@ -1118,44 +1118,44 @@ nodes:
       - name: offeringId
         type: string
         description: "Selected CatalogProductOffering id"
-      - name: productIds
+      - name: productId
         type: string
-        description: "Comma-separated Product ids to include in the price request"
+        description: "Selected Product identifier for the price request"
       # Return leg inputs (for round-trip reference pricing)
       - name: returnOfferingId
         type: string
         description: "Return leg CatalogProductOffering Identifier.value"
         optional: true
-      - name: returnProductIds
+      - name: returnProductId
         type: string
-        description: "Return leg Product identifiers"
+        description: "Return leg Product identifier"
         optional: true
       # Multi-city leg 2 inputs (for reference pricing)
       - name: leg2OfferingId
         type: string
         description: "Leg 2 CatalogProductOffering Identifier.value"
         optional: true
-      - name: leg2ProductIds
+      - name: leg2ProductId
         type: string
-        description: "Leg 2 Product identifiers"
+        description: "Leg 2 Product identifier"
         optional: true
       # Multi-city leg 3 inputs (for reference pricing)
       - name: leg3OfferingId
         type: string
         description: "Leg 3 CatalogProductOffering Identifier.value"
         optional: true
-      - name: leg3ProductIds
+      - name: leg3ProductId
         type: string
-        description: "Leg 3 Product identifiers"
+        description: "Leg 3 Product identifier"
         optional: true
       # Multi-city leg 4 inputs (for reference pricing)
       - name: leg4OfferingId
         type: string
         description: "Leg 4 CatalogProductOffering Identifier.value"
         optional: true
-      - name: leg4ProductIds
+      - name: leg4ProductId
         type: string
-        description: "Leg 4 Product identifiers"
+        description: "Leg 4 Product identifier"
         optional: true
     outputs:
       - name: offerIdentifierValue
@@ -1458,7 +1458,7 @@ nodes:
     description: "Add a priced offer to the workbench using reference payload."
     adapter: addOfferReference
     oas:
-      operationId: BuildFromOffer
+      operationId: WorkbenchBuildFromCatalogProductOfferings
     tags: [offer]
     requires: [offerPriced, workbenchCreated]
     satisfies: [offerAdded]
@@ -1473,44 +1473,44 @@ nodes:
       - name: offeringId
         type: string
         description: "Selected CatalogProductOffering id"
-      - name: productIds
+      - name: productId
         type: string
-        description: "Comma-separated Product ids"
+        description: "Selected Product identifier"
       # Return leg inputs (for round-trip reference booking)
       - name: returnOfferingId
         type: string
         description: "Return leg CatalogProductOffering Identifier.value"
         optional: true
-      - name: returnProductIds
+      - name: returnProductId
         type: string
-        description: "Return leg Product identifiers"
+        description: "Return leg Product identifier"
         optional: true
       # Multi-city leg 2 inputs (for reference booking)
       - name: leg2OfferingId
         type: string
         description: "Leg 2 CatalogProductOffering Identifier.value"
         optional: true
-      - name: leg2ProductIds
+      - name: leg2ProductId
         type: string
-        description: "Leg 2 Product identifiers"
+        description: "Leg 2 Product identifier"
         optional: true
       # Multi-city leg 3 inputs (for reference booking)
       - name: leg3OfferingId
         type: string
         description: "Leg 3 CatalogProductOffering Identifier.value"
         optional: true
-      - name: leg3ProductIds
+      - name: leg3ProductId
         type: string
-        description: "Leg 3 Product identifiers"
+        description: "Leg 3 Product identifier"
         optional: true
       # Multi-city leg 4 inputs (for reference booking)
       - name: leg4OfferingId
         type: string
         description: "Leg 4 CatalogProductOffering Identifier.value"
         optional: true
-      - name: leg4ProductIds
+      - name: leg4ProductId
         type: string
-        description: "Leg 4 Product identifiers"
+        description: "Leg 4 Product identifier"
         optional: true
     outputs:
       - name: offerIdentifierValue
