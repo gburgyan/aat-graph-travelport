@@ -1,0 +1,11 @@
+kind: recipe
+metadata:
+    created: 2026-02-27T00:00:00-06:00
+    prompt: book a three leg multi-city trip
+    graphVersion: 1.0.0
+selection:
+    workflow: Booking
+    description: Book a flight using a 3-leg multi-city itinerary search and reference pricing, then create the reservation with cash form of payment.
+    choices:
+        payment: Cash
+        trip-search: Multi-City 3-Leg

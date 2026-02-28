@@ -1,0 +1,11 @@
+kind: recipe
+metadata:
+    created: 2026-02-27T00:00:00-06:00
+    prompt: book a three leg multi-city trip with a credit card
+    graphVersion: 1.0.0
+selection:
+    workflow: Booking
+    description: Book a 3-leg multi-city itinerary using credit card form of payment, including search, pricing, traveler details, and commit.
+    choices:
+        payment: Card
+        trip-search: Multi-City 3-Leg
