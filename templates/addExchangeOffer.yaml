@@ -9,24 +9,23 @@ request:
     Accept: application/json
   body: |
     {
-      "OfferQueryBuildFromCatalogOfferings": {
-        "fareRuleType": "TextLong",
-        "lowFareFinderInd": "false",
-        "returnBrandedFaresInd": "true",
-        "reCheckInventoryInd": true,
-        "BuildFromCatalogOfferingsRequest": {
-          "@type": "BuildFromCatalogOfferingsRequestAir",
-          "CatalogOfferingsIdentifier": {
-            "Identifier": {
-              "value": "{{catalogOfferingsIdentifierValue}}",
-              "authority": "Travelport"
-            }
-          },
-          "CatalogOfferingIdentifier": {
-            "Identifier": {
-              "value": "{{catalogOfferingIdentifierValue}}",
-              "authority": "Travelport"
-            }
+      "@type": "OfferQueryBuildFromCatalogOfferings",
+      "fareRuleType": "TextLong",
+      "lowFareFinderInd": false,
+      "returnBrandedFaresInd": true,
+      "reCheckInventoryInd": true,
+      "BuildFromCatalogOfferingsRequest": {
+        "@type": "BuildFromCatalogOfferingsRequestAir",
+        "CatalogOfferingsIdentifier": {
+          "Identifier": {
+            "value": "{{catalogOfferingsIdentifierValue}}",
+            "authority": "Travelport"
+          }
+        },
+        "CatalogOfferingIdentifier": {
+          "Identifier": {
+            "value": "{{catalogOfferingIdentifierValue}}",
+            "authority": "Travelport"
           }
         }
       }

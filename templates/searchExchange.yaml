@@ -9,40 +9,41 @@ request:
     Accept: application/json
   body: |
     {
-      "CatalogOfferingsQueryAirChange": {
-        "CatalogOfferingsAirChangeRequest": {
-          "@type": "CatalogOfferingsAirChangeRequestReservation",
-          "returnBrandedFaresInd": true,
-          "detailViewInd": true,
-          "BuildFromReservationWorkbench": {
-            "ReservationIdentifier": {
-              "Identifier": {
-                "authority": "Travelport",
-                "value": "{{reservationIdentifier}}"
-              }
-            },
-            "OfferIdentifier": {
-              "id": "{{offerId}}"
-            },
-            "ProductIdentifier": [
-              {
-                "id": "{{productId}}"
-              }
-            ]
-          },
-          "SearchCriteriaFlight": [
-            {
-              "departureDate": "{{departureDate}}",
-              "From": {
-                "value": "{{origin}}"
-              },
-              "To": {
-                "value": "{{destination}}"
-              }
+      "@type": "CatalogOfferingsQueryAirChange",
+      "CatalogOfferingsAirChangeRequest": {
+        "@type": "CatalogOfferingsAirChangeRequestReservation",
+        "returnBrandedFaresInd": true,
+        "detailViewInd": true,
+        "BuildFromReservationWorkbench": {
+          "@type": "BuildFromReservationWorkbench",
+          "ReservationIdentifier": {
+            "Identifier": {
+              "authority": "Travelport",
+              "value": "{{reservationIdentifier}}"
             }
-          ],
-          "PricingModifiersAirChange": {}
-        }
+          },
+          "OfferIdentifier": {
+            "id": "{{offerId}}"
+          },
+          "ProductIdentifier": [
+            {
+              "id": "{{productId}}"
+            }
+          ]
+        },
+        "SearchCriteriaFlight": [
+          {
+            "@type": "SearchCriteriaFlight",
+            "departureDate": "{{departureDate}}",
+            "From": {
+              "value": "{{origin}}"
+            },
+            "To": {
+              "value": "{{destination}}"
+            }
+          }
+        ],
+        "PricingModifiersAirChange": {}
       }
     }
 

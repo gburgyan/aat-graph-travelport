@@ -9,45 +9,43 @@ request:
     Accept: application/json
   body: |
     {
-      "DocumentOverrides": {
-        "@type": "DocumentOverrides",
-        "Commissions": [
-          {
-            "Commission": {
-              "@type": "CommissionAmount",
-              "Amount": {
-                "code": "{{commissionCurrencyCode}}",
-                "value": {{commissionAmount}}
-              }
+      "@type": "DocumentOverrides",
+      "Commissions": [
+        {
+          "Commission": {
+            "@type": "CommissionAmount",
+            "Amount": {
+              "code": "{{commissionCurrencyCode}}",
+              "value": {{commissionAmount}}
             }
           }
-        ]
-        {{?restriction}},
-        "Restrictions": [
-          {
-            "Restriction": [
-              "{{restriction}}"
-            ]
-          }
-        ]
-        {{/restriction}}
-        {{?tourCode}},
-        "TourCodes": [
-          {
-            "TourCode": {
-              "tourCodeType": "Inclusive Tour",
-              "value": "{{tourCode}}"
-            }
-          }
-        ]
-        {{/tourCode}}
-        {{?changeFeeCode}},
-        "ChangeFeeCollectionMethod": {
-          "code": "{{changeFeeCode}}",
-          "value": "{{changeFeeMethod}}"
         }
-        {{/changeFeeCode}}
+      ]
+      {{?restriction}},
+      "Restrictions": [
+        {
+          "Restriction": [
+            "{{restriction}}"
+          ]
+        }
+      ]
+      {{/restriction}}
+      {{?tourCode}},
+      "TourCodes": [
+        {
+          "TourCode": {
+            "tourCodeType": "Inclusive Tour",
+            "value": "{{tourCode}}"
+          }
+        }
+      ]
+      {{/tourCode}}
+      {{?changeFeeCode}},
+      "ChangeFeeCollectionMethod": {
+        "code": "{{changeFeeCode}}",
+        "value": "{{changeFeeMethod}}"
       }
+      {{/changeFeeCode}}
     }
 
 response:
