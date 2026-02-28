@@ -11,4 +11,5 @@ layers: layers/
 plans: plans/
 archives: runs/
 traces: traces/
+visualizers: visualizers/
 environment: env.yaml

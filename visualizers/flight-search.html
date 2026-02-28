@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flight Search Results</title>
+<style>
+  :root {
+    --color-bg: #0f1117;
+    --color-surface: #1a1b26;
+    --color-text: #e4e4e7;
+    --color-text-secondary: #a1a1aa;
+    --color-text-muted: #71717a;
+    --color-border: #2e2e3a;
+    --color-primary: #6366f1;
+    --color-success: #22c55e;
+    --color-warning: #f59e0b;
+    --font-mono: 'SF Mono', 'Fira Code', 'Fira Mono', monospace;
+    --font-sans: system-ui, -apple-system, sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.5;
+    padding: 0.5rem;
+  }
+
+  .viz-empty {
+    padding: 2rem;
+    text-align: center;
+    color: var(--color-text-muted);
+  }
+
+  .viz-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    padding: 0.5rem 0;
+  }
+
+  .viz-count {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+  }
+
+  .viz-sort {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+  }
+
+  .viz-sort select {
+    font-family: var(--font-sans);
+    font-size: 0.85rem;
+    padding: 0.25rem 0.5rem;
+    background: var(--color-surface);
+    color: var(--color-text);
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  .viz-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .viz-card {
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--color-surface);
+    transition: border-color 0.15s;
+  }
+
+  .viz-card:hover { border-color: var(--color-primary); }
+  .viz-card.expanded { border-color: var(--color-primary); }
+
+  .viz-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: var(--color-text);
+    text-align: left;
+    gap: 1rem;
+    font-family: var(--font-sans);
+    font-size: 14px;
+  }
+
+  .viz-card-header:hover { background: rgba(99, 102, 241, 0.04); }
+
+  .viz-card-left {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .carrier-logo {
+    width: 40px;
+    height: 28px;
+    object-fit: contain;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+
+  .viz-route-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  .viz-segment {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 0.85rem;
+    flex-wrap: wrap;
+  }
+
+  .viz-segment-connecting {
+    padding-left: 0.5rem;
+    border-left: 2px solid var(--color-border);
+  }
+
+  .connecting-label {
+    font-size: 0.7rem;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .flight-number {
+    font-weight: 600;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    min-width: 4.5em;
+  }
+
+  .route {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-weight: 600;
+  }
+
+  .station { font-family: var(--font-mono); }
+  .route-arrow { color: var(--color-text-muted); font-size: 0.8rem; }
+
+  .times {
+    color: var(--color-text-muted);
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+  }
+
+  .time-arrow { margin: 0 0.15rem; }
+
+  .duration {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    background: rgba(99, 102, 241, 0.08);
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+  }
+
+  .cabin-badge {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--color-primary);
+    background: rgba(99, 102, 241, 0.1);
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    font-weight: 600;
+  }
+
+  .viz-card-right {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-shrink: 0;
+  }
+
+  .viz-price-from {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+  }
+
+  .from-label {
+    font-size: 0.65rem;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .price-value {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--color-success);
+    font-family: var(--font-mono);
+  }
+
+  .expand-icon {
+    font-size: 0.7rem;
+    color: var(--color-text-muted);
+  }
+
+  .viz-fares {
+    border-top: 1px solid var(--color-border);
+    overflow-x: auto;
+  }
+
+  .fare-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8rem;
+  }
+
+  .fare-table thead { background: rgba(0, 0, 0, 0.2); }
+
+  .fare-table th {
+    padding: 0.4rem 0.6rem;
+    text-align: left;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+
+  .fare-table td {
+    padding: 0.5rem 0.6rem;
+    border-top: 1px solid var(--color-border);
+    white-space: nowrap;
+  }
+
+  .fare-table tbody tr:hover { background: rgba(99, 102, 241, 0.04); }
+
+  .cell-brand {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    font-weight: 500;
+    white-space: normal;
+  }
+
+  .cell-brand-name {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .brand-logo-sm {
+    width: 24px;
+    height: 16px;
+    object-fit: contain;
+    border-radius: 2px;
+  }
+
+  .col-price {
+    text-align: right;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+  }
+
+  .price-total {
+    font-weight: 700;
+    color: var(--color-success);
+  }
+
+  .col-amenities { min-width: 10rem; }
+
+  .cell-amenities {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+  }
+
+  .amenity-pill {
+    font-size: 0.65rem;
+    padding: 0.1rem 0.35rem;
+    border-radius: 3px;
+    white-space: nowrap;
+  }
+
+  .amenity-included { color: var(--color-success); background: rgba(34, 197, 94, 0.1); }
+  .amenity-chargeable { color: var(--color-warning); background: rgba(245, 158, 11, 0.1); }
+  .amenity-excluded { color: var(--color-text-muted); background: rgba(156, 163, 175, 0.08); }
+
+  .ref-badge {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    padding: 0.1rem 0.35rem;
+    border-radius: 3px;
+    background: rgba(99, 102, 241, 0.08);
+    color: var(--color-text-muted);
+    white-space: nowrap;
+  }
+
+  .ref-badge-label {
+    color: var(--color-text-muted);
+    opacity: 0.7;
+    margin-right: 0.15rem;
+  }
+
+  .viz-card-refs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    align-items: center;
+  }
+
+  .cell-refs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.2rem;
+  }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+(function() {
+  'use strict';
+
+  // --- postMessage protocol ---
+  window.addEventListener('message', function(e) {
+    if (!e.data || typeof e.data !== 'object') return;
+    if (e.data.type === 'aat-visualizer-data') {
+      if (e.data.theme) applyTheme(e.data.theme);
+      render(e.data.body);
+      requestAnimationFrame(function() {
+        parent.postMessage({
+          type: 'aat-visualizer-resize',
+          height: document.documentElement.scrollHeight
+        }, '*');
+      });
+    }
+  });
+
+  // Signal readiness.
+  parent.postMessage({ type: 'aat-visualizer-ready' }, '*');
+
+  function applyTheme(theme) {
+    var root = document.documentElement;
+    for (var name in theme) {
+      if (theme.hasOwnProperty(name)) {
+        root.style.setProperty(name, theme[name]);
+      }
+    }
+  }
+
+  // --- State ---
+  var allCards = [];
+  var sortMode = 'price';
+  var expandedCards = {};
+
+  // --- Parsing ---
+
+  function formatTime(t) {
+    if (!t) return '';
+    return t.slice(0, 5);
+  }
+
+  function formatDuration(d) {
+    if (!d) return '';
+    var match = d.match(/PT(?:(\d+)H)?(?:(\d+)M)?/);
+    if (!match) return d;
+    var h = match[1] ? parseInt(match[1]) : 0;
+    var m = match[2] ? parseInt(match[2]) : 0;
+    if (h === 0) return m + 'm';
+    return h + 'h ' + String(m).padStart(2, '0') + 'm';
+  }
+
+  function formatPrice(n, currency) {
+    return currency + '\u00a0' + n.toFixed(2);
+  }
+
+  function amenityIcon(inclusion) {
+    switch (inclusion) {
+      case 'Included': return '\u2713';
+      case 'Chargeable': return '$';
+      case 'Not Offered': return '\u2717';
+      default: return '?';
+    }
+  }
+
+  function amenityClass(inclusion) {
+    switch (inclusion) {
+      case 'Included': return 'amenity-included';
+      case 'Chargeable': return 'amenity-chargeable';
+      case 'Not Offered': return 'amenity-excluded';
+      default: return 'amenity-excluded';
+    }
+  }
+
+  function carrierLogoUrl(carrier) {
+    return 'https://pics.avs.io/60/30/' + carrier + '.png';
+  }
+
+  function parse(body) {
+    if (!body || typeof body !== 'object') return [];
+    var resp = body['CatalogProductOfferingsResponse'];
+    if (!resp) return [];
+
+    var flightsById = {};
+    var brandsById = {};
+    var productsById = {};
+
+    var refLists = resp['ReferenceList'] || [];
+    for (var ri = 0; ri < refLists.length; ri++) {
+      var ref = refLists[ri];
+      var t = ref['@type'];
+      if (t === 'ReferenceListFlight') {
+        var flights = ref['Flight'] || [];
+        for (var fi = 0; fi < flights.length; fi++) flightsById[flights[fi].id] = flights[fi];
+      } else if (t === 'ReferenceListBrand') {
+        var brands = ref['Brand'] || [];
+        for (var bi = 0; bi < brands.length; bi++) brandsById[brands[bi].id] = brands[bi];
+      } else if (t === 'ReferenceListProduct') {
+        var products = ref['Product'] || [];
+        for (var pi = 0; pi < products.length; pi++) productsById[products[pi].id] = products[pi];
+      }
+    }
+
+    var cpos = resp['CatalogProductOfferings'];
+    if (!cpos) return [];
+    var offerings = cpos['CatalogProductOffering'] || [];
+    var cards = [];
+
+    for (var oi = 0; oi < offerings.length; oi++) {
+      var offering = offerings[oi];
+      var id = offering['id'];
+      var sequence = offering['sequence'];
+      var origin = offering['Departure'];
+      var destination = offering['Arrival'];
+      var options = offering['ProductBrandOptions'] || [];
+
+      var headerSegments = [];
+      var allFareOptions = [];
+      var primaryCarrier = '';
+      var totalDuration = '';
+
+      var cardFlightRefs = [];
+
+      for (var xi = 0; xi < options.length; xi++) {
+        var opt = options[xi];
+        var fRefs = opt['flightRefs'] || [];
+        var segments = [];
+        for (var si = 0; si < fRefs.length; si++) {
+          var f = flightsById[fRefs[si]];
+          if (!f) continue;
+          if (cardFlightRefs.length === 0) cardFlightRefs = fRefs.slice();
+          segments.push({
+            carrier: f.carrier,
+            flightNumber: f.carrier + f.number,
+            origin: f.Departure.location,
+            destination: f.Arrival.location,
+            departureDate: f.Departure.date,
+            departureTime: formatTime(f.Departure.time),
+            arrivalTime: formatTime(f.Arrival.time),
+            arrivalDate: f.Arrival.date,
+            duration: formatDuration(f.duration),
+            equipment: f.equipment,
+            departureTerminal: (f.Departure.terminal || ''),
+            arrivalTerminal: (f.Arrival.terminal || '')
+          });
+        }
+
+        if (headerSegments.length === 0 && segments.length > 0) {
+          headerSegments = segments;
+          primaryCarrier = segments[0].carrier;
+        }
+
+        var pbos = opt['ProductBrandOffering'] || [];
+        for (var pbi = 0; pbi < pbos.length; pbi++) {
+          var pbo = pbos[pbi];
+          var brandObj = pbo['Brand'];
+          var brandId = brandObj ? (brandObj['BrandRef'] || '') : '';
+          var brand = brandsById[brandId];
+          var price = pbo['BestCombinablePrice'];
+
+          var productList = pbo['Product'] || [];
+          var productIds = [];
+          for (var pli = 0; pli < productList.length; pli++) {
+            if (productList[pli]['productRef']) productIds.push(productList[pli]['productRef']);
+          }
+
+          var cabin = '', fareBasis = '', classOfService = '', fareType = '';
+          for (var pidi = 0; pidi < productIds.length; pidi++) {
+            var prod = productsById[productIds[pidi]];
+            if (!prod) continue;
+            if (!totalDuration && prod.totalDuration) totalDuration = prod.totalDuration;
+            var pfs = prod.PassengerFlight || [];
+            for (var pfi = 0; pfi < pfs.length; pfi++) {
+              var fps = pfs[pfi].FlightProduct || [];
+              for (var fpi = 0; fpi < fps.length; fpi++) {
+                var fp = fps[fpi];
+                if (!cabin && fp.cabin) cabin = fp.cabin;
+                if (!fareBasis && fp.fareBasisCode) fareBasis = fp.fareBasisCode;
+                if (!classOfService && fp.classOfService) classOfService = fp.classOfService;
+                if (!fareType && fp.fareType) fareType = fp.fareType;
+              }
+            }
+          }
+
+          var amenities = [];
+          if (brand && brand.BrandAttribute) {
+            for (var ai = 0; ai < brand.BrandAttribute.length; ai++) {
+              var attr = brand.BrandAttribute[ai];
+              amenities.push({ name: attr.classification, inclusion: attr.inclusion });
+            }
+          }
+
+          var currCode = price ? price['CurrencyCode'] : null;
+          allFareOptions.push({
+            brandName: brand ? brand.name : brandId,
+            brandRef: brandId,
+            brandTier: brand ? brand.tier : 0,
+            brandImageUrl: (brand && brand.ImageURL && brand.ImageURL[0]) || '',
+            productRefs: productIds.slice(),
+            price: {
+              currency: (currCode && currCode['value']) || '',
+              base: (price && price['Base']) || 0,
+              taxes: (price && price['TotalTaxes']) || 0,
+              fees: (price && price['TotalFees']) || 0,
+              total: (price && price['TotalPrice']) || 0,
+            },
+            cabin: cabin,
+            fareBasis: fareBasis,
+            classOfService: classOfService,
+            fareType: fareType,
+            amenities: amenities
+          });
+        }
+      }
+
+      // Deduplicate
+      var seen = {};
+      var uniqueFares = [];
+      for (var ufi = 0; ufi < allFareOptions.length; ufi++) {
+        var fo = allFareOptions[ufi];
+        var key = fo.brandName + '|' + fo.price.total + '|' + fo.cabin;
+        if (!seen[key]) {
+          seen[key] = true;
+          uniqueFares.push(fo);
+        }
+      }
+      uniqueFares.sort(function(a, b) { return a.price.total - b.price.total; });
+
+      cards.push({
+        id: id,
+        sequence: sequence,
+        origin: origin,
+        destination: destination,
+        segments: headerSegments,
+        flightRefs: cardFlightRefs,
+        fareOptions: uniqueFares,
+        cheapestPrice: uniqueFares.length > 0 ? uniqueFares[0].price.total : 0,
+        currency: uniqueFares.length > 0 ? uniqueFares[0].price.currency : '',
+        primaryCarrier: primaryCarrier,
+        totalDuration: formatDuration(totalDuration)
+      });
+    }
+
+    return cards;
+  }
+
+  // --- Sorting ---
+
+  function sortCards(cards, mode) {
+    var sorted = cards.slice();
+    switch (mode) {
+      case 'price':
+        sorted.sort(function(a, b) { return a.cheapestPrice - b.cheapestPrice; });
+        break;
+      case 'departure':
+        sorted.sort(function(a, b) {
+          var at = a.segments[0] ? a.segments[0].departureTime : '';
+          var bt = b.segments[0] ? b.segments[0].departureTime : '';
+          return at.localeCompare(bt);
+        });
+        break;
+      case 'duration':
+        sorted.sort(function(a, b) { return a.totalDuration.localeCompare(b.totalDuration); });
+        break;
+    }
+    return sorted;
+  }
+
+  // --- Escaping ---
+
+  function esc(s) {
+    if (s == null) return '';
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  // --- Rendering ---
+
+  function render(body) {
+    allCards = parse(body);
+    renderCards();
+  }
+
+  function renderCards() {
+    var app = document.getElementById('app');
+    var sorted = sortCards(allCards, sortMode);
+
+    if (sorted.length === 0) {
+      app.innerHTML = '<div class="viz-empty"><p>No itineraries found in response.</p></div>';
+      return;
+    }
+
+    var html = '';
+    html += '<div class="viz-toolbar">';
+    html += '<span class="viz-count">' + sorted.length + ' itineraries</span>';
+    html += '<div class="viz-sort"><label for="sort-select">Sort:</label>';
+    html += '<select id="sort-select">';
+    html += '<option value="price"' + (sortMode === 'price' ? ' selected' : '') + '>Cheapest</option>';
+    html += '<option value="departure"' + (sortMode === 'departure' ? ' selected' : '') + '>Departure</option>';
+    html += '<option value="duration"' + (sortMode === 'duration' ? ' selected' : '') + '>Duration</option>';
+    html += '</select></div></div>';
+
+    html += '<div class="viz-cards">';
+    for (var i = 0; i < sorted.length; i++) {
+      html += renderCard(sorted[i]);
+    }
+    html += '</div>';
+
+    app.innerHTML = html;
+
+    // Bind sort select
+    var sel = document.getElementById('sort-select');
+    if (sel) {
+      sel.addEventListener('change', function() {
+        sortMode = this.value;
+        renderCards();
+        notifyResize();
+      });
+    }
+
+    // Bind card toggle buttons
+    var buttons = app.querySelectorAll('.viz-card-header');
+    buttons.forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var cardId = this.getAttribute('data-card-id');
+        expandedCards[cardId] = !expandedCards[cardId];
+        renderCards();
+        notifyResize();
+      });
+    });
+  }
+
+  function renderCard(card) {
+    var isExpanded = !!expandedCards[card.id];
+    var cheapest = card.fareOptions[0];
+    var logoSrc = (cheapest && cheapest.brandImageUrl) || carrierLogoUrl(card.primaryCarrier);
+
+    var html = '<div class="viz-card' + (isExpanded ? ' expanded' : '') + '">';
+    html += '<button class="viz-card-header" data-card-id="' + esc(card.id) + '">';
+    html += '<div class="viz-card-left">';
+    html += '<img class="carrier-logo" src="' + esc(logoSrc) + '" alt="' + esc(card.primaryCarrier) + '" onerror="this.style.display=\'none\'">';
+    html += '<div class="viz-route-info">';
+
+    for (var i = 0; i < card.segments.length; i++) {
+      var seg = card.segments[i];
+      var connecting = i > 0;
+      html += '<div class="viz-segment' + (connecting ? ' viz-segment-connecting' : '') + '">';
+      if (connecting) html += '<span class="connecting-label">connection</span>';
+      html += '<span class="flight-number">' + esc(seg.flightNumber) + '</span>';
+      html += '<span class="route"><span class="station">' + esc(seg.origin) + '</span>';
+      html += '<span class="route-arrow">\u2192</span>';
+      html += '<span class="station">' + esc(seg.destination) + '</span></span>';
+      html += '<span class="times">' + esc(seg.departureTime) + '<span class="time-arrow">\u2013</span>' + esc(seg.arrivalTime) + '</span>';
+      if (i === 0) html += '<span class="duration">' + esc(card.totalDuration || seg.duration) + '</span>';
+      if (cheapest && i === 0) html += '<span class="cabin-badge">' + esc(cheapest.cabin || 'Economy') + '</span>';
+      html += '</div>';
+    }
+
+    // API identifier badges
+    html += '<div class="viz-card-refs">';
+    html += '<span class="ref-badge"><span class="ref-badge-label">offering:</span>' + esc(card.id) + '</span>';
+    if (card.flightRefs.length > 0) {
+      html += '<span class="ref-badge"><span class="ref-badge-label">flight:</span>' + esc(card.flightRefs.join(', ')) + '</span>';
+    }
+    html += '</div>';
+
+    html += '</div></div>';
+
+    html += '<div class="viz-card-right">';
+    html += '<span class="viz-price-from"><span class="from-label">from</span>';
+    html += '<span class="price-value">' + esc(formatPrice(card.cheapestPrice, card.currency)) + '</span></span>';
+    html += '<span class="expand-icon">' + (isExpanded ? '\u25b2' : '\u25bc') + '</span>';
+    html += '</div></button>';
+
+    if (isExpanded) {
+      html += '<div class="viz-fares"><table class="fare-table"><thead><tr>';
+      html += '<th>Brand</th><th>Cabin</th><th>Class</th><th>Fare Basis</th>';
+      html += '<th class="col-amenities">Amenities</th>';
+      html += '<th class="col-price">Base</th><th class="col-price">Taxes</th><th class="col-price">Total</th>';
+      html += '</tr></thead><tbody>';
+
+      for (var fi = 0; fi < card.fareOptions.length; fi++) {
+        var fare = card.fareOptions[fi];
+        html += '<tr>';
+        html += '<td class="cell-brand">';
+        html += '<div class="cell-brand-name">';
+        if (fare.brandImageUrl) {
+          html += '<img class="brand-logo-sm" src="' + esc(fare.brandImageUrl) + '" alt="" onerror="this.style.display=\'none\'">';
+        }
+        html += '<span>' + esc(fare.brandName) + '</span></div>';
+        html += '<div class="cell-refs">';
+        if (fare.brandRef) html += '<span class="ref-badge"><span class="ref-badge-label">brand:</span>' + esc(fare.brandRef) + '</span>';
+        if (fare.productRefs.length > 0) html += '<span class="ref-badge"><span class="ref-badge-label">product:</span>' + esc(fare.productRefs.join(', ')) + '</span>';
+        html += '</div></td>';
+        html += '<td>' + esc(fare.cabin || '\u2014') + '</td>';
+        html += '<td><code>' + esc(fare.classOfService || '\u2014') + '</code></td>';
+        html += '<td><code>' + esc(fare.fareBasis || '\u2014') + '</code></td>';
+        html += '<td class="cell-amenities">';
+        for (var ai = 0; ai < fare.amenities.length; ai++) {
+          var am = fare.amenities[ai];
+          html += '<span class="amenity-pill ' + amenityClass(am.inclusion) + '" title="' + esc(am.name) + ': ' + esc(am.inclusion) + '">';
+          html += amenityIcon(am.inclusion) + ' ' + esc(am.name) + '</span>';
+        }
+        html += '</td>';
+        html += '<td class="col-price">' + esc(formatPrice(fare.price.base, fare.price.currency)) + '</td>';
+        html += '<td class="col-price">' + esc(formatPrice(fare.price.taxes, fare.price.currency)) + '</td>';
+        html += '<td class="col-price price-total">' + esc(formatPrice(fare.price.total, fare.price.currency)) + '</td>';
+        html += '</tr>';
+      }
+
+      html += '</tbody></table></div>';
+    }
+
+    html += '</div>';
+    return html;
+  }
+
+  function notifyResize() {
+    requestAnimationFrame(function() {
+      parent.postMessage({
+        type: 'aat-visualizer-resize',
+        height: document.documentElement.scrollHeight
+      }, '*');
+    });
+  }
+})();
+</script>
+</body>
+</html>

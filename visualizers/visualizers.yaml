@@ -1,0 +1,6 @@
+visualizers:
+  - id: flight-search
+    name: Flight Search Results
+    file: flight-search.html
+    match:
+      bodyContains: CatalogProductOfferingsResponse
