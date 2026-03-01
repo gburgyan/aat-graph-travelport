@@ -1,0 +1,11 @@
+kind: recipe
+metadata:
+    created: 2026-02-28T22:35:45.223738-06:00
+    prompt: Book a round trip for two travelers
+    graphVersion: 1.0.0
+selection:
+    workflow: Booking
+    description: Book a round-trip flight itinerary for two adult travelers, including search, pricing, reservation creation, and payment.
+    choices:
+        traveler: Two Travelers
+        trip-search: Round-Trip

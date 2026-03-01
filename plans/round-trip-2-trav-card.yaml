@@ -1,0 +1,12 @@
+kind: recipe
+metadata:
+    created: 2026-02-28T22:36:40.185769-06:00
+    prompt: Book a round trip for two travelers and pay with a credit card
+    graphVersion: 1.0.0
+selection:
+    workflow: Booking
+    description: Book a round-trip flight for two adult travelers and complete payment using a credit card.
+    choices:
+        payment: Card
+        traveler: Two Travelers
+        trip-search: Round-Trip
