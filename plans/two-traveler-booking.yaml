@@ -1,0 +1,12 @@
+kind: recipe
+metadata:
+    created: 2026-02-28T00:00:00-06:00
+    prompt: book a one-way flight for two travelers
+    graphVersion: 1.0.0
+selection:
+    workflow: Booking
+    description: Book a one-way flight for two adult travelers with cash payment.
+    choices:
+        trip-search: One-Way
+        traveler: Two Travelers
+        payment: Cash

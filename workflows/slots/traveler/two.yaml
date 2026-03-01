@@ -1,0 +1,12 @@
+# Two travelers slot option — two sequential addTraveler calls.
+execution:
+  steps:
+    - node: addTraveler
+      id: addTraveler_1
+      values:
+        workbenchId: {from: createWorkbench.workbenchId}
+    - node: addTraveler
+      id: addTraveler_2
+      dependsOn: [addTraveler_1]
+      values:
+        workbenchId: {from: createWorkbench.workbenchId}

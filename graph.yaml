@@ -9,13 +9,17 @@ description: |
 workflows:
   # === Slot-based Booking workflow ===
   - name: Booking
-    description: "Book a flight. Choose trip type and payment method."
+    description: "Book a flight. Choose trip type, traveler count, and payment method."
     template: workflows/booking-base.yaml
     slots:
       - name: trip-search
         description: "How to search for and price flights"
         options: [One-Way, Round-Trip, Multi-City 2-Leg, Multi-City 3-Leg, Multi-City 4-Leg, One-Way Full-Payload, Round-Trip Full-Payload, Multi-City 3-Leg Full-Payload, Multi-City 4-Leg Full-Payload]
         default: One-Way
+      - name: traveler
+        description: "Number of travelers"
+        options: [Single Traveler, Two Travelers]
+        default: Single Traveler
       - name: payment
         description: "Form of payment"
         options: [Cash, Card]
@@ -30,6 +34,10 @@ workflows:
         description: "How to search for and price flights"
         options: [One-Way, Round-Trip, Multi-City 2-Leg, Multi-City 3-Leg, Multi-City 4-Leg, One-Way Full-Payload, Round-Trip Full-Payload, Multi-City 3-Leg Full-Payload, Multi-City 4-Leg Full-Payload]
         default: One-Way
+      - name: traveler
+        description: "Number of travelers"
+        options: [Single Traveler, Two Travelers]
+        default: Single Traveler
 
   # --- Trip-search slot options ---
   - name: One-Way
@@ -70,6 +78,18 @@ workflows:
     kind: slot
     description: "4-leg multi-city: journey-based search + full-payload pricing (sends flight details) (don't use, broken)"
     template: workflows/slots/trip-search/multicity-4leg-fullpayload.yaml
+
+  # --- Traveler slot options ---
+  - name: Single Traveler
+    kind: slot
+    description: "One adult traveler"
+    template: workflows/slots/traveler/single.yaml
+  - name: Two Travelers
+    kind: slot
+    description: "Two adult travelers"
+    template: workflows/slots/traveler/two.yaml
+    inject:
+      passengers: 2
 
   # --- Payment slot options ---
   - name: Cash
@@ -123,7 +143,7 @@ workflows:
     description: "Two-step traveler update: discover updatable fields, then apply changes"
     template: workflows/addons/traveler-modification.yaml
     wire:
-      travelerId: addTraveler.travelerIdentifierValue
+      travelerId: $after.travelerIdentifierValue
   - name: Post-Commit Seat Selection
     description: "Select and assign seats on an existing booking using the post-commit seat map"
     template: workflows/post-commit-seat-selection.yaml

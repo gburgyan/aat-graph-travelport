@@ -1,0 +1,6 @@
+# Single traveler slot option — one addTraveler call.
+execution:
+  steps:
+    - node: addTraveler
+      values:
+        workbenchId: {from: createWorkbench.workbenchId}

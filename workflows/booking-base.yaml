@@ -1,5 +1,5 @@
 # Booking base template with slot markers.
-# Slots: trip-search (search + price + addOffer), payment (form of payment).
+# Slots: trip-search (search + price + addOffer), traveler (1 or 2 travelers), payment (form of payment).
 # createWorkbench runs independently in parallel with search.
 
 intent:
@@ -12,16 +12,14 @@ execution:
 
     - slot: trip-search
 
-    - node: addTraveler
+    - slot: traveler
       dependsOn: [trip-search]
-      values:
-        workbenchId: {from: createWorkbench.workbenchId}
 
     - slot: payment
       dependsOn: [trip-search]
 
     - node: addPayment
-      dependsOn: [trip-search, payment, addTraveler]
+      dependsOn: [trip-search, payment, traveler]
       values:
         workbenchId: {from: createWorkbench.workbenchId}
         totalPrice: AUTOWIRE
@@ -36,4 +34,3 @@ execution:
       isGoal: true
       values:
         workbenchId: {from: createWorkbench.workbenchId}
-

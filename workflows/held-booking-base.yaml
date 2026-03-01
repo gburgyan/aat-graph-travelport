@@ -1,5 +1,5 @@
 # Held booking base template — creates a PNR without payment/ticketing.
-# Slots: trip-search (search + price + addOffer).
+# Slots: trip-search (search + price + addOffer), traveler (1 or 2 travelers).
 # createWorkbench runs independently in parallel with search.
 
 intent:
@@ -12,13 +12,11 @@ execution:
 
     - slot: trip-search
 
-    - node: addTraveler
+    - slot: traveler
       dependsOn: [trip-search]
-      values:
-        workbenchId: {from: createWorkbench.workbenchId}
 
     - node: commitReservation
-      dependsOn: [addTraveler]
+      dependsOn: [traveler]
       isGoal: true
       values:
         workbenchId: {from: createWorkbench.workbenchId}
