@@ -1,0 +1,13 @@
+kind: recipe
+metadata:
+    created: 2026-03-03T00:00:00-06:00
+    prompt: book a round-trip flight and place it on a queue
+    graphVersion: 1.0.0
+selection:
+    workflow: Booking
+    description: Book a round-trip flight with cash payment, then place the reservation on queue 14.
+    choices:
+        payment: Cash
+        trip-search: Round-Trip
+    addons:
+        - Place On Queue

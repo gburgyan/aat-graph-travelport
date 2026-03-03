@@ -258,6 +258,15 @@ workflows:
     template: workflows/addons/fare-rules-addon.yaml
     wire:
       locator: commitReservation.locator
+  - name: Place On Queue
+    kind: addon
+    after: commitReservation
+    priority: 80
+    description: "Place the reservation on a queue after booking"
+    template: workflows/addons/place-on-queue-addon.yaml
+    wire:
+      identifier: commitReservation.locator
+      reservationIdentifier: commitReservation.locator
 
 oas: travelport-api-oas-11.31.0.json
 

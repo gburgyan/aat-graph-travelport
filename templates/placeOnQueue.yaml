@@ -11,9 +11,7 @@ request:
     {
       "@type": "AgencyQueueSummary",
       "ReservationIdentifier": {
-        "Identifier": {
-          "value": "{{reservationIdentifier}}"
-        }
+        "value": "{{reservationIdentifier}}"
       },
       "Queue": [
         {

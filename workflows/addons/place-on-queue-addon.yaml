@@ -1,0 +1,22 @@
+# Place on queue addon.
+# Attaches after commitReservation to place the booking on a queue.
+
+intent:
+  description: "Place the reservation on a queue after booking"
+
+execution:
+  steps:
+    - node: retrieveReservation
+      description: "Retrieve the reservation to ensure it is available"
+      retry:
+        max: 3
+      values:
+        identifier: AUTOWIRE
+    - node: placeOnQueue
+      description: "Place the reservation on queue 14"
+      dependsOn: [retrieveReservation]
+      retry:
+        max: 3
+      values:
+        reservationIdentifier: AUTOWIRE
+        queueNumber: "14"
