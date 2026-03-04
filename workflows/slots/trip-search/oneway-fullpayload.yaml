@@ -7,6 +7,7 @@ execution:
       description: "Search for one-way flights"
 
     - node: priceOfferFullPayload
+      id: pricing
       description: "Price the selected flight using full payload (carrier, flight, class details)"
       dependsOn: [searchFlights]
       selections:

@@ -35,6 +35,7 @@ execution:
         productId: {fromSelection: leg2.productId}
 
     - node: priceOfferReference
+      id: pricing
       description: "Price the selected leg 1, leg 2, and leg 3 flights"
       dependsOn: [searchFlights3Leg, searchNextLeg2, searchNextLeg3]
       selections:

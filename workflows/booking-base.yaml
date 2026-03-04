@@ -1,19 +1,20 @@
 # Booking base template with slot markers.
 # Slots: trip-search (search + price + addOffer), traveler (1 or 2 travelers), payment (form of payment).
-# createWorkbench runs independently in parallel with search.
+# createWorkbench runs after pricing completes.
 
 intent:
   description: "Book a flight"
 
 execution:
   steps:
-    - node: createWorkbench
-      description: "Create a reservation workbench (booking session)"
-
     - slot: trip-search
 
+    - node: createWorkbench
+      description: "Create a reservation workbench (booking session)"
+      dependsOn: [pricing]
+
     - slot: traveler
-      dependsOn: [trip-search]
+      dependsOn: [trip-search, createWorkbench]
 
     - slot: payment
       dependsOn: [trip-search]

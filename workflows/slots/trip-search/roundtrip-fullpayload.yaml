@@ -13,6 +13,7 @@ execution:
           pool: ["{{today + 18 days}}", "{{today + 21 days}}", "{{today + 25 days}}", "{{today + 28 days}}", "{{today + 35 days}}"]
 
     - node: priceOfferFullPayload
+      id: pricing
       description: "Price the selected outbound and return flights using full payload"
       dependsOn: [searchFlights]
       selections:

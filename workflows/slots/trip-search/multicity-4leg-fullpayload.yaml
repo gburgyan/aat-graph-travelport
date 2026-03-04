@@ -8,6 +8,7 @@ execution:
       description: "Search for multi-city flights (journey-based: all legs in one call)"
 
     - node: priceOfferFullPayload
+      id: pricing
       description: "Price the selected leg 1, leg 2, and leg 3 flights using full payload"
       dependsOn: [searchFlights3Leg]
       selections:
