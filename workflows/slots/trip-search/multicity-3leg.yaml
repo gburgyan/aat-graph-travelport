@@ -27,8 +27,7 @@ execution:
       selections:
         leg2:
           from: searchNextLeg2.catalogProductOfferings
-          strategy: index
-          index: 1
+          strategy: first
       values:
         catalogProductOfferingsId: {from: searchNextLeg2.catalogProductOfferingsId}
         offeringId: {fromSelection: leg2.offeringId}
@@ -44,12 +43,10 @@ execution:
           strategy: first
         leg2:
           from: searchNextLeg2.catalogProductOfferings
-          strategy: index
-          index: 1
+          strategy: first
         leg3:
           from: searchNextLeg3.catalogProductOfferings
-          strategy: index
-          index: 2
+          strategy: first
       values:
         catalogProductOfferingsId: {from: searchNextLeg3.catalogProductOfferingsId}
         offeringId: {fromSelection: leg1.offeringId}
@@ -68,12 +65,10 @@ execution:
           strategy: first
         leg2:
           from: searchNextLeg2.catalogProductOfferings
-          strategy: index
-          index: 1
+          strategy: first
         leg3:
           from: searchNextLeg3.catalogProductOfferings
-          strategy: index
-          index: 2
+          strategy: first
       values:
         workbenchId: {from: createWorkbench.workbenchId}
         catalogProductOfferingsId: {from: searchNextLeg3.catalogProductOfferingsId}

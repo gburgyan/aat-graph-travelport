@@ -1056,9 +1056,9 @@ nodes:
         type: string
         description: "Selected Product id from the initial search offering"
     outputs:
-      - name: catalogProductOfferings
+      - name: previousSelections
         type: offering[]
-        description: "Flight offerings for the next leg"
+        description: "Echo-backs of previously-selected legs"
         elementFields:
           - name: offeringId
             type: string
@@ -1096,6 +1096,50 @@ nodes:
             type: integer
           - name: totalDuration
             type: string
+          - name: leg
+            type: integer
+      - name: catalogProductOfferings
+        type: offering[]
+        description: "Selectable flight offerings for the next leg"
+        elementFields:
+          - name: offeringId
+            type: string
+          - name: productId
+            type: string
+          - name: brand
+            type: string
+          - name: departure
+            type: string
+          - name: arrival
+            type: string
+          - name: offeringIdentifierValue
+            type: string
+          - name: carrier
+            type: string
+          - name: flightNumber
+            type: string
+          - name: departureDate
+            type: date
+          - name: departureTime
+            type: string
+          - name: arrivalDate
+            type: date
+          - name: arrivalTime
+            type: string
+          - name: cabin
+            type: string
+          - name: classOfService
+            type: string
+          - name: totalPrice
+            type: float
+          - name: currency
+            type: string
+          - name: stops
+            type: integer
+          - name: totalDuration
+            type: string
+          - name: leg
+            type: integer
       - name: catalogProductOfferingsId
         type: string
         description: "Updated CatalogProductOfferings Identifier.value"

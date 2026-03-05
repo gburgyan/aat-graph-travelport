@@ -37,6 +37,10 @@ request:
 
 response:
   extract:
+    previousSelections:
+      path: "CatalogProductOfferingsResponse.CatalogProductOfferings.CatalogProductOffering"
+      fields:
+        offeringId: "id"
     catalogProductOfferings:
       path: "CatalogProductOfferingsResponse.CatalogProductOfferings.CatalogProductOffering"
       fields:
@@ -134,15 +138,26 @@ response:
     local rawOfferings = json_path("CatalogProductOfferingsResponse.CatalogProductOfferings.CatalogProductOffering")
     if not rawOfferings then return outputs end
 
+    -- Find the highest sequence value (the leg currently being searched)
+    local maxSeq = 0
+    for _, offering in ipairs(rawOfferings) do
+      local seq = offering.sequence or 0
+      if seq > maxSeq then maxSeq = seq end
+    end
+
+    local previousSelections = {}
     local expanded = {}
     for _, offering in ipairs(rawOfferings) do
+      local seq = offering.sequence or 0
       local common = {
         offeringId = offering.id,
         departure = offering.Departure,
         arrival = offering.Arrival,
         offeringIdentifierValue = offering.Identifier and offering.Identifier.value or nil,
+        leg = seq,
       }
 
+      local entriesForThisOffering = {}
       local brandOptions = offering.ProductBrandOptions
       if brandOptions then
         for _, option in ipairs(brandOptions) do
@@ -206,12 +221,19 @@ response:
                 resolveProduct(entry, entry.productId)
               end
 
-              table.insert(expanded, entry)
+              table.insert(entriesForThisOffering, entry)
             end
           end
         end
       end
+
+      -- Route to correct output based on sequence
+      local target = (seq < maxSeq) and previousSelections or expanded
+      for _, entry in ipairs(entriesForThisOffering) do
+        table.insert(target, entry)
+      end
     end
 
+    outputs.previousSelections = previousSelections
     outputs.catalogProductOfferings = expanded
     return outputs

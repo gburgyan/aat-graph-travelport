@@ -224,6 +224,7 @@ response:
         departure = offering.Departure,
         arrival = offering.Arrival,
         offeringIdentifierValue = offering.Identifier and offering.Identifier.value or nil,
+        leg = offering.sequence or 1,
       }
 
       local brandOptions = offering.ProductBrandOptions

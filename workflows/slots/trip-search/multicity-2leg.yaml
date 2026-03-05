@@ -30,8 +30,7 @@ execution:
           strategy: first
         leg2:
           from: searchNextLeg2.catalogProductOfferings
-          strategy: index
-          index: 1
+          strategy: first
       values:
         catalogProductOfferingsId: {from: searchNextLeg2.catalogProductOfferingsId}
         offeringId: {fromSelection: leg1.offeringId}
@@ -48,8 +47,7 @@ execution:
           strategy: first
         leg2:
           from: searchNextLeg2.catalogProductOfferings
-          strategy: index
-          index: 1
+          strategy: first
       values:
         workbenchId: {from: createWorkbench.workbenchId}
         catalogProductOfferingsId: {from: searchNextLeg2.catalogProductOfferingsId}
