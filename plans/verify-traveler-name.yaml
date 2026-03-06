@@ -1,0 +1,28 @@
+kind: recipe
+metadata:
+    created: 2026-03-06T16:00:00-06:00
+    prompt: Book a round trip, retrieve the reservation, and verify the traveler name matches what was added
+    graphVersion: 1.0.0
+selection:
+    workflow: Booking
+    description: Book a round-trip flight with a known traveler name, then retrieve the reservation and verify the traveler's given name and surname match what was submitted.
+    choices:
+        traveler: Single Traveler
+        trip-search: Round-Trip
+        payment: Cash
+    addons:
+        - Retrieve Booking
+overrides:
+    values:
+        addTraveler.givenName: "TestGiven"
+        addTraveler.surname: "TestSurname"
+    assertions:
+        inc0_retrieveReservation:
+            - type: fieldEquals
+              path: "$.ReservationResponse.Reservation.Traveler.0.PersonName.Given"
+              value: "TESTGIVEN"
+              raw: true
+            - type: fieldEquals
+              path: "$.ReservationResponse.Reservation.Traveler.0.PersonName.Surname"
+              value: "TESTSURNAME"
+              raw: true
