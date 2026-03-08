@@ -8,5 +8,9 @@ execution:
   steps:
     - node: addTravelAgency
       description: "Add travel agency information"
+      assertions:
+        mechanical:
+          - type: status
+            expect: 201
       values:
         workbenchId: AUTOWIRE

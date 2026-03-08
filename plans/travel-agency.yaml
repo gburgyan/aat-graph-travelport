@@ -1,0 +1,13 @@
+kind: recipe
+metadata:
+    created: 2026-03-08T00:00:00-06:00
+    prompt: book a round trip flight and add travel agency details
+    graphVersion: 1.0.0
+selection:
+    workflow: Booking
+    description: Book a round-trip flight with cash payment and add travel agency details to the reservation.
+    choices:
+        trip-search: Round-Trip
+        payment: Cash
+    addons:
+        - Travel Agency

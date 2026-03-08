@@ -27,4 +27,4 @@ request:
 
 response:
   extract:
-    travelAgencyId: "TravelAgencyResponse.TravelAgency.id"
+    travelAgencyId: "TravelAgencyResponse.TravelAgency.Identifier.value"
