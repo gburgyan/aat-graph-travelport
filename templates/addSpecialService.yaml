@@ -12,13 +12,19 @@ request:
       "@type": "SpecialServiceListRequest",
       "SpecialService": [
         {
-          "@type": "SpecialServiceRequirement",
-          "SSRCode": "{{ssrCode}}",
-          "FreeText": "{{text}}"
+          "@type": "SpecialServiceWheelchairAirlineSupplied",
+          "FreeText": "{{text}}",
+          "TravelerIdentifier": {
+            "@type": "TravelerIdentifier",
+            "Identifier": {
+              "@type": "Identifier",
+              "value": "{{travelerIdentifierValue}}"
+            }
+          }
         }
       ]
     }
 
 response:
   extract:
-    specialServiceId: "SpecialServiceResponse.SpecialService.id"
+    specialServiceId: "SpecialServiceListResponse.Identifier.value"

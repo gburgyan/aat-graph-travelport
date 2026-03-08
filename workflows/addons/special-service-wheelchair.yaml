@@ -1,0 +1,14 @@
+# Special service wheelchair addon.
+# Add an airline-supplied wheelchair special service request within an existing workbench.
+
+intent:
+  description: "Add an airline-supplied wheelchair special service request"
+
+execution:
+  steps:
+    - node: addSpecialService
+      id: addWheelchairService
+      description: "Add the wheelchair special service request"
+      values:
+        workbenchId: AUTOWIRE
+        travelerIdentifierValue: AUTOWIRE

@@ -166,11 +166,11 @@ workflows:
   - name: Order Divide
     description: "Split a traveler out of a multi-traveler PNR into a separate reservation"
     template: workflows/order-divide.yaml
-  - name: Special Services
+  - name: Special Service Wheelchair
     kind: addon
     after: addTraveler
-    description: "Add special service requests (wheelchair, meal preference, etc.)"
-    template: workflows/addons/special-services.yaml
+    description: "Add an airline-supplied wheelchair special service request"
+    template: workflows/addons/special-service-wheelchair.yaml
   - name: Reservation Comments
     kind: addon
     after: addTraveler
@@ -2858,11 +2858,9 @@ nodes:
       - name: workbenchId
         type: string
         description: "Reservation workbench Identifier.value"
-      - name: ssrCode
+      - name: travelerIdentifierValue
         type: string
-        description: "SSR code (e.g., WCHR, VGML, BLND)"
-        default:
-          pool: [WCHR, WCHS, WCHC, VGML, BLND]
+        description: "Traveler Identifier.value for the traveler this SSR applies to"
       - name: text
         type: string
         description: "Free-text SSR description"
