@@ -1,4 +1,5 @@
 name: ndc
 description: Use NDC (New Distribution Capability) content source instead of GDS for flight searches
+selectionHint: "Use only if user explicitly requests NDC content"
 inputs:
   contentSource: NDC

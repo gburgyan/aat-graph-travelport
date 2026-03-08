@@ -1,5 +1,6 @@
 name: premium
 description: Constrain flight searches to premium cabin classes (Business or First)
+selectionHint: "Use when user requests Business or First class"
 inputs:
   cabinPreference:
     value: [Business, First]

@@ -1,5 +1,6 @@
 name: european
-description: European airport codes for intercontinental routes
+description: European airport codes for intercontinental routes - does not pick specific airports.
+selectionHint: "Use when all routes are within Europe"
 inputs:
   # 1-leg search
   searchFlights.origin: [CDG, LHR, FRA, AMS, FCO, MAD, BCN]

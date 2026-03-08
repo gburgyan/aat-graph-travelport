@@ -1,5 +1,6 @@
 name: amex
 description: American Express test card numbers and CVVs
+selectionHint: "Use when payment mentions American Express or Amex"
 inputs:
   addFormOfPaymentCard.cardNumber:
     pool: ["371449635398431", "378282246310005", "340000000000009"]

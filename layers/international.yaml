@@ -1,5 +1,6 @@
 name: international
-description: International multi-region routes — US, Europe, Middle East, Southeast Asia, Australia (by leg)
+description: International multi-region routes — US, Europe, Middle East, Southeast Asia, Australia (by leg) - does not pick specific airports.
+selectionHint: "Use when travel crosses global regions (e.g., US to Europe)"
 inputs:
   # 1-leg search (US → Europe)
   searchFlights.origin: [JFK, LAX, ORD, ATL, DFW, SFO, MIA]

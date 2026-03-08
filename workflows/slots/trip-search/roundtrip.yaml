@@ -8,7 +8,8 @@ execution:
       description: "Search for round-trip flights (leg-based: returns only leg 1 offerings)"
       values:
         searchRepresentation: Leg
-        leg2Destination: {fromResolved: leg1Origin}
+        leg2Origin: {fromResolved: leg1Destination, locked: true}
+        leg2Destination: {fromResolved: leg1Origin, locked: true}
 
     - node: searchFlightsNextLeg
       id: searchNextLeg2
