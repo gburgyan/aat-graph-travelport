@@ -1,0 +1,29 @@
+# Delete special service addon (post-commit) using the singular DELETE endpoint.
+# Opens a workbench from the committed PNR, deletes the special service, and re-commits.
+
+intent:
+  description: "Delete a special service from a committed reservation (singular endpoint)"
+
+execution:
+  steps:
+    - node: createWorkbenchFromLocator
+      description: "Open workbench from the committed booking PNR"
+      values:
+        locator: AUTOWIRE
+
+    - node: deleteSpecialService
+      description: "Delete the special service via singular DELETE endpoint"
+      dependsOn: [createWorkbenchFromLocator]
+      assertions:
+        mechanical:
+          - type: status
+            expect: 204
+      values:
+        workbenchId: {from: createWorkbenchFromLocator.workbenchId}
+        specialServiceId: {from: createWorkbenchFromLocator.specialServiceId}
+
+    - node: commitAncillary
+      description: "Commit the special service deletion"
+      dependsOn: [deleteSpecialService, createWorkbenchFromLocator]
+      values:
+        workbenchId: {from: createWorkbenchFromLocator.workbenchId}

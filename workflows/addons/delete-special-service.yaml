@@ -1,0 +1,25 @@
+# Delete special service addon (post-commit).
+# Opens a workbench from the committed PNR, deletes the special service, and re-commits.
+
+intent:
+  description: "Delete a special service from a committed reservation"
+
+execution:
+  steps:
+    - node: createWorkbenchFromLocator
+      description: "Open workbench from the committed booking PNR"
+      values:
+        locator: AUTOWIRE
+
+    - node: deleteMultipleSpecialServices
+      description: "Delete the special service"
+      dependsOn: [createWorkbenchFromLocator]
+      values:
+        workbenchId: {from: createWorkbenchFromLocator.workbenchId}
+        specialServiceId: {from: createWorkbenchFromLocator.specialServiceId}
+
+    - node: commitAncillary
+      description: "Commit the special service deletion"
+      dependsOn: [deleteMultipleSpecialServices, createWorkbenchFromLocator]
+      values:
+        workbenchId: {from: createWorkbenchFromLocator.workbenchId}

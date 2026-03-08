@@ -1,0 +1,16 @@
+adapter: deleteMultipleSpecialServices
+protocol: http
+
+request:
+  method: POST
+  path: /11/air/book/specialservices/reservationworkbench/{{workbenchId}}/specialservices/deletemultiple
+  headers:
+    Content-Type: application/json
+    Accept: application/json
+  body: |
+    {
+      "@type": "SpecialServiceQueryDeleteMultiple",
+      "SpecialServiceID": ["{{specialServiceId}}"]
+    }
+
+response: {}

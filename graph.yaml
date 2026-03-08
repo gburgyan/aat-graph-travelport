@@ -209,6 +209,20 @@ workflows:
     template: workflows/addons/delete-reservation-comments.yaml
     wire:
       locator: commitReservation.locator
+  - name: Delete Special Service
+    kind: addon
+    after: commitReservation
+    description: "Delete a special service from a committed reservation"
+    template: workflows/addons/delete-special-service.yaml
+    wire:
+      locator: commitReservation.locator
+  - name: Delete Special Service Singular
+    kind: addon
+    after: commitReservation
+    description: "Delete a special service from a committed reservation (singular DELETE endpoint)"
+    template: workflows/addons/delete-special-service-singular.yaml
+    wire:
+      locator: commitReservation.locator
   - name: Document Overrides
     kind: addon
     after: addTraveler
@@ -1531,6 +1545,10 @@ nodes:
       - name: passengerTypeCode
         type: string
         description: "Passenger type code of the first traveler (e.g. ADT)"
+      - name: specialServiceId
+        type: string
+        description: "Special service Identifier.value from the reservation"
+        optional: true
 
   ignoreWorkbench:
     description: "Discard the workbench and any uncommitted changes. Cleanup operation."
@@ -3025,6 +3043,21 @@ nodes:
       - name: specialServiceId
         type: string
         description: "Special service id to delete"
+    outputs: []
+
+  deleteMultipleSpecialServices:
+    description: "Delete one or more special service requests from the workbench using the multi-delete endpoint."
+    adapter: deleteMultipleSpecialServices
+    oas:
+      operationId: DeleteMultipleSpecialServices
+    tags: [traveler]
+    inputs:
+      - name: workbenchId
+        type: string
+        description: "Reservation workbench Identifier.value"
+      - name: specialServiceId
+        type: string
+        description: "Special service Identifier.value to delete"
     outputs: []
 
   deletePrimaryContact:
