@@ -1897,10 +1897,6 @@ nodes:
       - name: travelerIdentifierValue
         type: string
         description: "Traveler Identifier.value to associate the contact with"
-    outputs:
-      - name: primaryContactId
-        type: string
-        description: "Primary contact id"
 
   # ============================================================
   # FORM OF PAYMENT

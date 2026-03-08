@@ -9,12 +9,13 @@ request:
   body: |
     {
       "@type": "PrimaryContact",
+      "shareWithSupplier": ["YY"],
       "Email": {
         "value": "{{email}}"
       },
       "Telephone": {
         "@type": "Telephone",
-        "countryAccessCode": "{{phoneCountryCode}}",
+        "role": "Mobile",
         "phoneNumber": "{{phoneNumber}}"
       },
       "TravelerIdentifier": {
@@ -25,5 +26,4 @@ request:
     }
 
 response:
-  extract:
-    primaryContactId: "PrimaryContactResponse.PrimaryContact.id"
+  extract: {}
