@@ -3,10 +3,12 @@ protocol: http
 
 request:
   method: GET
-  path: /11/air/farerule/farerules/fromoffer?offerIdentifier={{offerIdentifierValue}}&fareRuleType=long
+  path: /11/air/farerule/farerules/fromoffer?offerIdentifier={{offerIdentifierValue}}&fareRuleType=ShortText
   headers:
     Accept: application/json
 
 response:
   extract:
-    fareRules: "FareRuleResponse.FareRule"
+    fareRules:
+      path: "FareRuleListResponse.FareRule"
+      optional: true

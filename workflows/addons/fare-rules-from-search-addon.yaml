@@ -1,0 +1,19 @@
+# Fare rules from search addon.
+# Attaches after searchFlights to check fare rules using search result identifiers.
+# Note: limited to one-way flows (references searchFlights node directly).
+
+intent:
+  description: "Check fare rules from search results (post-search)"
+
+execution:
+  steps:
+    - node: getFareRulesFromSearch
+      description: "Get fare rules for a search result offering"
+      selections:
+        offering:
+          from: searchFlights.catalogProductOfferings
+          strategy: first
+      values:
+        catalogProductOfferingsId: AUTOWIRE
+        offeringId: {fromSelection: offering.offeringId}
+        productId: {fromSelection: offering.productId}

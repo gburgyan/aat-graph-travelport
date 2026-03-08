@@ -1,0 +1,12 @@
+# Fare rules from offer addon.
+# Attaches after pricing to check fare rules using the offer identifier.
+
+intent:
+  description: "Check fare rules using the priced offer identifier (pre-commit addon)"
+
+execution:
+  steps:
+    - node: getFareRulesFromOffer
+      description: "Get fare rules for the priced offer"
+      values:
+        offerIdentifierValue: AUTOWIRE

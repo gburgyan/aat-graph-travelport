@@ -127,6 +127,13 @@ workflows:
         description: "How to search for exchange flights"
         options: [Broad Search, EPQ]
         default: Broad Search
+  - name: Fare Rules From Search
+    kind: addon
+    after: searchFlights
+    description: "Check fare rules from search results (one-way flows)"
+    template: workflows/addons/fare-rules-from-search-addon.yaml
+    wire:
+      catalogProductOfferingsId: $after.catalogProductOfferingsId
   - name: Ancillary Booking
     kind: addon
     after: addTraveler
@@ -141,6 +148,13 @@ workflows:
       offerListIdentifier: $after.offerIdentifierValue
       offerId: $after.offerId
       productId: $after.productId
+  - name: Fare Rules From Offer
+    kind: addon
+    after: [priceOfferFullPayload, priceOfferReference]
+    description: "Check fare rules using the priced offer identifier"
+    template: workflows/addons/fare-rules-from-offer-addon.yaml
+    wire:
+      offerIdentifierValue: $after.offerIdentifierValue
   - name: Traveler Modification
     kind: addon
     after: addTraveler
