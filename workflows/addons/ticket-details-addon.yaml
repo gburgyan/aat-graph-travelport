@@ -1,0 +1,14 @@
+# Ticket details addon.
+# Attaches after commitReservation to retrieve and inspect ticket details.
+# Requires the booking to have been ticketed (via Post-Commit Ticketing Addon).
+
+intent:
+  description: "Retrieve ticket details after booking (post-commit addon)"
+
+execution:
+  steps:
+    - node: getTicketDetails
+      description: "Get detailed information for the issued ticket"
+      dependsOn: [inc0_commitTicket]
+      values:
+        ticketNumber: {from: inc0_commitTicket.ticketNumber}

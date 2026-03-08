@@ -9,6 +9,5 @@ request:
 
 response:
   extract:
-    ticketNumber: "TicketResponse.Ticket.TicketNumber"
-    ticketStatus: "TicketResponse.Ticket.TicketStatusCode"
-    ticketIdentifierValue: "TicketResponse.Ticket.Identifier.value"
+    ticketNumber: "TicketListResponse.TicketID.0.Identifier.value"
+    ticketIdentifierValue: "TicketListResponse.TicketID.0.Identifier.value"

@@ -15,3 +15,4 @@ response:
   extract:
     reservationIdentifierValue: "ReservationResponse.Reservation.Receipt.0.Identifier.value"
     locator: "ReservationResponse.Reservation.Receipt.0.Confirmation.Locator.value"
+    ticketNumber: "ReservationResponse.Reservation.Receipt.2.Document.0.Number"

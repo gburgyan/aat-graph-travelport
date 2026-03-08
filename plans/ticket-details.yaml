@@ -1,0 +1,14 @@
+kind: recipe
+metadata:
+    created: 2026-03-08T00:00:00-06:00
+    prompt: book a round trip flight and retrieve ticket details
+    graphVersion: 1.0.0
+selection:
+    workflow: Booking
+    description: Book a round-trip flight with credit card payment, then ticket and retrieve ticket details.
+    choices:
+        trip-search: Round-Trip
+        payment: Card
+    addons:
+        - Post-Commit Ticketing Addon
+        - Ticket Details

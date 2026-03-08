@@ -18,8 +18,8 @@ request:
 response:
   extract:
     tickets:
-      path: "TicketListResponse.Ticket"
+      path: "TicketListResponse.TicketID"
       fields:
-        ticketNumber: "TicketNumber"
+        ticketNumber: "Identifier.value"
         ticketIdentifierValue: "Identifier.value"
         ticketStatus: "TicketStatusCode"

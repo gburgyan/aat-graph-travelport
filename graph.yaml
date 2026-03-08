@@ -238,6 +238,12 @@ workflows:
     template: workflows/addons/post-commit-ticketing-addon.yaml
     wire:
       locator: commitReservation.locator
+  - name: Ticket Details
+    kind: addon
+    after: commitReservation
+    priority: 35
+    description: "Retrieve ticket details after booking (requires ticketed booking)"
+    template: workflows/addons/ticket-details-addon.yaml
   - name: Exchange Addon
     kind: addon
     after: commitReservation
@@ -2145,6 +2151,9 @@ nodes:
         type: string
         description: "PNR record locator"
         display: "PNR"
+      - name: ticketNumber
+        type: string
+        description: "Ticket document number from issuance receipt"
 
   getTicketByLocator:
     description: "Retrieve tickets associated with a PNR locator."
@@ -3046,9 +3055,6 @@ nodes:
       - name: ticketNumber
         type: string
         description: "Ticket number"
-      - name: ticketStatus
-        type: string
-        description: "Ticket status code"
       - name: ticketIdentifierValue
         type: string
         description: "Ticket Identifier.value"
