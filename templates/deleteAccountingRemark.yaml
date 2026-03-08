@@ -2,7 +2,7 @@ adapter: deleteAccountingRemark
 protocol: http
 
 request:
-  method: POST
+  method: DELETE
   path: /11/air/book/accounting/reservationworkbench/{{workbenchId}}/accountings/{{accountingId}}/namevaluepairs?NameValuePairIds={{nameValuePairId}}
   headers:
     Content-Type: application/json

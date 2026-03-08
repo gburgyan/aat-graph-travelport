@@ -9,17 +9,15 @@ request:
     Accept: application/json
   body: |
     {
-      "Accounting": {
-        "NameValuePair": [
-          {
-            "name": "{{accountingName}}",
-            "value": "{{accountingValue}}"
-          }
-        ]
-      }
+      "@type": "Accounting",
+      "NameValuePair": [
+        {
+          "name": "{{accountingName}}",
+          "value": "{{accountingValue}}"
+        }
+      ]
     }
 
 response:
   extract:
-    accountingId: "AccountingResponse.Accounting.id"
-    nameValuePairId: "AccountingResponse.Accounting.NameValuePair.0.id"
+    accountingId: "AccountingResponse.Accounting.Identifier.value"

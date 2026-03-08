@@ -1,0 +1,30 @@
+# Delete accounting remarks addon (post-commit).
+# Opens a workbench from the committed PNR, deletes the accounting remark, and re-commits.
+
+intent:
+  description: "Delete an accounting remark from a committed reservation"
+
+execution:
+  steps:
+    - node: createWorkbenchFromLocator
+      description: "Open workbench from the committed booking PNR"
+      values:
+        locator: AUTOWIRE
+
+    - node: deleteAccountingRemark
+      description: "Delete the accounting remark"
+      dependsOn: [createWorkbenchFromLocator]
+      assertions:
+        mechanical:
+          - type: status
+            expect: 204
+      values:
+        workbenchId: {from: createWorkbenchFromLocator.workbenchId}
+        accountingId: "Accounting_1"
+        nameValuePairId: "GenComment_1"
+
+    - node: commitAncillary
+      description: "Commit the accounting deletion"
+      dependsOn: [deleteAccountingRemark, createWorkbenchFromLocator]
+      values:
+        workbenchId: {from: createWorkbenchFromLocator.workbenchId}

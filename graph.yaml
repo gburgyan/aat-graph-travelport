@@ -181,6 +181,13 @@ workflows:
     after: addTraveler
     description: "Add accounting remarks to the reservation"
     template: workflows/addons/accounting-remarks.yaml
+  - name: Delete Accounting Remarks
+    kind: addon
+    after: commitReservation
+    description: "Delete an accounting remark from a committed reservation"
+    template: workflows/addons/delete-accounting-remarks.yaml
+    wire:
+      locator: commitReservation.locator
   - name: Document Overrides
     kind: addon
     after: addTraveler
@@ -2829,12 +2836,9 @@ nodes:
       - name: accountingId
         type: string
         description: "Accounting entry id"
-      - name: nameValuePairId
-        type: string
-        description: "Name-value pair id within the accounting entry"
 
   deleteAccountingRemark:
-    description: "Delete a specific name-value pair from an accounting entry."
+    description: "Delete an accounting remark entry from the reservation."
     adapter: deleteAccountingRemark
     oas:
       operationId: DeleteAccounting
@@ -2845,10 +2849,10 @@ nodes:
         description: "Reservation workbench Identifier.value"
       - name: accountingId
         type: string
-        description: "Accounting entry id"
+        description: "Accounting entry symbolic id (e.g. Accounting_1)"
       - name: nameValuePairId
         type: string
-        description: "Name-value pair id to delete"
+        description: "Name-value pair symbolic id to delete (e.g. ActComment_1)"
     outputs: []
 
   # ============================================================
