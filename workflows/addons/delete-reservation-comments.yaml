@@ -1,0 +1,30 @@
+# Delete reservation comments addon (post-commit).
+# Opens a workbench from the committed PNR, deletes the reservation comment, and re-commits.
+
+intent:
+  description: "Delete a reservation comment from a committed reservation"
+
+execution:
+  steps:
+    - node: createWorkbenchFromLocator
+      description: "Open workbench from the committed booking PNR"
+      values:
+        locator: AUTOWIRE
+
+    - node: deleteReservationComment
+      description: "Delete the reservation comment"
+      dependsOn: [createWorkbenchFromLocator]
+      assertions:
+        mechanical:
+          - type: status
+            expect: 204
+      values:
+        workbenchId: {from: createWorkbenchFromLocator.workbenchId}
+        reservationCommentId: "RSRVComment_1"
+        commentId: "GenComment_1"
+
+    - node: commitAncillary
+      description: "Commit the reservation comment deletion"
+      dependsOn: [deleteReservationComment, createWorkbenchFromLocator]
+      values:
+        workbenchId: {from: createWorkbenchFromLocator.workbenchId}

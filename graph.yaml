@@ -188,6 +188,13 @@ workflows:
     template: workflows/addons/delete-accounting-remarks.yaml
     wire:
       locator: commitReservation.locator
+  - name: Delete Reservation Comments
+    kind: addon
+    after: commitReservation
+    description: "Delete a reservation comment from a committed reservation"
+    template: workflows/addons/delete-reservation-comments.yaml
+    wire:
+      locator: commitReservation.locator
   - name: Document Overrides
     kind: addon
     after: addTraveler
@@ -2786,13 +2793,7 @@ nodes:
         description: "Comment text"
         default:
           pool: ["Test remark", "API test comment", "Automated test note"]
-    outputs:
-      - name: reservationCommentId
-        type: string
-        description: "Reservation comment id"
-      - name: commentId
-        type: string
-        description: "Individual comment id within the reservation comment"
+    outputs: []
 
   deleteReservationComment:
     description: "Delete a specific comment from a reservation comment entry."

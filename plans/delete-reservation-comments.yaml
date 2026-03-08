@@ -1,0 +1,14 @@
+kind: recipe
+metadata:
+    created: 2026-03-08T00:00:00-06:00
+    prompt: book a round trip flight, add reservation comments, then delete them
+    graphVersion: 1.0.0
+selection:
+    workflow: Booking
+    description: Book a round-trip flight with cash payment, add reservation comments, then delete them.
+    choices:
+        trip-search: Round-Trip
+        payment: Cash
+    addons:
+        - Reservation Comments
+        - Delete Reservation Comments

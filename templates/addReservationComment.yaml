@@ -13,10 +13,12 @@ request:
         "ReservationCommentID": [
           {
             "@type": "ReservationComment",
+            "id": "reservationComment_1",
             "Comment": [
               {
                 "name": "{{commentName}}",
                 "value": "{{commentValue}}",
+                "id": "comment_1",
                 "language": "EN"
               }
             ]
@@ -25,7 +27,4 @@ request:
       }
     }
 
-response:
-  extract:
-    reservationCommentId: "ReservationCommentListResponse.ReservationComment.0.id"
-    commentId: "ReservationCommentListResponse.ReservationComment.0.Comment.0.id"
+response: {}
