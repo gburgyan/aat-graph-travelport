@@ -14,6 +14,7 @@ request:
         {
           "@type": "BuildAncillaryOffersFromCatalogOfferings",
           "CatalogOfferingsIdentifier": {
+            "id": "{{catalogOfferingsId}}",
             "Identifier": {
               "authority": "Travelport",
               "value": "{{catalogOfferingsIdentifierValue}}"
@@ -27,11 +28,20 @@ request:
           },
           "Quantity": 1,
           "TravelerIdentifierRef": {
-            "value": "{{travelerIdentifierValue}}"
+            "id": "{{travelerRefId}}"
           }
         }
       ]
     }
 
 response:
-  extract: {}
+  extract:
+    ancillaryOfferId:
+      path: "OfferListResponse.OfferID.0.id"
+      optional: true
+    ancillaryOfferIdentifierValue:
+      path: "OfferListResponse.OfferID.0.Identifier.value"
+      optional: true
+    ancillaryOfferProductId:
+      path: "OfferListResponse.OfferID.0.Product.0.id"
+      optional: true

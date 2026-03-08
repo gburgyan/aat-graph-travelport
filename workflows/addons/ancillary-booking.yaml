@@ -1,6 +1,6 @@
 # Ancillary booking sub-workflow template.
 # Search and add ancillary services (bags, meals, etc.) within an existing workbench.
-# The caller provides workbenchId, offerIdentifierValue, and travelerIdentifierValue.
+# The caller provides workbenchId, offerIdentifierValue, and travelerRefId.
 
 intent:
   description: "Search for and add ancillary services within an existing workbench"
@@ -23,6 +23,7 @@ execution:
       values:
         workbenchId: AUTOWIRE
         catalogOfferingsIdentifierValue: {from: searchAncillaries.catalogOfferingsIdentifierValue}
+        catalogOfferingsId: {from: searchAncillaries.catalogOfferingsId}
         ancillaryOfferingId: {fromSelection: ancillary.ancillaryId}
         ancillaryProductId: {fromSelection: ancillary.ancillaryProductId}
-        travelerIdentifierValue: AUTOWIRE
+        travelerRefId: AUTOWIRE

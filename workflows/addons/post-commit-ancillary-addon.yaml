@@ -29,12 +29,12 @@ execution:
       values:
         workbenchId: {from: createWorkbenchFromLocator.workbenchId}
         catalogOfferingsIdentifierValue: {from: searchAncillaries.catalogOfferingsIdentifierValue}
+        catalogOfferingsId: {from: searchAncillaries.catalogOfferingsId}
         ancillaryOfferingId: {fromSelection: ancillary.ancillaryId}
         ancillaryProductId: {fromSelection: ancillary.ancillaryProductId}
-        travelerIdentifierValue: AUTOWIRE
+        travelerRefId: {from: createWorkbenchFromLocator.travelerRefId}
 
-    - node: commitReservation
-      id: commitAncillary
+    - node: commitAncillary
       description: "Commit the ancillary addition"
       dependsOn: [addAncillaryOffer, createWorkbenchFromLocator]
       values:

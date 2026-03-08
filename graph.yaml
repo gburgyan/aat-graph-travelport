@@ -2213,15 +2213,16 @@ nodes:
         elementFields:
           - name: ancillaryId
             type: string
-          - name: ancillaryIdentifierValue
+          - name: ancillaryProductId
             type: string
           - name: ancillaryName
-            type: string
-          - name: ancillaryProductId
             type: string
       - name: catalogOfferingsIdentifierValue
         type: string
         description: "CatalogOfferingsAncillary Identifier.value for downstream add"
+      - name: catalogOfferingsId
+        type: string
+        description: "CatalogOfferingsID id (e.g. CT1) for downstream add"
 
   # ============================================================
   # SEAT MAP
@@ -2893,6 +2894,25 @@ nodes:
         optional: true
     outputs: []
 
+  commitAncillary:
+    description: "Commit workbench after ancillary addition (post-commit context). Uses the same commit API as commitReservation."
+    adapter: commitReservation
+    oas:
+      operationId: CommitReservation
+    tags: [ancillary, commit]
+    inputs:
+      - name: workbenchId
+        type: string
+        description: "Reservation workbench Identifier.value"
+    outputs:
+      - name: reservationIdentifierValue
+        type: string
+        description: "Reservation Identifier.value"
+      - name: locator
+        type: string
+        description: "PNR record locator"
+        display: "PNR"
+
   # ============================================================
   # ANCILLARY/SEAT BOOKING
   # ============================================================
@@ -2909,6 +2929,9 @@ nodes:
       - name: catalogOfferingsIdentifierValue
         type: string
         description: "CatalogOfferingsAncillary Identifier.value from ancillary search"
+      - name: catalogOfferingsId
+        type: string
+        description: "CatalogOfferingsID id from ancillary search (e.g. CT1)"
 
       - name: ancillaryOfferingId
         type: string
@@ -2916,10 +2939,22 @@ nodes:
       - name: ancillaryProductId
         type: string
         description: "Product id within the ancillary offering"
-      - name: travelerIdentifierValue
+      - name: travelerRefId
         type: string
-        description: "Traveler Identifier.value to associate the ancillary with"
-    outputs: []
+        description: "Traveler id to associate the ancillary with (e.g. travelerRefId_1)"
+    outputs:
+      - name: ancillaryOfferId
+        type: string
+        description: "Ancillary offer id (e.g. an_o1)"
+        optional: true
+      - name: ancillaryOfferIdentifierValue
+        type: string
+        description: "Ancillary offer Identifier.value"
+        optional: true
+      - name: ancillaryOfferProductId
+        type: string
+        description: "Ancillary offer product id (e.g. product_nonbag_01_1)"
+        optional: true
 
   addSeatOffer:
     description: "Add a seat offer to the workbench from seat map catalog offerings."

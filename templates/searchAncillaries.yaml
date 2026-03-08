@@ -31,10 +31,10 @@ request:
 response:
   extract:
     ancillaryOfferings:
-      path: "CatalogOfferingsAncillaryListResponse.CatalogOfferingsAncillary"
+      path: "CatalogOfferingsAncillaryListResponse.CatalogOfferingsID.0.CatalogOffering"
       fields:
         ancillaryId: "id"
-        ancillaryIdentifierValue: "Identifier.value"
-        ancillaryName: "name"
-        ancillaryProductId: "Product.0.id"
+        ancillaryProductId: "ProductOptions.0.Product.0.id"
+        ancillaryName: "ProductOptions.0.Product.0.Ancillary.Description.0.value"
     catalogOfferingsIdentifierValue: "CatalogOfferingsAncillaryListResponse.Identifier.value"
+    catalogOfferingsId: "CatalogOfferingsAncillaryListResponse.CatalogOfferingsID.0.id"
