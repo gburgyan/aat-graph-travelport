@@ -23,16 +23,6 @@ response:
       optional: true
     travelerRefId: "ReservationResponse.Reservation.Traveler.0.id"
     passengerTypeCode: "ReservationResponse.Reservation.Traveler.0.passengerTypeCode"
-  transform: |
-    -- Find the first deletable SpecialService (generic type with SSRCode WCHR).
-    -- SpecialServiceWheelchairAirlineSupplied entries cannot be deleted via the API.
-    local specialServices = json_path("ReservationResponse.Reservation.SpecialService")
-    if specialServices then
-      for _, svc in ipairs(specialServices) do
-        if svc["@type"] == "SpecialService" and svc.SSRCode == "WCHR" then
-          outputs.specialServiceId = svc.Identifier.value
-          break
-        end
-      end
-    end
-    return outputs
+    specialServiceId:
+      path: 'ReservationResponse.Reservation.SpecialService.#(SSRCode=="WCHR").Identifier.value'
+      optional: true
