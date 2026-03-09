@@ -61,27 +61,23 @@ workflows:
     description: "4-leg multi-city itinerary: leg-based search with 3x BuildNext + reference pricing"
     template: workflows/slots/trip-search/multicity-4leg.yaml
 
-  # --- Trip-search full-payload slot options (deprecated) ---
+  # --- Trip-search full-payload slot options ---
   - name: One-Way Full-Payload
     kind: slot
     description: "One-way flight: single search + full-payload pricing (sends flight details)"
     template: workflows/slots/trip-search/oneway-fullpayload.yaml
-    deprecated: true
   - name: Round-Trip Full-Payload
     kind: slot
     description: "Round-trip: journey-based search + full-payload pricing (sends flight details)"
     template: workflows/slots/trip-search/roundtrip-fullpayload.yaml
-    deprecated: true
   - name: Multi-City 3-Leg Full-Payload
     kind: slot
     description: "3-leg multi-city: journey-based search + full-payload pricing (sends flight details)"
     template: workflows/slots/trip-search/multicity-3leg-fullpayload.yaml
-    deprecated: true
   - name: Multi-City 4-Leg Full-Payload
     kind: slot
     description: "4-leg multi-city: journey-based search + full-payload pricing (sends flight details)"
     template: workflows/slots/trip-search/multicity-4leg-fullpayload.yaml
-    deprecated: true
 
   # --- Traveler slot options ---
   - name: Single Traveler
@@ -494,6 +490,18 @@ nodes:
             type: string
           - name: leg
             type: integer
+      - name: leg1Offerings
+        type: offering[]
+        description: "Flight offerings for leg 1 only (filtered from catalogProductOfferings)"
+      - name: leg2Offerings
+        type: offering[]
+        description: "Flight offerings for leg 2 only (filtered from catalogProductOfferings)"
+      - name: leg3Offerings
+        type: offering[]
+        description: "Flight offerings for leg 3 only (filtered from catalogProductOfferings)"
+      - name: leg4Offerings
+        type: offering[]
+        description: "Flight offerings for leg 4 only (filtered from catalogProductOfferings)"
       - name: catalogProductOfferingsId
         type: string
         description: "Identifier.value for the entire CatalogProductOfferings container"
@@ -663,6 +671,18 @@ nodes:
             type: string
           - name: leg
             type: integer
+      - name: leg1Offerings
+        type: offering[]
+        description: "Flight offerings for leg 1 only (filtered from catalogProductOfferings)"
+      - name: leg2Offerings
+        type: offering[]
+        description: "Flight offerings for leg 2 only (filtered from catalogProductOfferings)"
+      - name: leg3Offerings
+        type: offering[]
+        description: "Flight offerings for leg 3 only (filtered from catalogProductOfferings)"
+      - name: leg4Offerings
+        type: offering[]
+        description: "Flight offerings for leg 4 only (filtered from catalogProductOfferings)"
       - name: catalogProductOfferingsId
         type: string
         description: "Identifier.value for the entire CatalogProductOfferings container"
@@ -864,6 +884,18 @@ nodes:
             type: string
           - name: leg
             type: integer
+      - name: leg1Offerings
+        type: offering[]
+        description: "Flight offerings for leg 1 only (filtered from catalogProductOfferings)"
+      - name: leg2Offerings
+        type: offering[]
+        description: "Flight offerings for leg 2 only (filtered from catalogProductOfferings)"
+      - name: leg3Offerings
+        type: offering[]
+        description: "Flight offerings for leg 3 only (filtered from catalogProductOfferings)"
+      - name: leg4Offerings
+        type: offering[]
+        description: "Flight offerings for leg 4 only (filtered from catalogProductOfferings)"
       - name: catalogProductOfferingsId
         type: string
         description: "Identifier.value for the entire CatalogProductOfferings container"
@@ -1097,6 +1129,18 @@ nodes:
             type: string
           - name: leg
             type: integer
+      - name: leg1Offerings
+        type: offering[]
+        description: "Flight offerings for leg 1 only (filtered from catalogProductOfferings)"
+      - name: leg2Offerings
+        type: offering[]
+        description: "Flight offerings for leg 2 only (filtered from catalogProductOfferings)"
+      - name: leg3Offerings
+        type: offering[]
+        description: "Flight offerings for leg 3 only (filtered from catalogProductOfferings)"
+      - name: leg4Offerings
+        type: offering[]
+        description: "Flight offerings for leg 4 only (filtered from catalogProductOfferings)"
       - name: catalogProductOfferingsId
         type: string
         description: "Identifier.value for the entire CatalogProductOfferings container"
@@ -1676,7 +1720,7 @@ nodes:
     description: "Add a priced offer to the workbench using full payload."
     adapter: addOfferFullPayload
     oas:
-      operationId: BuildFromOffers
+      operationId: WorkbenchBuildFromProducts
     tags: [offer]
     requires: [offerPriced, workbenchCreated]
     satisfies: [offerAdded]
@@ -1824,6 +1868,16 @@ nodes:
         type: string
         description: "Leg 3 class of service code for multi-city"
         optional: true
+      - name: passengers
+        type: integer
+        description: "Number of adult passengers"
+        optional: true
+        default: 1
+      - name: passengerTypeCode
+        type: string
+        description: "Passenger type code"
+        optional: true
+        default: ADT
     outputs:
       - name: offerIdentifierValue
         type: string

@@ -18,12 +18,11 @@ execution:
       dependsOn: [searchFlights]
       selections:
         outbound:
-          from: searchFlights.catalogProductOfferings
+          from: searchFlights.leg1Offerings
           strategy: first
         inbound:
-          from: searchFlights.catalogProductOfferings
-          strategy: index
-          index: 1
+          from: searchFlights.leg2Offerings
+          strategy: first
       values:
         carrier: {fromSelection: outbound.carrier}
         flightNumber: {fromSelection: outbound.flightNumber}
@@ -49,12 +48,11 @@ execution:
       dependsOn: [priceOfferFullPayload, createWorkbench, searchFlights]
       selections:
         outbound:
-          from: searchFlights.catalogProductOfferings
+          from: searchFlights.leg1Offerings
           strategy: first
         inbound:
-          from: searchFlights.catalogProductOfferings
-          strategy: index
-          index: 1
+          from: searchFlights.leg2Offerings
+          strategy: first
       values:
         workbenchId: {from: createWorkbench.workbenchId}
         carrier: {fromSelection: outbound.carrier}

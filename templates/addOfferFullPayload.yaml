@@ -18,8 +18,8 @@ request:
         "PassengerCriteria": [
           {
             "@type": "PassengerCriteria",
-            "number": 1,
-            "passengerTypeCode": "ADT"
+            "number": {{passengers}},
+            "passengerTypeCode": "{{passengerTypeCode}}"
           }
         ],
         "ProductCriteriaAir": [

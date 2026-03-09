@@ -104,7 +104,7 @@ response:
             if idx == 1 then firstFlight = flight end
             lastFlight = flight
             if flight.carrier and flight.number then
-              table.insert(allFlightNumbers, flight.carrier .. " " .. flight.number)
+              table.insert(allFlightNumbers, flight.number)
             end
           end
         end

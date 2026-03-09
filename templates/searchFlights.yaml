@@ -117,6 +117,22 @@ response:
         departure: "Departure"
         arrival: "Arrival"
         offeringIdentifierValue: "Identifier.value"
+    leg1Offerings:
+      path: "CatalogProductOfferingsResponse.CatalogProductOfferings.CatalogProductOffering"
+      fields:
+        offeringId: "id"
+    leg2Offerings:
+      path: "CatalogProductOfferingsResponse.CatalogProductOfferings.CatalogProductOffering"
+      fields:
+        offeringId: "id"
+    leg3Offerings:
+      path: "CatalogProductOfferingsResponse.CatalogProductOfferings.CatalogProductOffering"
+      fields:
+        offeringId: "id"
+    leg4Offerings:
+      path: "CatalogProductOfferingsResponse.CatalogProductOfferings.CatalogProductOffering"
+      fields:
+        offeringId: "id"
     catalogProductOfferingsId: "CatalogProductOfferingsResponse.CatalogProductOfferings.Identifier.value"
     transactionId: "CatalogProductOfferingsResponse.transactionId"
   transform: |
@@ -182,7 +198,7 @@ response:
             if idx == 1 then firstFlight = flight end
             lastFlight = flight
             if flight.carrier and flight.number then
-              table.insert(allFlightNumbers, flight.carrier .. " " .. flight.number)
+              table.insert(allFlightNumbers, flight.number)
             end
           end
         end
@@ -302,4 +318,17 @@ response:
     end
 
     outputs.catalogProductOfferings = expanded
+
+    -- Split offerings by leg for multi-leg full-payload selections
+    local perLeg = {}
+    for _, entry in ipairs(expanded) do
+      local legNum = entry.leg or 1
+      if not perLeg[legNum] then perLeg[legNum] = {} end
+      table.insert(perLeg[legNum], entry)
+    end
+    if perLeg[1] then outputs.leg1Offerings = perLeg[1] end
+    if perLeg[2] then outputs.leg2Offerings = perLeg[2] end
+    if perLeg[3] then outputs.leg3Offerings = perLeg[3] end
+    if perLeg[4] then outputs.leg4Offerings = perLeg[4] end
+
     return outputs
