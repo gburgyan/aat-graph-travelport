@@ -320,6 +320,14 @@ workflows:
     wire:
       identifier: commitReservation.locator
       reservationIdentifier: commitReservation.locator
+  - name: Ignore Workbench
+    kind: addon
+    after: commitReservation
+    priority: 85
+    description: "Open a workbench from a committed booking and discard it (cleanup test)"
+    template: workflows/addons/ignore-workbench-addon.yaml
+    wire:
+      locator: commitReservation.locator
 
 examples:
   - input: "book a one way flight from nyc to lax"

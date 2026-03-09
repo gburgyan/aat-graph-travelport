@@ -1,0 +1,13 @@
+kind: recipe
+metadata:
+    created: 2026-03-08T00:00:00.000000-06:00
+    prompt: book a one-way flight with cash then open and discard a workbench
+    graphVersion: 1.0.0
+selection:
+    workflow: Booking
+    description: Book a one-way flight with cash payment, then open a workbench from the committed PNR and discard it.
+    choices:
+        payment: Cash
+        trip-search: One-Way
+    addons:
+        - Ignore Workbench

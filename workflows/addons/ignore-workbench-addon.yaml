@@ -1,0 +1,22 @@
+# Ignore workbench addon (post-commit).
+# Opens a workbench from the committed PNR and discards it without committing.
+
+intent:
+  description: "Open a workbench from a committed booking and discard it (cleanup test)"
+
+execution:
+  steps:
+    - node: createWorkbenchFromLocator
+      description: "Open workbench from the committed booking PNR"
+      values:
+        locator: AUTOWIRE
+
+    - node: ignoreWorkbench
+      description: "Discard the workbench without committing changes"
+      dependsOn: [createWorkbenchFromLocator]
+      assertions:
+        mechanical:
+          - type: status
+            expect: 204
+      values:
+        workbenchId: {from: createWorkbenchFromLocator.workbenchId}
