@@ -1,0 +1,14 @@
+kind: recipe
+metadata:
+    created: 2026-03-08T00:00:00-06:00
+    prompt: book a one-way flight, ticket it, then void the ticket
+    graphVersion: 1.0.0
+selection:
+    workflow: Booking
+    description: Book a one-way flight with cash payment, ticket it, then void the ticket.
+    choices:
+        trip-search: One-Way
+        payment: Cash
+    addons:
+        - Post-Commit Ticketing Addon
+        - Void Ticket
