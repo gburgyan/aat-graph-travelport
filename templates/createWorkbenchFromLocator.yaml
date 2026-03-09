@@ -26,3 +26,6 @@ response:
     specialServiceId:
       path: 'ReservationResponse.Reservation.SpecialService.#(SSRCode=="WCHR").Identifier.value'
       optional: true
+    primaryContactId:
+      path: "ReservationResponse.Reservation.PrimaryContact.0.id"
+      optional: true

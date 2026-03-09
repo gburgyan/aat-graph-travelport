@@ -1,0 +1,29 @@
+# Delete primary contact addon (post-commit).
+# Opens a workbench from the committed PNR, deletes the primary contact, and re-commits.
+
+intent:
+  description: "Delete a primary contact from a committed reservation"
+
+execution:
+  steps:
+    - node: createWorkbenchFromLocator
+      description: "Open workbench from the committed booking PNR"
+      values:
+        locator: AUTOWIRE
+
+    - node: deletePrimaryContact
+      description: "Delete the primary contact"
+      dependsOn: [createWorkbenchFromLocator]
+      assertions:
+        mechanical:
+          - type: status
+            expect: 204
+      values:
+        workbenchId: {from: createWorkbenchFromLocator.workbenchId}
+        primaryContactId: {from: createWorkbenchFromLocator.primaryContactId}
+
+    - node: commitAncillary
+      description: "Commit the primary contact deletion"
+      dependsOn: [deletePrimaryContact, createWorkbenchFromLocator]
+      values:
+        workbenchId: {from: createWorkbenchFromLocator.workbenchId}

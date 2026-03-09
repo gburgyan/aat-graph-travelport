@@ -221,6 +221,13 @@ workflows:
     template: workflows/addons/delete-special-service-singular.yaml
     wire:
       locator: commitReservation.locator
+  - name: Delete Primary Contact
+    kind: addon
+    after: commitReservation
+    description: "Delete a primary contact from a committed reservation"
+    template: workflows/addons/delete-primary-contact.yaml
+    wire:
+      locator: commitReservation.locator
   - name: Document Overrides
     kind: addon
     after: addTraveler
@@ -1546,6 +1553,10 @@ nodes:
       - name: specialServiceId
         type: string
         description: "Special service Identifier.value from the reservation"
+        optional: true
+      - name: primaryContactId
+        type: string
+        description: "Primary contact id from the reservation (e.g. primarycontact_1)"
         optional: true
 
   ignoreWorkbench:
