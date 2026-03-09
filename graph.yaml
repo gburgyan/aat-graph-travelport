@@ -160,8 +160,6 @@ workflows:
     after: addTraveler
     description: "Two-step traveler update: discover updatable fields, then apply changes"
     template: workflows/addons/traveler-modification.yaml
-    wire:
-      travelerId: $after.travelerIdentifierValue
   - name: Post-Commit Seat Selection
     description: "Select and assign seats on an existing booking using the post-commit seat map"
     template: workflows/post-commit-seat-selection.yaml
@@ -3212,7 +3210,7 @@ nodes:
     description: "Discover which traveler fields can be modified (step 1 of traveler update workflow)."
     adapter: getUpdatableTravelerItems
     oas:
-      operationId: GetTraveler
+      operationId: BuildFromTraveler
     tags: [traveler]
     inputs:
       - name: workbenchId
@@ -3222,38 +3220,38 @@ nodes:
         type: string
         description: "Traveler Identifier.value to check updatable fields for"
     outputs:
+      - name: updatableItemsIdentifier
+        type: string
+        description: "Response-level Identifier.value for use in updateTraveler URL"
       - name: updatableItems
         type: updatableItem[]
         description: "Updatable item list for use in updateTraveler"
         elementFields:
           - name: updatableItemId
             type: string
-          - name: fieldName
+          - name: fieldType
             type: string
 
   updateTraveler:
     description: "Modify traveler details (email, phone, address, frequent flyer). Step 2 of traveler update workflow."
     adapter: updateTraveler
     oas:
-      operationId: UpdateTraveler
+      operationId: UpdateFromTravelerUpdatedItems
     tags: [traveler]
     inputs:
       - name: workbenchId
         type: string
         description: "Reservation workbench Identifier.value"
-      - name: travelerId
+      - name: updatableItemsIdentifier
         type: string
-        description: "Traveler id to update"
+        description: "TravelerUpdatableItemsListResponse Identifier.value (URL path param)"
       - name: updatableItemId
         type: string
-        description: "TravelerUpdatableItem id from getUpdatableTravelerItems"
+        description: "TravelerUpdatableItem Identifier from getUpdatableTravelerItems"
       - name: updateValue
         type: string
         description: "New value for the field being updated"
-    outputs:
-      - name: travelerIdentifierValue
-        type: string
-        description: "Updated traveler Identifier.value"
+    outputs: []
 
   # ============================================================
   # ADVANCED OPERATIONS

@@ -17,4 +17,9 @@ request:
 
 response:
   extract:
-    updatableItems: "TravelerUpdatableItemListResponse.TravelerUpdatableItem"
+    updatableItemsIdentifier: "TravelerUpdatableItemsListResponse.Identifier.value"
+    updatableItems:
+      path: "TravelerUpdatableItemsListResponse.TravelerUpdatableItemsID.0.TravelerUpdatableItem"
+      fields:
+        updatableItemId: "Identifier"
+        fieldType: "\\@type"

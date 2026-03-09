@@ -1,9 +1,9 @@
 # Traveler modification sub-workflow template.
 # Two-step traveler update: discover updatable fields, then apply changes.
-# The caller provides workbenchId, travelerIdentifierValue, travelerId, and updateValue.
+# The caller provides workbenchId, travelerIdentifierValue, and updateValue.
 
 intent:
-  description: "Discover updatable traveler fields and apply a change"
+  description: "Discover updatable traveler fields and apply a change (email update)"
 
 execution:
   steps:
@@ -14,13 +14,17 @@ execution:
         travelerIdentifierValue: AUTOWIRE
 
     - node: updateTraveler
-      description: "Apply the traveler modification"
+      description: "Apply the traveler modification (update email)"
       dependsOn: [getUpdatableTravelerItems]
+      assertions:
+        mechanical:
+          - type: status
+            expect: 204
       selections:
         item:
           from: getUpdatableTravelerItems.updatableItems
           strategy: first
       values:
         workbenchId: AUTOWIRE
-        travelerId: AUTOWIRE
+        updatableItemsIdentifier: {from: getUpdatableTravelerItems.updatableItemsIdentifier}
         updatableItemId: {fromSelection: item.updatableItemId}
