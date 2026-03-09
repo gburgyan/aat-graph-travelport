@@ -1,3 +1,15 @@
+# TODO: OAS validation fails because the Travelport spec defines the required
+# property as "ReservationComment" but the API only accepts "ReservationCommentID"
+# (the parent type name) in a wrapper format. The spec also doesn't account for
+# the { "ReservationCommentListRequest": { ... } } envelope the API requires.
+#
+# Tested combinations:
+#   Format              | Property name         | Result
+#   Wrapper             | ReservationCommentID  | 200 (only working format)
+#   Wrapper             | ReservationComment    | 400
+#   Flat + @type        | ReservationComment    | 400
+#   Flat (no @type)     | ReservationComment    | 400
+#   Flat (no @type)     | ReservationCommentID  | 400
 adapter: addReservationComment
 protocol: http
 
@@ -10,6 +22,7 @@ request:
   body: |
     {
       "ReservationCommentListRequest": {
+        "@type": "ReservationCommentListRequest",
         "ReservationCommentID": [
           {
             "@type": "ReservationComment",
