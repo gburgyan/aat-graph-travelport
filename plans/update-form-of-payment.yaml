@@ -1,0 +1,13 @@
+kind: recipe
+metadata:
+    created: 2026-03-08T00:00:00-06:00
+    prompt: book a round trip flight with card, then update the form of payment
+    graphVersion: 1.0.0
+selection:
+    workflow: Booking
+    description: Book a round-trip flight with card payment, then update the form of payment to cash.
+    choices:
+        trip-search: Round-Trip
+        payment: Card
+    addons:
+        - Update Form Of Payment

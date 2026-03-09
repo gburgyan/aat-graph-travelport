@@ -1,0 +1,14 @@
+# Update form of payment addon (pre-commit).
+# Updates a form of payment to cash on the active workbench.
+
+intent:
+  description: "Update a form of payment on the workbench"
+
+execution:
+  steps:
+    - node: updateFormOfPaymentCash
+      description: "Update the form of payment to cash"
+      values:
+        workbenchId: AUTOWIRE
+        fopIdentifierValue: "formOfPayment_1"
+        formOfPaymentId: "formOfPayment_1"

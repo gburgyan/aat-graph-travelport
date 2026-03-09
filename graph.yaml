@@ -224,6 +224,16 @@ workflows:
     template: workflows/addons/delete-primary-contact.yaml
     wire:
       locator: commitReservation.locator
+  - name: Delete Form Of Payment
+    kind: addon
+    after: addPayment
+    description: "Delete a form of payment from the workbench before commit"
+    template: workflows/addons/delete-form-of-payment.yaml
+  - name: Update Form Of Payment
+    kind: addon
+    after: [addFormOfPaymentCash, addFormOfPaymentCard, addFormOfPaymentWaiver, addFormOfPaymentForfeit, addFormOfPaymentInvoice]
+    description: "Update a form of payment on the workbench before commit"
+    template: workflows/addons/update-form-of-payment.yaml
   - name: Document Overrides
     kind: addon
     after: addTraveler
@@ -2826,6 +2836,43 @@ nodes:
       - name: fopIdentifierValue
         type: string
         description: "Form of payment Identifier.value"
+
+  deleteFormOfPayment:
+    description: "Delete a form of payment from the workbench."
+    adapter: deleteFormOfPayment
+    oas:
+      operationId: DeleteFormOfPayment
+    tags: [payment]
+    inputs:
+      - name: workbenchId
+        type: string
+        description: "Reservation workbench Identifier.value"
+      - name: fopIdentifierValue
+        type: string
+        description: "Form of payment Identifier.value to delete"
+    outputs: []
+
+  updateFormOfPaymentCash:
+    description: "Update an existing form of payment to cash."
+    adapter: updateFormOfPaymentCash
+    oas:
+      operationId: UpdateFormOfPayment
+    tags: [payment]
+    inputs:
+      - name: workbenchId
+        type: string
+        description: "Reservation workbench Identifier.value"
+      - name: fopIdentifierValue
+        type: string
+        description: "Form of payment Identifier.value to update"
+      - name: formOfPaymentId
+        type: string
+        description: "FormOfPayment id (e.g. formOfPayment_1)"
+        default: "formOfPayment_1"
+    outputs:
+      - name: fopIdentifierValue
+        type: string
+        description: "Updated form of payment Identifier.value"
 
   # ============================================================
   # DOCUMENT OVERRIDES

@@ -1,0 +1,18 @@
+adapter: updateFormOfPaymentCash
+protocol: http
+
+request:
+  method: PUT
+  path: /11/air/payment/reservationworkbench/{{workbenchId}}/formofpayment/{{fopIdentifierValue}}
+  headers:
+    Content-Type: application/json
+  body: |
+    {
+      "@type": "FormOfPaymentCash",
+      "id": "{{formOfPaymentId}}",
+      "FormOfPaymentRef": "{{formOfPaymentId}}"
+    }
+
+response:
+  extract:
+    fopIdentifierValue: "FormOfPaymentResponse.FormOfPayment.Identifier.value"

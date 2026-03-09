@@ -1,0 +1,17 @@
+# Delete form of payment addon (pre-commit).
+# Deletes a form of payment from the active workbench.
+
+intent:
+  description: "Delete a form of payment from the workbench"
+
+execution:
+  steps:
+    - node: deleteFormOfPayment
+      description: "Delete the form of payment"
+      assertions:
+        mechanical:
+          - type: status
+            expect: 204
+      values:
+        workbenchId: AUTOWIRE
+        fopIdentifierValue: "formOfPayment_1"
