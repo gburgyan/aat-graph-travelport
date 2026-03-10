@@ -1,0 +1,16 @@
+kind: recipe
+metadata:
+    created: 2026-03-09T00:00:00.000000-06:00
+    prompt: book a one-way flight with cash and add a custom rule
+    graphVersion: 1.0.0
+selection:
+    workflow: Booking
+    description: Book a one-way flight with cash payment and add a custom rule.
+    choices:
+        payment: Cash
+        trip-search: One-Way
+    addons:
+        - Add Custom Rule
+overrides:
+    values:
+        inc0_addCustomRule.ruleRecordName: TICKET

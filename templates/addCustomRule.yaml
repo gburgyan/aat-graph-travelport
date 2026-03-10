@@ -1,0 +1,10 @@
+adapter: addCustomRule
+protocol: http
+
+request:
+  method: POST
+  path: /11/air/book/customrule/customrules/{{workbenchId}}?RuleRecordName={{ruleRecordName}}{{?pcc}}&PCC={{pcc}}{{/pcc}}
+  headers:
+    Accept: application/json
+
+response: {}

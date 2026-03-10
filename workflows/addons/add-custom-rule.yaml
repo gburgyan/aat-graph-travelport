@@ -1,0 +1,21 @@
+intent:
+  description: "Add a custom rule to the reservation workbench"
+
+execution:
+  steps:
+    - node: getCustomRules
+      description: "Retrieve available custom rules for the PCC"
+      assertions:
+        mechanical:
+          - type: status
+            expect: 200
+    - node: addCustomRule
+      description: "Add a custom rule to the workbench"
+      dependsOn: [getCustomRules]
+      assertions:
+        mechanical:
+          - type: status
+            expect: 201
+      values:
+        workbenchId: AUTOWIRE
+        ruleRecordName: AUTOWIRE

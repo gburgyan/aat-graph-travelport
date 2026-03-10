@@ -249,6 +249,11 @@ workflows:
     after: addTraveler
     description: "Add travel agency details to the reservation"
     template: workflows/addons/travel-agency.yaml
+  - name: Add Custom Rule
+    kind: addon
+    after: addTraveler
+    description: "Add a pre-configured custom rule to the reservation workbench"
+    template: workflows/addons/add-custom-rule.yaml
 
   # Post-commit addons — attach after commitReservation
   - name: Post-Commit Seat Selection Addon
@@ -3056,6 +3061,45 @@ nodes:
         type: string
         description: "PCC (pseudo city code) for the queue"
         optional: true
+    outputs: []
+
+  # ============================================================
+  # CUSTOM RULES
+  # ============================================================
+  getCustomRules:
+    description: "Retrieve custom rule records configured for a PCC."
+    adapter: getCustomRules
+    oas:
+      operationId: GetCustomRules
+    tags: [custom-rules]
+    inputs:
+      - name: pcc
+        type: string
+        description: "PCC to retrieve custom rules for"
+        default: "{{env.pcc}}"
+    outputs:
+      - name: ruleRecords
+        type: ruleRecord[]
+        description: "Array of RuleRecord objects with RuleRecordName and sequence"
+
+  addCustomRule:
+    description: "Add a pre-configured custom rule to the reservation workbench."
+    adapter: addCustomRule
+    oas:
+      operationId: AddCustomRule
+    tags: [workbench, custom-rules]
+    inputs:
+      - name: workbenchId
+        type: string
+        description: "Reservation workbench Identifier.value"
+      - name: ruleRecordName
+        type: string
+        description: "Name of the custom rule record to apply"
+      - name: pcc
+        type: string
+        description: "Owning PCC of the custom rules"
+        optional: true
+        default: "{{env.pcc}}"
     outputs: []
 
   commitAncillary:

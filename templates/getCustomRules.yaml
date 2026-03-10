@@ -1,0 +1,12 @@
+adapter: getCustomRules
+protocol: http
+
+request:
+  method: GET
+  path: /11/air/book/customrule/customrules?PCC={{pcc}}
+  headers:
+    Accept: application/json
+
+response:
+  extract:
+    ruleRecords: "CustomRuleResponse.CustomRule.RuleRecord"
