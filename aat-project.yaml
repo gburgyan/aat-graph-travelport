@@ -13,3 +13,4 @@ archives: runs/
 traces: traces/
 visualizers: visualizers/
 environment: env.yaml
+defaultEnvironment: pp
