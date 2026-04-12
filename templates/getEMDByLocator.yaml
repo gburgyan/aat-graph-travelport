@@ -1,0 +1,16 @@
+adapter: getEMDByLocator
+protocol: http
+
+request:
+  method: GET
+  path: /11/air/emds/getbylocator?Locator={{locator}}
+  headers:
+    Accept: application/json
+
+response:
+  extract:
+    emds:
+      path: "EMDListResponse.EMDID"
+      fields:
+        emdNumber: "Identifier.value"
+        emdIdentifierValue: "Identifier.value"

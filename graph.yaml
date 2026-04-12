@@ -343,6 +343,30 @@ workflows:
     template: workflows/addons/ignore-workbench-addon.yaml
     wire:
       locator: commitReservation.locator
+  - name: Post-Commit Ancillary Ticketing
+    kind: addon
+    after: commitReservation
+    priority: 25
+    description: "Add ancillary services and ticket in one session (generates EMDs)"
+    template: workflows/addons/post-commit-ancillary-ticketing-addon.yaml
+    wire:
+      locator: commitReservation.locator
+  - name: EMD Lookup
+    kind: addon
+    after: commitReservation
+    priority: 35
+    description: "Retrieve EMD details after booking (requires ticketed ancillary services)"
+    template: workflows/addons/emd-lookup-addon.yaml
+    wire:
+      locator: commitReservation.locator
+  - name: EMD Void
+    kind: addon
+    after: commitReservation
+    priority: 80
+    description: "Void EMDs after booking (requires ticketed ancillary services)"
+    template: workflows/addons/emd-void-addon.yaml
+    wire:
+      locator: commitReservation.locator
 
 examples:
   - input: "book a one way flight from nyc to lax"
@@ -2331,6 +2355,68 @@ nodes:
         description: "Updated ticket status"
 
   # ============================================================
+  # EMD (ELECTRONIC MISCELLANEOUS DOCUMENTS)
+  # ============================================================
+  getEMDByLocator:
+    description: "Retrieve EMDs associated with a PNR locator."
+    adapter: getEMDByLocator
+    oas:
+      operationId: EMDGetByLocator
+    tags: [emd]
+    inputs:
+      - name: locator
+        type: string
+        description: "PNR record locator"
+        default: ABCDEF
+        constraints:
+          minLength: 6
+          maxLength: 6
+          pattern: "^[A-Z]{6}$"
+          description: "Travelport PNR locator"
+    outputs:
+      - name: emds
+        type: emd[]
+        description: "List of EMDs"
+        elementFields:
+          - name: emdNumber
+            type: string
+          - name: emdIdentifierValue
+            type: string
+
+  getEMD:
+    description: "Display details of a specific EMD by EMD number."
+    adapter: getEMD
+    oas:
+      operationId: GetEMD
+    tags: [emd]
+    inputs:
+      - name: emdNumber
+        type: string
+        description: "EMD number to retrieve"
+    outputs:
+      - name: emdNumber
+        type: string
+        description: "EMD number"
+      - name: emdIdentifierValue
+        type: string
+        description: "EMD Identifier.value"
+
+  voidEMD:
+    description: "Void an EMD."
+    adapter: voidEMD
+    oas:
+      operationId: UpdateEMD
+    tags: [emd]
+    inputs:
+      - name: emdIdentifier
+        type: string
+        description: "EMD Identifier.value to void"
+    outputs:
+      - name: emdStatus
+        type: string
+        description: "EMD identifier after void"
+
+  # ============================================================
   # ANCILLARIES
   # ============================================================
   searchAncillaries:
@@ -2364,6 +2450,9 @@ nodes:
       - name: catalogOfferingsId
         type: string
         description: "CatalogOfferingsID id (e.g. CT1) for downstream add"
+      - name: travelerRefId
+        type: string
+        description: "Traveler intra-message reference id from ancillary search"
 
   # ============================================================
   # SEAT MAP

@@ -1,0 +1,59 @@
+# Post-commit ancillary + ticketing addon.
+# Opens a workbench from a committed PNR, adds ancillary services,
+# adds payment for the main offer (ancillary is included automatically),
+# then commits with ticketing (Issuance=Ticket) to generate both
+# tickets and EMDs in one session.
+
+intent:
+  description: "Add ancillary services and ticket in one session (generates EMDs)"
+
+execution:
+  steps:
+    - node: createWorkbenchFromLocator
+      description: "Open workbench from the committed booking PNR"
+      values:
+        locator: AUTOWIRE
+
+    - node: searchAncillaries
+      description: "Search for available ancillary services"
+      dependsOn: [createWorkbenchFromLocator]
+      values:
+        workbenchId: {from: createWorkbenchFromLocator.workbenchId}
+        offerIdentifierValue: {from: createWorkbenchFromLocator.offerIdentifierValue}
+
+    - node: addAncillaryOffer
+      description: "Add the selected ancillary offer to the workbench"
+      dependsOn: [searchAncillaries, createWorkbenchFromLocator]
+      selections:
+        ancillary:
+          from: searchAncillaries.ancillaryOfferings
+          strategy: first
+      values:
+        workbenchId: {from: createWorkbenchFromLocator.workbenchId}
+        catalogOfferingsIdentifierValue: {from: searchAncillaries.catalogOfferingsIdentifierValue}
+        catalogOfferingsId: {from: searchAncillaries.catalogOfferingsId}
+        ancillaryOfferingId: {fromSelection: ancillary.ancillaryId}
+        ancillaryProductId: {fromSelection: ancillary.ancillaryProductId}
+        travelerRefId: {from: searchAncillaries.travelerRefId}
+
+    - node: addFormOfPaymentCash
+      dependsOn: [createWorkbenchFromLocator]
+      values:
+        workbenchId: {from: createWorkbenchFromLocator.workbenchId}
+
+    - node: addPayment
+      description: "Add payment for the main offer (ancillary is automatically included)"
+      dependsOn: [addFormOfPaymentCash, addAncillaryOffer, createWorkbenchFromLocator]
+      values:
+        workbenchId: {from: createWorkbenchFromLocator.workbenchId}
+        totalPrice: {pool: [50.00, 100.00, 150.00, 250.00, 500.00]}
+        currencyCode: {pool: [USD, EUR, GBP, CAD, AUD]}
+        fopIdentifierValue: {from: addFormOfPaymentCash.fopIdentifierValue}
+        offerIdentifierValue: {from: createWorkbenchFromLocator.offerIdentifierValue}
+        offerId: {from: createWorkbenchFromLocator.offerId}
+        offerAuthority: {from: createWorkbenchFromLocator.offerAuthority}
+
+    - node: commitTicket
+      dependsOn: [addPayment, createWorkbenchFromLocator]
+      values:
+        workbenchId: {from: createWorkbenchFromLocator.workbenchId}

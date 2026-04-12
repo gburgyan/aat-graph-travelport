@@ -1,0 +1,23 @@
+# EMD lookup addon.
+# Attaches after commitReservation to retrieve EMD details.
+# Requires the booking to have ticketed ancillary services (EMDs).
+
+intent:
+  description: "Retrieve EMD details after booking (post-commit addon)"
+
+execution:
+  steps:
+    - node: getEMDByLocator
+      description: "Retrieve EMDs for the PNR"
+      values:
+        locator: AUTOWIRE
+
+    - node: getEMD
+      description: "Get detailed information for the first EMD"
+      dependsOn: [getEMDByLocator]
+      selections:
+        emd:
+          from: getEMDByLocator.emds
+          strategy: first
+      values:
+        emdNumber: {fromSelection: emd.emdIdentifierValue}

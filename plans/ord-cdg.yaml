@@ -1,0 +1,19 @@
+kind: recipe
+metadata:
+    created: 2026-03-09T23:26:44.222571-05:00
+    prompt: book a round trip flight for two travelers from chicago to paris and pay with amex
+    graphVersion: 1.0.0
+selection:
+    workflow: Booking
+    description: Round-trip international flight for two travelers with card payment using Amex.
+    layers:
+        - international
+        - amex
+    choices:
+        payment: Card
+        traveler: Two Travelers
+        trip-search: Round-Trip
+overrides:
+    values:
+        searchFlights2Leg.leg1Destination: PAR
+        searchFlights2Leg.leg1Origin: CHI

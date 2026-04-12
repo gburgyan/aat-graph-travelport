@@ -1,0 +1,13 @@
+adapter: getEMD
+protocol: http
+
+request:
+  method: GET
+  path: /11/air/emds/{{emdNumber}}
+  headers:
+    Accept: application/json
+
+response:
+  extract:
+    emdNumber: "EMDListResponse.EMDID.0.Identifier.value"
+    emdIdentifierValue: "EMDListResponse.EMDID.0.Identifier.value"

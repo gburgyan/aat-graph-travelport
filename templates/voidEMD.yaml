@@ -1,0 +1,18 @@
+adapter: voidEMD
+protocol: http
+
+request:
+  method: PUT
+  path: /11/air/emds/{{emdIdentifier}}
+  headers:
+    Content-Type: application/json
+    Accept: application/json
+  body: |
+    {
+      "@type": "EMDQueryUpdateEMD",
+      "status": "Void"
+    }
+
+response:
+  extract:
+    emdStatus: "EMDListResponse.EMDID.0.Identifier.value"

@@ -38,3 +38,6 @@ response:
         ancillaryName: "ProductOptions.0.Product.0.Ancillary.Description.0.value"
     catalogOfferingsIdentifierValue: "CatalogOfferingsAncillaryListResponse.Identifier.value"
     catalogOfferingsId: "CatalogOfferingsAncillaryListResponse.CatalogOfferingsID.0.id"
+    travelerRefId:
+      path: "CatalogOfferingsAncillaryListResponse.CatalogOfferingsID.0.TravelerIdentifierRef.0.id"
+      optional: true

@@ -1,0 +1,16 @@
+kind: recipe
+metadata:
+    created: 2026-03-08T12:29:56.996375-05:00
+    prompt: book a flight from nashville to seattle, then coming back to nashville from portland.
+    graphVersion: 1.0.0
+selection:
+    workflow: Booking
+    description: Book a two-leg multi-city itinerary from Nashville to Seattle, then Portland back to Nashville.
+    choices:
+        trip-search: Multi-City 2-Leg
+overrides:
+    values:
+        searchFlights2Leg.leg1Destination: SEA
+        searchFlights2Leg.leg1Origin: BNA
+        searchFlights2Leg.leg2Destination: BNA
+        searchFlights2Leg.leg2Origin: PDX

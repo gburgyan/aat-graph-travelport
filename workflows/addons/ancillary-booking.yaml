@@ -26,4 +26,4 @@ execution:
         catalogOfferingsId: {from: searchAncillaries.catalogOfferingsId}
         ancillaryOfferingId: {fromSelection: ancillary.ancillaryId}
         ancillaryProductId: {fromSelection: ancillary.ancillaryProductId}
-        travelerRefId: AUTOWIRE
+        travelerRefId: {from: searchAncillaries.travelerRefId}

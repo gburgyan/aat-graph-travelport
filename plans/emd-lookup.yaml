@@ -1,0 +1,23 @@
+kind: recipe
+metadata:
+    created: 2026-03-10T00:00:00.000000-06:00
+    prompt: book a european round-trip flight, add ancillaries, ticket it, and look up EMDs
+    graphVersion: 1.0.0
+    notes: >
+      EMD Lookup requires a PNR with ticketed ancillary services that generate
+      EMDs. Uses Post-Commit Ancillary Ticketing addon which adds ancillaries and
+      tickets in one workbench session. European premium routes reliably have
+      ancillary services (KLM baggage). EMD issuance depends on GDS/environment
+      support.
+selection:
+    workflow: Booking
+    description: Book a European premium round-trip flight with cash payment, add ancillary services and ticket in one session, then look up EMDs.
+    layers:
+        - european
+        - premium
+    choices:
+        trip-search: Round-Trip
+        payment: Cash
+    addons:
+        - Post-Commit Ancillary Ticketing
+        - EMD Lookup

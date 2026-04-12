@@ -1,0 +1,23 @@
+# EMD void addon.
+# Attaches after commitReservation to void EMDs on the booking.
+# Requires the booking to have ticketed ancillary services (EMDs).
+
+intent:
+  description: "Void EMDs after booking (post-commit addon)"
+
+execution:
+  steps:
+    - node: getEMDByLocator
+      description: "Retrieve EMDs for the PNR"
+      values:
+        locator: AUTOWIRE
+
+    - node: voidEMD
+      description: "Void the selected EMD"
+      dependsOn: [getEMDByLocator]
+      selections:
+        emd:
+          from: getEMDByLocator.emds
+          strategy: first
+      values:
+        emdIdentifier: {fromSelection: emd.emdIdentifierValue}

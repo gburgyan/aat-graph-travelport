@@ -1,0 +1,15 @@
+kind: recipe
+metadata:
+    created: 2026-03-07T23:11:05.373212-06:00
+    prompt: book a round trip from nashville and pick out seats before booking
+    graphVersion: 1.0.0
+selection:
+    workflow: Booking
+    description: Book a round-trip flight from Nashville and select seats during the booking flow before purchase.
+    choices:
+        trip-search: Round-Trip
+    addons:
+        - Seat Selection
+overrides:
+    values:
+        searchFlights2Leg.leg1Origin: BNA
